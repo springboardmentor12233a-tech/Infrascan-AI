@@ -1,0 +1,38 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# InfraScan – Docker Compose
+#
+# Services:
+#   db  → PostgreSQL 15 (required for production-like dev)
+#
+# How to start:  docker compose up -d
+# How to stop:   docker compose down
+# Reset data:    docker compose down -v   ← WARNING: deletes the database!
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  db:
+    image: postgres:15-alpine          # small, stable Postgres image
+    container_name: infrascan_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: infrascan
+      POSTGRES_PASSWORD: infrascan_pass
+      POSTGRES_DB: infrascan_db
+    ports:
+      - "5432:5432"                    # expose on localhost so the backend can connect
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # persist data between restarts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infrascan -d infrascan_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ─── PLACEHOLDER – Milestone 2 ───────────────────────────────────────────────
+# Add MinIO / Redis / Celery workers here when needed.
+
+volumes:
+  postgres_data:
+    name: infrascan_postgres_data

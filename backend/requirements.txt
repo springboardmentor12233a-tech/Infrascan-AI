@@ -1,0 +1,29 @@
+# ── Web framework ─────────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9        # needed for file uploads / form data
+
+# ── Database ───────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9         # PostgreSQL driver
+aiosqlite==0.20.0              # SQLite async driver (fallback / dev)
+
+# ── Auth & Security ────────────────────────────────────────────────────────────
+python-jose[cryptography]==3.3.0   # JWT creation and validation
+passlib[bcrypt]==1.7.4             # password hashing
+bcrypt==4.0.1                      # pinned for passlib compatibility
+
+# ── Config / env ──────────────────────────────────────────────────────────────
+pydantic==2.7.1
+pydantic-settings==2.2.1       # reads from .env files
+python-dotenv==1.0.1
+
+# ── Image processing ──────────────────────────────────────────────────────────
+opencv-python-headless==4.9.0.80
+Pillow==10.3.0
+numpy==1.26.4
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest==8.2.0
+httpx==0.27.0                  # async test client for FastAPI
+pytest-asyncio==0.23.6
