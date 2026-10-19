@@ -21,3 +21,20 @@ InfraScan aims to use Artificial Intelligence and Computer Vision to identify cr
 ## Current Status
 
 Initial project structure created. Dataset research and EDA are the next steps.
+
+## Milestone 1 Implementation
+
+This repository includes a FastAPI backend, a React/TypeScript frontend, and
+preprocessing demonstration notebooks. The backend includes authentication,
+role-based access control, infrastructure assets, inspection workflows, and
+audit logging.
+
+### Run locally
+
+- Backend: install `backend/requirements.txt`, configure required settings
+  locally without committing credentials, then run
+  `uvicorn app.main:app --reload` from `backend/`.
+- Frontend: run `npm install` and `npm run dev` from `frontend/`.
+
+Keep credentials and local `.env` files out of Git. Virtual environments,
+dependency directories, caches, generated output, and raw datasets are ignored.

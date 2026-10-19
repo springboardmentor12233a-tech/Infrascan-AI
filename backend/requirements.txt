@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+python-dotenv
+python-multipart
+bcrypt
+pyjwt
+email-validator
+pytest
+httpx
+pillow
+opencv-python-headless
+numpy
+matplotlib
