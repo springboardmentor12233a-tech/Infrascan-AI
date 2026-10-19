@@ -1,0 +1,53 @@
+# Environment and credentials
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Python environments, caches, and generated files
+venv/
+.venv/
+env/
+ENV/
+**/venv/
+**/.venv/
+**/env/
+**/ENV/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+
+# Frontend dependencies and build output
+node_modules/
+**/node_modules/
+dist/
+dist-ssr/
+build/
+.vite/
+*.local
+
+# Local storage, uploads, and datasets
+backend/storage/
+storage/
+uploads/
+data/raw/
+data/processed/
+**/data/raw/
+**/data/processed/
+datasets/
+**/datasets/
+
+# IDE and logs
+.vscode/
+.idea/
+*.log
