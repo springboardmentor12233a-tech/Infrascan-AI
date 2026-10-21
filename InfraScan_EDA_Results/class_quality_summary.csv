@@ -1,0 +1,5 @@
+,brightness,brightness,brightness,contrast,contrast,contrast,blur_score,blur_score,blur_score
+,mean,median,std,mean,median,std,mean,median,std
+binary_label,,,,,,,,,
+Cracked,167.45,171.45,17.27,14.86,10.93,10.7,230.25,81.05,362.04
+Uncracked,161.69,165.65,21.6,15.0,10.96,10.62,251.54,79.43,370.94
