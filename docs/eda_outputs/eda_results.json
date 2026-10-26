@@ -1,0 +1,254 @@
+[
+  {
+    "dataset_id": "cfd",
+    "root": "datasets/raw/cfd",
+    "n_files": 393,
+    "n_images_found": 155,
+    "n_images_inspected": 155,
+    "n_non_image_files": 238,
+    "n_unreadable": 0,
+    "formats": {
+      "JPEG": 155
+    },
+    "color_modes": {
+      "RGB": 155
+    },
+    "size_histogram": {
+      "480x320": 153,
+      "320x480": 2
+    },
+    "class_counts_from_folders": {},
+    "surface_counts_from_folders": {},
+    "exact_duplicate_groups": 0,
+    "exact_duplicate_extra_files": 0,
+    "perceptual_duplicate_groups": 0,
+    "sample_images": [
+      "docs/eda_outputs/samples/cfd/029.jpg",
+      "docs/eda_outputs/samples/cfd/007.jpg",
+      "docs/eda_outputs/samples/cfd/071.jpg",
+      "docs/eda_outputs/samples/cfd/063.jpg",
+      "docs/eda_outputs/samples/cfd/058.jpg",
+      "docs/eda_outputs/samples/cfd/036.jpg",
+      "docs/eda_outputs/samples/cfd/027.jpg",
+      "docs/eda_outputs/samples/cfd/314.jpg"
+    ],
+    "folder_snapshot": [
+      ".git/  files=6 dirs=5",
+      ".git/hooks/  files=14 dirs=0",
+      ".git/info/  files=1 dirs=0",
+      ".git/logs/  files=1 dirs=1",
+      ".git/logs/refs/  files=0 dirs=2",
+      ".git/objects/  files=0 dirs=2",
+      ".git/objects/info/  files=0 dirs=0",
+      ".git/objects/pack/  files=3 dirs=0",
+      ".git/refs/  files=0 dirs=3",
+      ".git/refs/heads/  files=1 dirs=0",
+      ".git/refs/remotes/  files=0 dirs=1",
+      ".git/refs/tags/  files=0 dirs=0",
+      "groundTruth/  files=118 dirs=0",
+      "image/  files=156 dirs=0",
+      "seg/  files=118 dirs=0"
+    ],
+    "non_image_suffixes": {
+      ".md": 1,
+      ".mat": 118,
+      ".rar": 1,
+      ".seg": 118
+    },
+    "truncated": false,
+    "dataset_specific": {
+      "annotation_format": "Berkeley .seg run-length files plus MATLAB .mat groundTruth",
+      "n_rgb_images": 155,
+      "n_standard_001_to_118": 118,
+      "n_groundtruth_mat": 118,
+      "n_seg_files": 118,
+      "matched_image_seg_stems": 118,
+      "unlabeled_extra_image_stems": [
+        "201",
+        "202",
+        "203",
+        "204",
+        "205",
+        "206",
+        "207",
+        "208",
+        "301",
+        "302",
+        "303",
+        "304",
+        "305",
+        "306",
+        "307",
+        "308",
+        "309",
+        "310",
+        "311",
+        "312",
+        "313",
+        "314",
+        "315",
+        "316",
+        "317",
+        "318",
+        "319",
+        "320",
+        "321",
+        "322",
+        "323",
+        "324",
+        "325",
+        "326",
+        "327",
+        "328",
+        "329"
+      ],
+      "n_unlabeled_extra_images": 37,
+      "mask_rows_computed": 118,
+      "mean_crack_fraction": 0.022865838983050852,
+      "empty_masks": 0,
+      "complete_coverage_seg_files": 118
+    }
+  },
+  {
+    "dataset_id": "deepcrack",
+    "root": "datasets/raw/deepcrack",
+    "n_files": 1076,
+    "n_images_found": 1074,
+    "n_images_inspected": 1074,
+    "n_non_image_files": 2,
+    "n_unreadable": 0,
+    "formats": {
+      "JPEG": 537,
+      "PNG": 537
+    },
+    "color_modes": {
+      "RGB": 537,
+      "L": 537
+    },
+    "size_histogram": {
+      "544x384": 980,
+      "384x544": 94
+    },
+    "class_counts_from_folders": {},
+    "surface_counts_from_folders": {},
+    "exact_duplicate_groups": 0,
+    "exact_duplicate_extra_files": 0,
+    "perceptual_duplicate_groups": 1,
+    "sample_images": [
+      "docs/eda_outputs/samples/deepcrack/11271-6.jpg",
+      "docs/eda_outputs/samples/deepcrack/11215-8.jpg",
+      "docs/eda_outputs/samples/deepcrack/11138.jpg",
+      "docs/eda_outputs/samples/deepcrack/11120.jpg",
+      "docs/eda_outputs/samples/deepcrack/IMG_6542-2.jpg",
+      "docs/eda_outputs/samples/deepcrack/11296-15.jpg",
+      "docs/eda_outputs/samples/deepcrack/11269-4.jpg",
+      "docs/eda_outputs/samples/deepcrack/11258-1.jpg"
+    ],
+    "folder_snapshot": [
+      "extracted/  files=1 dirs=4",
+      "extracted/test_img/  files=237 dirs=0",
+      "extracted/test_lab/  files=237 dirs=0",
+      "extracted/train_img/  files=300 dirs=0",
+      "extracted/train_lab/  files=300 dirs=0"
+    ],
+    "non_image_suffixes": {
+      ".zip": 1,
+      ".md": 1
+    },
+    "truncated": false,
+    "dataset_specific": {
+      "annotation_format": "Pixel-wise binary masks paired with RGB images",
+      "train_images": 300,
+      "train_masks": 300,
+      "test_images": 237,
+      "test_masks": 237,
+      "train_stem_matches": 300,
+      "test_stem_matches": 237,
+      "train_test_filename_overlap": 10,
+      "train_test_overlapping_stems": [
+        "11289-1",
+        "11289-10",
+        "11289-2",
+        "11289-3",
+        "11289-4",
+        "11289-5",
+        "11289-6",
+        "11289-7",
+        "11289-8",
+        "11289-9"
+      ],
+      "empty_masks": 0,
+      "mean_crack_fraction": 0.035369435754189944,
+      "split_leakage_risk": "Same filenames appear in train_img and test_img; files are not byte-identical. Do not treat the published split as leakage-free."
+    }
+  },
+  {
+    "dataset_id": "rdd2022_czech",
+    "root": "datasets/raw/rdd2022_czech",
+    "n_files": 6369,
+    "n_images_found": 3538,
+    "n_images_inspected": 3538,
+    "n_non_image_files": 2831,
+    "n_unreadable": 0,
+    "formats": {
+      "JPEG": 3538
+    },
+    "color_modes": {
+      "RGB": 3538
+    },
+    "size_histogram": {
+      "600x600": 3538
+    },
+    "class_counts_from_folders": {},
+    "surface_counts_from_folders": {},
+    "exact_duplicate_groups": 0,
+    "exact_duplicate_extra_files": 0,
+    "perceptual_duplicate_groups": 3,
+    "sample_images": [
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_002439.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_002254.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_000503.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_002988.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_000535.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_000381.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_000261.jpg",
+      "docs/eda_outputs/samples/rdd2022_czech/Czech_002812.jpg"
+    ],
+    "folder_snapshot": [
+      "extracted/  files=0 dirs=1",
+      "extracted/Czech/  files=0 dirs=2",
+      "extracted/Czech/test/  files=0 dirs=1",
+      "extracted/Czech/train/  files=0 dirs=2"
+    ],
+    "non_image_suffixes": {
+      ".zip": 1,
+      ".md": 1,
+      ".xml": 2829
+    },
+    "truncated": false,
+    "dataset_specific": {
+      "annotation_format": "Pascal VOC XML bounding boxes",
+      "n_images": 3538,
+      "n_xml": 2829,
+      "xml_parse_errors": 0,
+      "matched_image_xml_stems": 2829,
+      "images_without_xml": 709,
+      "box_class_counts": {
+        "D00": 988,
+        "D40": 197,
+        "D10": 399,
+        "D20": 161
+      },
+      "crddc2022_core_classes": {
+        "D00": 988,
+        "D10": 399,
+        "D20": 161,
+        "D40": 197
+      },
+      "additional_classes_present": {},
+      "images_with_zero_objects": 1757,
+      "mean_objects_per_xml": 0.616825733474726,
+      "mean_box_area_px": 5689.2
+    }
+  }
+]

@@ -30,7 +30,7 @@
 
 ```powershell
 # In terminal 1 (PowerShell):
-cd infrascan/backend
+cd backend
 
 # Create & activate virtual environment
 python -m venv venv
@@ -57,7 +57,7 @@ uvicorn app.main:app --reload --port 8000
 
 ```powershell
 # In terminal 2:
-cd infrascan/frontend
+cd frontend
 
 # Install dependencies (already prepared)
 npm install
@@ -101,7 +101,7 @@ Run the automated Pytest test suite covering:
 - Image validation (rejecting non-images, images < 64x64, exact MD5 duplicate rejection, blur score assessment)
 
 ```powershell
-cd infrascan/backend
+cd backend
 .\venv\Scripts\pytest.exe tests/ -v
 ```
 
@@ -128,3 +128,21 @@ cd infrascan/backend
 - **PDF Report Generation**: Automated structural inspection reports with damage severity indices
 - **Cloud Object Storage**: S3 / MinIO backend adapter for `LocalStorage`
 - **Real-Time Notifications & WebSockets**: Alerts on severe damage detection
+
+---
+
+## Dataset research and EDA
+
+Dataset comparison, licenses, and download status:
+
+- [`docs/InfraScan_Dataset_Research.xlsx`](docs/InfraScan_Dataset_Research.xlsx)
+- [`docs/InfraScan_EDA_Report.md`](docs/InfraScan_EDA_Report.md)
+- [`datasets/README.md`](datasets/README.md)
+
+```powershell
+python -m pip install -r requirements-eda.txt
+python scripts/eda_infrascan.py --help
+python scripts/eda_infrascan.py --dataset all
+```
+
+Do not commit image archives. See `.gitignore` and `datasets/README.md`.

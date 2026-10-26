@@ -1,0 +1,69 @@
+{
+  "generated_utc": "2026-10-19T10:13:18Z",
+  "repo_root_note": "Paths are relative to the repository root. Image archives must not be committed.",
+  "disk_free_gb": 361.34,
+  "datasets": [
+    {
+      "dataset_id": "cfd",
+      "dataset_name": "CrackForest Dataset (CFD)",
+      "source_url": "https://github.com/cuilimeng/CrackForest-dataset.git",
+      "download_date_utc": "2026-10-19T10:13:17Z",
+      "local_path": "datasets/raw/cfd",
+      "status": "downloaded_verified",
+      "notes": "Official GitHub repository with images, MATLAB ground truth, and seg maps. Non-commercial research only.",
+      "expected_size_mb": 8,
+      "disk_free_gb_before": 361.34,
+      "archive_status": "git_clone",
+      "verified_image_count": 155,
+      "extracted": true
+    },
+    {
+      "dataset_id": "deepcrack",
+      "dataset_name": "DeepCrack",
+      "source_url": "https://github.com/yhlleo/DeepCrack/raw/master/dataset/DeepCrack.zip",
+      "download_date_utc": "2026-10-19T10:13:17Z",
+      "local_path": "datasets/raw/deepcrack",
+      "status": "downloaded_verified",
+      "notes": "Official dataset zip from yhlleo/DeepCrack. Non-commercial research and educational use.",
+      "expected_size_mb": 65,
+      "disk_free_gb_before": 361.34,
+      "archive_path": "datasets/raw/deepcrack/DeepCrack.zip",
+      "archive_bytes": 67708808,
+      "archive_status": "already_present",
+      "extracted": true,
+      "verified_image_count": 1074,
+      "extracted_path": "datasets/raw/deepcrack/extracted",
+      "archive_sha256": "ec3fc2bee3b71c2cc3c74739cbc51c97b77f78193d08ce3dda0e16d7d41bf585"
+    },
+    {
+      "dataset_id": "sdnet2018",
+      "dataset_name": "SDNET2018",
+      "source_url": "https://digitalcommons.usu.edu/all_datasets/48/",
+      "download_date_utc": "2026-10-19T10:13:18Z",
+      "local_path": "datasets/raw/sdnet2018",
+      "status": "blocked_cloudflare",
+      "notes": "Official Digital Commons ZIP is behind a Cloudflare JavaScript challenge. Do not bypass it.",
+      "expected_size_mb": 504,
+      "disk_free_gb_before": 361.34,
+      "next_step": "Open https://digitalcommons.usu.edu/all_datasets/48/ in a browser, complete the Cloudflare check, download SDNET2018.zip (listed as 515,903 kB), save it to datasets/raw/sdnet2018/, and extract to extracted/."
+    },
+    {
+      "dataset_id": "rdd2022_czech",
+      "dataset_name": "RDD2022 Czech subset",
+      "source_url": "https://ndownloader.figshare.com/files/38030910",
+      "download_date_utc": "2026-10-19T10:13:18Z",
+      "local_path": "datasets/raw/rdd2022_czech",
+      "status": "downloaded_verified",
+      "notes": "Official CRDDC'2022 Czech archive stored inside FigShare RDD2022_released_through_CRDDC2022.zip (CC BY 4.0). Local extract: 2829 train JPEG+XML, 709 test JPEG, 1745 boxes (D00 988, D10 399, D20 161, D40 197). CRDDC S3 country URL remains AccessDenied.",
+      "expected_size_mb": 246,
+      "disk_free_gb_before": 361.34,
+      "archive_path": "datasets/raw/rdd2022_czech/Czech.zip",
+      "archive_bytes": 257118242,
+      "archive_status": "already_present",
+      "extracted": true,
+      "verified_image_count": 3538,
+      "extracted_path": "datasets/raw/rdd2022_czech/extracted",
+      "archive_sha256": "081c963a53cd2122e5fb62c7050c0c0e80efb3c71bf05f13fa26cfbec15e5d9e"
+    }
+  ]
+}

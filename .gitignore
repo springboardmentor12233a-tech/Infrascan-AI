@@ -58,3 +58,25 @@ yarn-error.log*
 .coverage
 htmlcov/
 *.log
+
+# Dataset archives and images - NEVER commit these
+datasets/raw/**
+!datasets/raw/**/
+!datasets/raw/.gitkeep
+!datasets/raw/**/README.md
+# Nested CrackForest git clone; do not add as a gitlink
+datasets/raw/cfd/
+datasets/processed/**
+!datasets/processed/**/
+!datasets/processed/.gitkeep
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+
+# Copied EDA sample images (duplicates of raw photographs)
+docs/eda_outputs/samples/
+
+# Local EDA caches
+.eda_cache/
