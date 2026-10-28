@@ -1,9 +1,8 @@
-
-# Python cache
+# Python generated files
 __pycache__/
 *.py[cod]
 
-# Virtual environments
+# Python virtual environments
 venv/
 venv311/
 backend/venv/
@@ -19,8 +18,12 @@ backend/infrascan.db
 *.sqlite
 *.sqlite3
 
-# Uploaded images
+# Uploaded files
 backend/uploads/
+
+# Backup files
+backend/main_backup.py
+backend/main_backup_before_fix.py
 
 # Frontend dependencies and build
 node_modules/
