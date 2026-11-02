@@ -1,0 +1,2 @@
+Images_evaluated,Images_with_zero_detections,Images_with_all_cracks_missed,Images_with_zero_pixel_overlap,Mean_pixel_IoU,Mean_pixel_recall
+200,0,0,0,0.6116,0.8525

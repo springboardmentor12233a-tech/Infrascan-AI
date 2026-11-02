@@ -1,0 +1,2 @@
+image,issue,label_file_exists,annotation_lines,predicted_masks,predicted_mask_pixels,action
+3513.rf.782300f38d0a008b3340e54b643e713e.jpg,Empty segmentation annotation with model detections,True,0,3,4820,Flagged for manual annotation review; original dataset not modified

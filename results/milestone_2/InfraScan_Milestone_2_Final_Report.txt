@@ -1,0 +1,40 @@
+INFRASCAN - MILESTONE 2 FINAL REPORT
+Crack Detection and Segmentation Evaluation
+============================================================
+
+1. OFFICIAL TEST-SET METRICS
+Box Precision: 0.8454
+Box Recall: 0.7027
+Box mAP@50: 0.7455
+Box mAP@50-95: 0.5526
+Mask Precision: 0.8425
+Mask Recall: 0.6216
+Mask mAP@50: 0.6211
+Mask mAP@50-95: 0.2330
+
+2. VALIDATION THRESHOLD ANALYSIS
+Confidence 0.01: IoU=0.5534, Precision=0.6110, Recall=0.8544, Detections=1326
+Confidence 0.05: IoU=0.5932, Precision=0.6702, Recall=0.8378, Detections=517
+Confidence 0.10: IoU=0.6134, Precision=0.7005, Recall=0.8314, Detections=375
+Confidence 0.15: IoU=0.6152, Precision=0.7085, Recall=0.8238, Detections=324
+Confidence 0.25: IoU=0.6162, Precision=0.7132, Recall=0.8192, Detections=278
+
+Finding: Confidence 0.25 achieved the highest Pixel IoU and Pixel Precision among the tested thresholds.
+
+3. VALIDATION ERROR ANALYSIS
+Images evaluated: 200
+Images with zero detections: 0
+Images with all cracks missed: 0
+Mean Pixel IoU: 0.6116
+Mean Pixel Recall: 0.8525
+
+4. DATA QUALITY FINDING
+One validation image had an empty segmentation label file while the model produced three detections.
+The case was flagged for manual annotation review. The original dataset was not modified.
+
+5. CONCLUSION
+The baseline YOLO segmentation model completed training and evaluation. Official test metrics, validation threshold analysis, and numerical error analysis were completed and documented.
+The current model and results should be preserved as the baseline for future controlled improvement experiments.
+
+============================================================
+MILESTONE 2 COMPLETE
