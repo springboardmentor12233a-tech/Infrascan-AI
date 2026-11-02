@@ -15,3 +15,4 @@ from app.models.inspection_image import (               # noqa: F401
     InspectionImage, QualityStatus
 )
 from app.models.audit_log import AuditLog               # noqa: F401
+from app.models.image_analysis import ImageAnalysis     # noqa: F401

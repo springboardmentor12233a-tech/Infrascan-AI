@@ -15,12 +15,13 @@
 
 ---
 
-## Tech Stack (Milestone 1)
+## Tech Stack
 
-- **Backend**: Python 3.11, FastAPI, Pydantic v2, SQLAlchemy 2.x, JWT (`python-jose`), `passlib[bcrypt]` (pinned `bcrypt==4.0.1`), OpenCV (`opencv-python-headless`), Pillow, NumPy, Pytest.
+- **Backend**: Python 3.12 for model training and serving (PyTorch has no Python 3.14 wheel), FastAPI, Pydantic v2, SQLAlchemy 2.x, JWT (`python-jose`), `passlib[bcrypt]` (pinned `bcrypt==4.0.1`), OpenCV, Pillow, NumPy, Pytest.
+- **Models**: PyTorch SmallCNN, a compact U-Net, and an Ultralytics YOLOv8n fine-tune. CPU is supported. Install with `scripts/setup_ml_env.ps1`.
 - **Database**: SQLite fallback (`sqlite:///./infrascan.db`) out-of-the-box or PostgreSQL via Docker Compose (`docker compose up -d`).
-- **Storage**: Local filesystem abstraction (`app.services.storage.LocalStorage`) ready to swap to AWS S3 / MinIO in Milestone 2.
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, React Router v6, Axios, Lucide Icons.
+- **Storage**: Local filesystem (`app.services.storage.LocalStorage`).
+- **Frontend**: React, Vite, TypeScript, Tailwind CSS, React Router, Axios, Lucide Icons.
 
 ---
 
@@ -107,27 +108,28 @@ cd backend
 
 ---
 
-## Milestone 1 Complete vs. Milestone 2 Roadmap
+## Milestone status
 
-### ✅ What is Done (Milestone 1)
-- [x] Full Project Structure & Local File Storage Abstraction
-- [x] SQLAlchemy 2.0 DB Models (`roles`, `users`, `infrastructure_assets`, `inspections`, `inspection_images`, `audit_logs`)
-- [x] JWT Authentication & strict Role-Based Access Control (`Administrator`, `Infrastructure Manager`, `Civil Engineer`, `Infrastructure Inspector`, `Maintenance Engineer`)
-- [x] Audit Logging service on login, register, create, update, delete
-- [x] Google OAuth2 endpoint stub (`501 Not Implemented`)
-- [x] Infrastructure Assets API (CRUD, pagination, text search, type filter, coordinate validation)
-- [x] Inspection Management API (create, assign inspector, list by asset, status transitions)
-- [x] Image Upload Pipeline (multipart, resolution >= 64x64, size <= 20MB, duplicate MD5 check, safe UUID filename)
-- [x] Image Quality & Preprocessing (Laplacian blur score, brightness score, CLAHE contrast enhancement, 224x224 resize, ImageNet normalization tensor)
-- [x] Full React + Vite + TypeScript frontend with Tailwind UI, Sidebar, AuthContext, Protected Routes, and original vs. CLAHE comparison modal
-- [x] Comprehensive Pytest test suite
+Milestone 1 (accounts, assets, inspections, upload, quality checks, React UI) is in place and covered by pytest.
 
-### 🔮 What is Next (Milestone 2)
-- **AI Inference Engine**: YOLOv8 crack and spalling detection, U-Net semantic segmentation for concrete defect area quantification
-- **Interactive GIS Map**: PostGIS geometry + Leaflet map view of assets
-- **PDF Report Generation**: Automated structural inspection reports with damage severity indices
-- **Cloud Object Storage**: S3 / MinIO backend adapter for `LocalStorage`
-- **Real-Time Notifications & WebSockets**: Alerts on severe damage detection
+Milestone 2 adds CPU baselines and connects them to `POST /images/{id}/analyze`:
+
+- SmallCNN crack / non-crack patches. Validation F1 **0.8267** on 144 DeepCrack patches.
+- Compact U-Net. Validation Dice **0.4316**, IoU **0.3449** on 8 images.
+- YOLOv8n fine-tune on 60 RDD2022 Czech images. Validation mAP50 **0.0004**. The pipeline runs. The detector is not accurate enough to rely on.
+
+Start both apps with `.\scripts\start_infrascan.ps1`. The click path, sample image, and the sentences to say out loud are in [`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md).
+
+| Document | What it contains |
+|---|---|
+| [`docs/MILESTONE_1_COMPLETION_REPORT.md`](docs/MILESTONE_1_COMPLETION_REPORT.md) | Dataset facts checked against the EDA files, and which app features were tested |
+| [`docs/MILESTONE_2_COMPLETION_REPORT.md`](docs/MILESTONE_2_COMPLETION_REPORT.md) | Training commands and the live analysis output |
+| [`docs/MODEL_EVALUATION_REPORT.md`](docs/MODEL_EVALUATION_REPORT.md) | Metrics, confusion matrix, and which baseline to quote |
+| [`docs/FINAL_SYSTEM_ARCHITECTURE.md`](docs/FINAL_SYSTEM_ARCHITECTURE.md) | Diagram of the running system |
+| [`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md) | Tomorrow's demonstration |
+| [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) | What is still weak, missing, or blocked |
+
+Google sign-in is still HTTP 501. Maps, PDF reports, and cloud storage are not in this build.
 
 ---
 

@@ -13,6 +13,8 @@ from app.routers.users import router as users_router
 from app.routers.assets import router as assets_router
 from app.routers.inspections import router as inspections_router
 from app.routers.images import router as images_router
+from app.routers.analysis import router as analysis_router
+from app.routers.stats import router as stats_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -21,7 +23,7 @@ app = FastAPI(
         "⚠️ **Disclaimer**: AI results are decision support, "
         "not a structural safety evaluation."
     ),
-    version="0.1.0",
+    version="0.2.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -60,3 +62,5 @@ app.include_router(users_router, prefix="/users")
 app.include_router(assets_router, prefix="/assets")
 app.include_router(inspections_router, prefix="/inspections")
 app.include_router(images_router)
+app.include_router(analysis_router)
+app.include_router(stats_router)

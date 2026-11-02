@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
-import { Building2, ClipboardList, Camera, AlertCircle, ArrowRight, Activity } from 'lucide-react';
+import { Building2, ClipboardList, Camera, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { DashboardStats, ModelStatus } from '../types';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState({
-    totalAssets: 0,
-    totalInspections: 0,
-    totalImages: 0,
+  const [stats, setStats] = useState<DashboardStats>({
+    assets: 0,
+    inspections: 0,
+    images: 0,
+    analyses: 0,
   });
+  const [models, setModels] = useState<ModelStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [assetsRes, inspRes] = await Promise.all([
-          api.get('/assets/?page=1&size=1'),
-          api.get('/inspections/'),
+        const [statsRes, modelRes] = await Promise.all([
+          api.get<DashboardStats>('/stats'),
+          api.get<ModelStatus>('/models/status'),
         ]);
-
-        const inspections = inspRes.data || [];
-        setStats({
-          totalAssets: assetsRes.data.total || 0,
-          totalInspections: inspections.length,
-          totalImages: 0, // Placeholder until inspected
-        });
+        setStats(statsRes.data);
+        setModels(modelRes.data);
       } catch (err) {
         console.error('Failed to fetch dashboard stats', err);
       } finally {
@@ -66,7 +64,7 @@ export const Dashboard: React.FC = () => {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Assets</p>
             <p className="text-3xl font-extrabold text-gray-900 mt-1">
-              {loading ? '...' : stats.totalAssets}
+              {loading ? '...' : stats.assets}
             </p>
             <p className="text-xs text-gray-500 mt-0.5">Bridges, Tunnels, Dams, Roads</p>
           </div>
@@ -79,7 +77,7 @@ export const Dashboard: React.FC = () => {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Inspections</p>
             <p className="text-3xl font-extrabold text-gray-900 mt-1">
-              {loading ? '...' : stats.totalInspections}
+              {loading ? '...' : stats.inspections}
             </p>
             <p className="text-xs text-gray-500 mt-0.5">Recorded site evaluations</p>
           </div>
@@ -92,9 +90,11 @@ export const Dashboard: React.FC = () => {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Validated Images</p>
             <p className="text-3xl font-extrabold text-gray-900 mt-1">
-              {loading ? '...' : 'Active'}
+              {loading ? '...' : stats.images}
             </p>
-            <p className="text-xs text-gray-500 mt-0.5">Quality checked with CLAHE</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {loading ? 'Quality checked uploads' : `${stats.analyses} analyzed`}
+            </p>
           </div>
         </div>
       </div>
@@ -105,14 +105,19 @@ export const Dashboard: React.FC = () => {
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               <Activity className="w-3.5 h-3.5" />
-              <span>Milestone 2 AI Model Placeholder</span>
+              <span>Milestone 2 model status</span>
             </div>
             <h2 className="text-xl font-bold text-white">
-              AI-Powered Crack & Surface Damage Inference Engine
+              Crack classification, detection, and segmentation
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed">
-              In Milestone 2, this module will integrate real-time YOLOv8 object detection for structural spalling/cracking and U-Net semantic segmentation for precise damage surface area calculations.
+              Open an inspection, upload a photo, and run analysis. Each model reports completed, failed, or weights-not-on-disk. The dashboard does not invent scores.
             </p>
+            <ul className="space-y-1 text-xs text-slate-200">
+              <li>Classifier ({models?.classifier.name || 'SmallCNN'}): {loading ? '...' : models?.classifier.available ? 'weights found' : 'weights missing'}</li>
+              <li>Segmentation ({models?.segmentation.name || 'UNet'}): {loading ? '...' : models?.segmentation.available ? 'weights found' : 'weights missing'}</li>
+              <li>Detection ({models?.detection.name || 'YOLOv8n'}): {loading ? '...' : models?.detection.available ? 'weights found' : 'weights missing'}</li>
+            </ul>
           </div>
         </div>
       </div>

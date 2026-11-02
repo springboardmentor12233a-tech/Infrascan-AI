@@ -1,0 +1,8 @@
+# Machine-learning extras for Milestone 2.
+# Install these into Python 3.11 or 3.12. Python 3.14 has no PyTorch wheel.
+# CPU wheels:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+#   pip install ultralytics
+torch
+torchvision
+ultralytics

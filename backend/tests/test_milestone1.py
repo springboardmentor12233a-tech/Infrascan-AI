@@ -1,81 +1,8 @@
-import pytest
 import io
 from PIL import Image
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
-from app.database import Base, get_db
-from app.main import app
-from app.models.role import Role, ROLE_NAMES
-from app.models.infrastructure_asset import InfrastructureAsset, AssetType
-from app.services.seed import seed_roles
-
-# Create in-memory SQLite for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_db():
-    Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
-    seed_roles(db)
-    db.close()
-    yield
-    Base.metadata.drop_all(bind=engine)
-
-
-@pytest.fixture
-def db_session():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-@pytest.fixture
-def client(db_session):
-    def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
-
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
-        yield test_client
-    app.dependency_overrides.clear()
-
-
-# Helper to register and login a user with a specific role
-def get_user_token(client: TestClient, db_session, role_name: str, email_prefix: str = "user"):
-    role = db_session.query(Role).filter(Role.name == role_name).first()
-    email = f"{email_prefix}_{role_name.lower().replace(' ', '_')}@test.com"
-    password = "TestPassword123!"
-
-    # Register
-    reg_res = client.post("/auth/register", json={
-        "email": email,
-        "full_name": f"Test {role_name}",
-        "password": password,
-        "role_id": role.id
-    })
-    
-    # Login
-    login_res = client.post("/auth/login", data={
-        "username": email,
-        "password": password
-    })
-    return login_res.json()["access_token"]
+from tests.helpers import get_user_token
 
 
 # --- 1. Test Register and Login ---

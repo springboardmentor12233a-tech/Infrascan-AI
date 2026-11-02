@@ -20,6 +20,6 @@ def health_check():
     return {
         "status": "ok",
         "app": settings.APP_NAME,
-        "version": "0.1.0",
+        "version": "0.2.0",
         "message": "InfraScan API is running",
     }

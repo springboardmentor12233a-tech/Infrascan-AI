@@ -1,0 +1,29 @@
+{
+  "dataset": "RDD2022 Czech train split",
+  "xml_files_seen": 2829,
+  "images_with_boxes": 1072,
+  "train_images_written": 60,
+  "val_images_written": 20,
+  "unknown_boxes_skipped": 0,
+  "class_map": {
+    "0": {
+      "code": "D00",
+      "description": "Longitudinal crack"
+    },
+    "1": {
+      "code": "D10",
+      "description": "Transverse crack"
+    },
+    "2": {
+      "code": "D20",
+      "description": "Alligator crack"
+    },
+    "3": {
+      "code": "D40",
+      "description": "Pothole"
+    }
+  },
+  "seed": 42,
+  "yaml": "D:\\Infrascan-AI\\datasets\\processed\\rdd2022_yolo\\data.yaml",
+  "note": "Czech test images have no public XML and were excluded. This is a capped subset for CPU training."
+}

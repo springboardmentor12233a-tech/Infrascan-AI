@@ -102,3 +102,21 @@ def normalize_imagenet(image_bytes: bytes) -> np.ndarray:
     # Format (C, H, W) for PyTorch / ONNX
     normalized_transposed = np.transpose(normalized, (2, 0, 1))
     return normalized_transposed
+
+
+def resize_keep_aspect(image_bytes: bytes, target_size: Tuple[int, int] = (224, 224)) -> bytes:
+    """Letterbox resize that keeps the original aspect ratio. target_size is (width, height)."""
+    from app.ml.preprocess import encode_jpeg, read_upload, resize_keep_aspect as letterbox
+
+    image = read_upload(image_bytes)
+    canvas, _scale, _offset = letterbox(image, size=target_size)
+    return encode_jpeg(canvas)
+
+
+def preprocess_for_model(image_bytes: bytes, size: Tuple[int, int] = (224, 224), reduce_noise: bool = False):
+    """Shared tensor pipeline: validate, optional denoise, letterbox, ImageNet normalize, CHW."""
+    from app.ml.preprocess import preprocess_for_model as prepare
+    from app.ml.preprocess import read_upload
+
+    image = read_upload(image_bytes)
+    return prepare(image, size=size, imagenet=True, keep_aspect=True, reduce_noise=reduce_noise)

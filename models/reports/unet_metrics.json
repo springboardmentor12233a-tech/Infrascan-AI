@@ -1,0 +1,134 @@
+{
+  "model_name": "UNet",
+  "dataset": "DeepCrack",
+  "weights": "D:\\Infrascan-AI\\models\\weights\\unet_deepcrack.pt",
+  "config": {
+    "input_size": 128,
+    "epochs": 6,
+    "batch_size": 4,
+    "base_channels": 8,
+    "learning_rate": 0.001,
+    "loss": "BCE + soft Dice",
+    "threshold": 0.5,
+    "augmentation": "horizontal flip applied to image and mask together",
+    "resize": "image INTER_AREA, mask INTER_NEAREST, same output size",
+    "device": "cpu",
+    "max_train_images": 36,
+    "max_val_images": 8
+  },
+  "split": {
+    "seed": 42,
+    "strategy": "group-aware by DeepCrack source id; published split not used",
+    "train_images_used": 36,
+    "val_images_used": 8,
+    "train_groups": [
+      "11123",
+      "11151",
+      "11162",
+      "11168",
+      "11169",
+      "11170",
+      "11175",
+      "11178",
+      "11190",
+      "11193",
+      "11197",
+      "11198",
+      "11248",
+      "11249",
+      "11266",
+      "11271",
+      "11286",
+      "11302",
+      "11304",
+      "7Q3A9060",
+      "7Q3A9064",
+      "IMG109",
+      "IMG12",
+      "IMG13",
+      "IMG27",
+      "IMG36",
+      "IMG5",
+      "IMG_6472",
+      "IMG_6514",
+      "IMG_6516",
+      "IMG_6526"
+    ],
+    "val_groups": [
+      "11186",
+      "11196",
+      "11269",
+      "IMG11",
+      "IMG16",
+      "IMG33"
+    ],
+    "group_overlap": []
+  },
+  "validation_metrics": {
+    "dice": 0.4316,
+    "iou": 0.3449,
+    "images": 8
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.5969,
+      "val": {
+        "dice": 0.3234,
+        "iou": 0.2465,
+        "images": 8
+      }
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.5133,
+      "val": {
+        "dice": 0.3396,
+        "iou": 0.269,
+        "images": 8
+      }
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.4601,
+      "val": {
+        "dice": 0.3863,
+        "iou": 0.2974,
+        "images": 8
+      }
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.4286,
+      "val": {
+        "dice": 0.4298,
+        "iou": 0.3341,
+        "images": 8
+      }
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.4016,
+      "val": {
+        "dice": 0.4091,
+        "iou": 0.3182,
+        "images": 8
+      }
+    },
+    {
+      "epoch": 6,
+      "train_loss": 1.3703,
+      "val": {
+        "dice": 0.4316,
+        "iou": 0.3449,
+        "images": 8
+      }
+    }
+  ],
+  "limitations": [
+    "CPU baseline with 8 base channels and a small image cap.",
+    "Dice and IoU are on the resized 128x128 validation masks.",
+    "Published DeepCrack split was avoided because of source-image leakage.",
+    "Pixel geometry derived from this mask is not a millimetre measurement."
+  ]
+}

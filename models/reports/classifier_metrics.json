@@ -1,0 +1,369 @@
+{
+  "model_name": "SmallCNN",
+  "dataset": "DeepCrack",
+  "weights": "D:\\Infrascan-AI\\models\\weights\\crack_cnn.pt",
+  "config": {
+    "patch_size": 64,
+    "epochs": 8,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "max_train_images": 48,
+    "max_val_images": 12,
+    "patches_per_class_per_image": 6,
+    "positive_rule": "patch crack fraction >= 0.02",
+    "negative_rule": "patch crack fraction == 0",
+    "optimizer": "Adam",
+    "device": "cpu"
+  },
+  "split": {
+    "seed": 42,
+    "strategy": "group-aware by DeepCrack source id; published split not used",
+    "train_images_used": 48,
+    "val_images_used": 12,
+    "train_groups": [
+      "11123",
+      "11151",
+      "11162",
+      "11165",
+      "11168",
+      "11169",
+      "11170",
+      "11175",
+      "11178",
+      "11190",
+      "11193",
+      "11197",
+      "11198",
+      "11215",
+      "11222",
+      "11240",
+      "11247",
+      "11248",
+      "11249",
+      "11266",
+      "11271",
+      "11286",
+      "11302",
+      "11304",
+      "7Q3A9060",
+      "7Q3A9064",
+      "IMG109",
+      "IMG12",
+      "IMG13",
+      "IMG136",
+      "IMG14",
+      "IMG27",
+      "IMG36",
+      "IMG5",
+      "IMG_6472",
+      "IMG_6514",
+      "IMG_6516",
+      "IMG_6526",
+      "IMG_6542"
+    ],
+    "val_groups": [
+      "11130",
+      "11166",
+      "11184",
+      "11186",
+      "11196",
+      "11269",
+      "11289",
+      "IMG11",
+      "IMG16",
+      "IMG33"
+    ],
+    "group_overlap": []
+  },
+  "validation_metrics": {
+    "accuracy": 0.8194,
+    "precision": 0.7949,
+    "recall": 0.8611,
+    "f1": 0.8267,
+    "support": 144,
+    "confusion_matrix": {
+      "labels": [
+        "non_crack",
+        "crack"
+      ],
+      "matrix": [
+        [
+          56,
+          16
+        ],
+        [
+          10,
+          62
+        ]
+      ],
+      "tn": 56,
+      "fp": 16,
+      "fn": 10,
+      "tp": 62
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6315,
+      "val_loss": 0.6134,
+      "val": {
+        "accuracy": 0.7153,
+        "precision": 0.6742,
+        "recall": 0.8333,
+        "f1": 0.7453,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              43,
+              29
+            ],
+            [
+              12,
+              60
+            ]
+          ],
+          "tn": 43,
+          "fp": 29,
+          "fn": 12,
+          "tp": 60
+        }
+      }
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.5528,
+      "val_loss": 0.556,
+      "val": {
+        "accuracy": 0.7986,
+        "precision": 0.8525,
+        "recall": 0.7222,
+        "f1": 0.782,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              63,
+              9
+            ],
+            [
+              20,
+              52
+            ]
+          ],
+          "tn": 63,
+          "fp": 9,
+          "fn": 20,
+          "tp": 52
+        }
+      }
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.5239,
+      "val_loss": 0.5298,
+      "val": {
+        "accuracy": 0.8056,
+        "precision": 0.775,
+        "recall": 0.8611,
+        "f1": 0.8158,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              54,
+              18
+            ],
+            [
+              10,
+              62
+            ]
+          ],
+          "tn": 54,
+          "fp": 18,
+          "fn": 10,
+          "tp": 62
+        }
+      }
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.4979,
+      "val_loss": 0.5834,
+      "val": {
+        "accuracy": 0.7153,
+        "precision": 0.6372,
+        "recall": 1.0,
+        "f1": 0.7784,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              31,
+              41
+            ],
+            [
+              0,
+              72
+            ]
+          ],
+          "tn": 31,
+          "fp": 41,
+          "fn": 0,
+          "tp": 72
+        }
+      }
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.4527,
+      "val_loss": 0.4994,
+      "val": {
+        "accuracy": 0.8056,
+        "precision": 0.775,
+        "recall": 0.8611,
+        "f1": 0.8158,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              54,
+              18
+            ],
+            [
+              10,
+              62
+            ]
+          ],
+          "tn": 54,
+          "fp": 18,
+          "fn": 10,
+          "tp": 62
+        }
+      }
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.4209,
+      "val_loss": 0.4917,
+      "val": {
+        "accuracy": 0.8194,
+        "precision": 0.7949,
+        "recall": 0.8611,
+        "f1": 0.8267,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              56,
+              16
+            ],
+            [
+              10,
+              62
+            ]
+          ],
+          "tn": 56,
+          "fp": 16,
+          "fn": 10,
+          "tp": 62
+        }
+      }
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.4217,
+      "val_loss": 0.4922,
+      "val": {
+        "accuracy": 0.7639,
+        "precision": 0.8167,
+        "recall": 0.6806,
+        "f1": 0.7424,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              61,
+              11
+            ],
+            [
+              23,
+              49
+            ]
+          ],
+          "tn": 61,
+          "fp": 11,
+          "fn": 23,
+          "tp": 49
+        }
+      }
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.4196,
+      "val_loss": 0.472,
+      "val": {
+        "accuracy": 0.7917,
+        "precision": 0.85,
+        "recall": 0.7083,
+        "f1": 0.7727,
+        "support": 144,
+        "confusion_matrix": {
+          "labels": [
+            "non_crack",
+            "crack"
+          ],
+          "matrix": [
+            [
+              63,
+              9
+            ],
+            [
+              21,
+              51
+            ]
+          ],
+          "tn": 63,
+          "fp": 9,
+          "fn": 21,
+          "tp": 51
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Metrics are on held-out patches, not on full images.",
+    "Non-crack patches are background regions inside crack photographs.",
+    "Only a capped subset of DeepCrack was used so training finishes on CPU.",
+    "SDNET2018 and METU crack/non-crack photos were not available."
+  ]
+}

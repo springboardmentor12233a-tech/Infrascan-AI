@@ -14,10 +14,12 @@ import {
   RefreshCw,
   Eye,
   Building2,
-  FileText
+  FileText,
+  ScanSearch
 } from 'lucide-react';
-import { Inspection, InspectionImage, QualityStatus } from '../types';
+import { ImageAnalysis, Inspection, InspectionImage, QualityStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { AnalysisPanel } from '../components/AnalysisPanel';
 
 export const InspectionView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,17 +40,26 @@ export const InspectionView: React.FC = () => {
   // Preview Modal for Original vs Enhanced CLAHE
   const [previewImage, setPreviewImage] = useState<InspectionImage | null>(null);
   const [previewMode, setPreviewMode] = useState<'original' | 'enhanced'>('original');
+  const [analyses, setAnalyses] = useState<Record<number, ImageAnalysis>>({});
+  const [analyzingId, setAnalyzingId] = useState<number | null>(null);
+  const [openAnalysis, setOpenAnalysis] = useState<ImageAnalysis | null>(null);
 
   const fetchInspectionData = async () => {
     setLoading(true);
     try {
-      const [inspRes, imgsRes] = await Promise.all([
+      const [inspRes, imgsRes, analysisRes] = await Promise.all([
         api.get<Inspection>(`/inspections/${id}`),
         api.get<InspectionImage[]>(`/inspections/${id}/images`),
+        api.get<ImageAnalysis[]>(`/inspections/${id}/analyses`),
       ]);
       setInspection(inspRes.data);
       setStatus(inspRes.data.status);
       setImages(imgsRes.data);
+      const byImage: Record<number, ImageAnalysis> = {};
+      analysisRes.data.forEach((item) => {
+        byImage[item.image_id] = item;
+      });
+      setAnalyses(byImage);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to load inspection');
     } finally {
@@ -113,6 +124,21 @@ export const InspectionView: React.FC = () => {
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const runAnalysis = async (imageId: number) => {
+    setAnalyzingId(imageId);
+    setError('');
+    try {
+      const res = await api.post<ImageAnalysis>(`/images/${imageId}/analyze`);
+      setAnalyses((prev) => ({ ...prev, [imageId]: res.data }));
+      setOpenAnalysis(res.data);
+      setSuccess('Analysis finished. Open the panel to see which models actually ran.');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Analysis failed');
+    } finally {
+      setAnalyzingId(null);
     }
   };
 
@@ -341,11 +367,33 @@ export const InspectionView: React.FC = () => {
                   <span>{img.width}x{img.height} px</span>
                   <span>{img.file_size_kb} KB</span>
                 </div>
+                <button
+                  onClick={() => (analyses[img.id] ? setOpenAnalysis(analyses[img.id]) : runAnalysis(img.id))}
+                  disabled={analyzingId === img.id}
+                  className="btn-primary mt-2 w-full text-xs flex items-center justify-center gap-1.5"
+                >
+                  <ScanSearch className="w-3.5 h-3.5" />
+                  {analyzingId === img.id
+                    ? 'Running models...'
+                    : analyses[img.id]
+                      ? 'View analysis'
+                      : 'Run AI analysis'}
+                </button>
+                {analyses[img.id] && analyzingId !== img.id && (
+                  <button
+                    onClick={() => runAnalysis(img.id)}
+                    className="mt-1 w-full text-[11px] text-blue-600 hover:underline"
+                  >
+                    Run again
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {openAnalysis && <AnalysisPanel analysis={openAnalysis} onClose={() => setOpenAnalysis(null)} />}
 
       {/* Comparison Modal: Original vs CLAHE Enhanced */}
       {previewImage && (

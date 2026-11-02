@@ -80,3 +80,14 @@ docs/eda_outputs/samples/
 
 # Local EDA caches
 .eda_cache/
+
+# Local wheel downloads used when PyPI is slow
+.wheels/
+
+# Trained weights and ultralytics run output. Regenerate with scripts/ml.
+models/weights/*
+!models/weights/.gitkeep
+models/runs/
+*.pt
+*.pth
+*.onnx
