@@ -76,6 +76,10 @@ These files are local EDA copies. They are gitignored and already on this PC.
 | `docs/demo_screenshots/05_inspection_created.png` | Create-inspection dialog while the request is sending |
 | `docs/demo_screenshots/06_uploaded.png` | Uploaded `11120.jpg` |
 | `docs/demo_screenshots/07_analysis.png` | Quality, label crack at 0.512, partial mask, pixel geometry, and the detection message |
+| `docs/demo_screenshots/08_asset_created.png` | Manager created `DEMO-RW-04`, a Retaining Wall |
+| `docs/demo_screenshots/09_asset_edited.png` | Same asset after the location was edited |
+| `docs/demo_screenshots/10_inspection_history.png` | BRG-001 history still lists the browser inspection |
+| `docs/demo_screenshots/11_saved_inspection.png` | Saved `11120.jpg` with View analysis |
 
 The detection card says: “Detection model requires further training and validation. No reliable bounding boxes generated.” Validation mAP50 shown there is 0.0004. Boxes are withheld because that score is below 0.05. The confidence threshold was not lowered.
 
@@ -125,7 +129,7 @@ Set-Location D:\Infrascan-AI\backend
 .\venv\Scripts\python.exe -m pytest tests -q --tb=line
 ```
 
-The first run on 2026-11-02 reported 20 passed. After the completion-sprint tests the same command reported `23 passed, 29 warnings in 11.51s`.
+The first run on 2026-11-02 reported 20 passed. The latest run reported `26 passed, 30 warnings in 12.91s`.
 
 `GET http://127.0.0.1:8000/health` returned version 0.2.0.  
 `GET http://127.0.0.1:5173/` returned HTTP 200.

@@ -26,15 +26,15 @@ Status words used below:
 | SDNET2018 and METU downloads | Blocked | `datasets/raw/sdnet2018` is a README. METU images were not on disk. |
 | Dataset loaders, mask checks, VOC and CFD parsers | Implemented and tested | `backend/app/ml/datasets.py`. Pytest covers grouping, VOC conversion, and the CFD parser when files exist. Training loaded 537 DeepCrack pairs. YOLO prep read 2,829 XML files. |
 | Leakage-aware splits | Implemented and tested | Classifier and U-Net reports show `group_overlap: []`. Published DeepCrack split was not used for training. |
-| FastAPI app, routers, Pydantic models | Implemented and tested | `GET /health` returned version `0.2.0`. Later the same day, pytest reported 23 passed. |
+| FastAPI app, routers, Pydantic models | Implemented and tested | `GET /health` returned version `0.2.0`. The latest pytest run reported 26 passed. |
 | SQLite database | Implemented and tested | `sqlite:///./infrascan.db` from `backend/`. Seed created 5 users and assets BRG-001, TUN-002, DAM-003. Tables: `users`, `roles`, `infrastructure_assets`, `inspections`, `inspection_images`, `image_analyses`, `audit_logs`. |
 | PostgreSQL | Blocked | Compose file is in the repo. `docker` is not installed on this PC, so Postgres was not started. The demonstration uses SQLite. |
-| JWT login and five-role access control | Implemented and tested | Pytest covers a valid login, an invalid login (401), and a 403 for an inspector calling `/users`. Live browser login used `inspector@infrascan.com`. Maintenance Engineer receives 403 on analyze (pytest). |
-| Assets, inspections, image upload, local storage | Implemented and tested | Pytest covers asset CRUD, bad file type, tiny images, blur, and duplicate MD5. The browser created an inspection on BRG-001 and uploaded `11120.jpg`. Asset add/edit was not clicked; inspectors do not see that control. |
-| Audit log calls | Implemented and tested | `log_action` runs on register, login, and analyze. A dedicated audit-table assertion was not added. |
+| JWT login and five-role access control | Implemented and tested | Pytest covers a valid login, an invalid login (401), a missing token (401 on `GET /assets/`), a 403 for an inspector calling `/users`, and a 403 when an inspector creates an asset. Live browser login used `inspector@infrascan.com` and `manager@infrascan.com`. Maintenance Engineer receives 403 on analyze (pytest). |
+| Assets, inspections, image upload, local storage | Implemented and tested | Pytest covers asset CRUD, bad file type, tiny images, blur, and duplicate MD5. `scripts/browser_assets.py` registered `DEMO-RW-04` as a Retaining Wall and changed its location. The inspector browser flow created an inspection on BRG-001 and uploaded `11120.jpg`. |
+| Audit log calls | Implemented and tested | `test_login_writes_an_audit_row` requires `register` and `login` rows. Asset create writes an `audit_logs` row. Analyze writes `analyze_image` on `inspection_image`, and the saved `image_analyses` row matches the API status. |
 | Reusable preprocess (validate, letterbox, normalize, tensor, optional denoise, gray/RGB) | Implemented and tested | `backend/app/ml/preprocess.py` and wrappers in `backend/app/services/preprocessing.py`. Pytest covers letterbox, paired resize, corrupt bytes, and a grayscale wide image resized to a 3×32×64 tensor. |
 | UI wireframes | Implemented and tested | `docs/wireframes/index.html` has seven grayscale screens. `docs/wireframes/README.md` says they are not the running app. |
-| React login, dashboard, assets, inspections, upload, analysis panel | Implemented and tested | `scripts/browser_demo.py` signed in, opened the dashboard, listed assets, opened BRG-001, created an inspection, uploaded `11120.jpg`, and showed the analysis panel. Screenshots: `docs/demo_screenshots/01_login.png` through `07_analysis.png`. |
+| React login, dashboard, assets, inspections, upload, analysis panel | Implemented and tested | `scripts/browser_demo.py` signed in, opened the dashboard, listed assets, opened BRG-001, created an inspection, uploaded `11120.jpg`, and showed the analysis panel. `scripts/browser_assets.py` added and edited an asset, then reopened that saved inspection. Screenshots: `docs/demo_screenshots/01_login.png` through `11_saved_inspection.png`. |
 | Google OAuth | Not implemented | Existing endpoint still returns 501. |
 
 ## Dataset findings used in this milestone
@@ -72,6 +72,15 @@ Set-Location D:\Infrascan-AI\backend
 
 Result: `23 passed, 29 warnings in 11.51s`. No failures.
 
+After the audit-row, unauthorized-access, and saved-analysis assertions:
+
+```powershell
+Set-Location D:\Infrascan-AI\backend
+.\venv\Scripts\python.exe -m pytest tests -q --tb=short
+```
+
+Result: `26 passed, 30 warnings in 12.91s`. No failures.
+
 ```powershell
 Set-Location D:\Infrascan-AI\backend
 .\venv\Scripts\python.exe seed_data.py
@@ -85,11 +94,11 @@ Set-Location D:\Infrascan-AI\backend
 - Wireframes: `docs/wireframes/index.html`.
 - Browser pass: `scripts/browser_demo.py` exited 0. It used system Python 3.14 Playwright and the cached Chromium at `%LOCALAPPDATA%\ms-playwright\chromium-1234`. Playwright is not installed in the project virtualenv.
 - An inspector creating an inspection now sends that user's own id (`frontend/src/pages/AssetDetail.tsx`), so the form does not depend on a separate inspector dropdown.
+- `scripts/browser_assets.py` signed in as the manager, created `DEMO-RW-04`, edited its location, then signed in as the inspector and reopened the saved BRG-001 inspection. Screenshots `08` through `11`.
 - PostgreSQL stays blocked because Docker is not installed.
 
 ## Still incomplete
 
 - PostgreSQL was not started. SQLite is the database that was used.
-- Asset add and edit were tested in pytest for a manager and were not clicked in the browser.
 - Google sign-in remains a stub.
 - SDNET2018 and METU remain unavailable, so non-crack examples are background patches inside crack photos.

@@ -97,7 +97,7 @@ The close-up overlay paints part of the visible crack and misses much of it. The
 
 ## Browser evidence
 
-`scripts/browser_demo.py` exited 0 on 2026-11-02. The analysis panel for `11120.jpg` showed quality ok, label crack at confidence 0.512, crack area 1419 px, length 348 px, mean width 4.479 px, coverage 0.6793%, and the detection sentence above. The red overlay covers part of the crack, which matches Dice 0.4316 and is not treated as a preprocessing bug. Pytest after the reliability assertion: `23 passed, 29 warnings in 11.51s`.
+`scripts/browser_demo.py` exited 0 on 2026-11-02. The analysis panel for `11120.jpg` showed quality ok, label crack at confidence 0.512, crack area 1419 px, length 348 px, mean width 4.479 px, coverage 0.6793%, and the detection sentence above. The red overlay covers part of the crack, which matches Dice 0.4316 and is not treated as a preprocessing bug. Pytest after the reliability assertion: `23 passed, 29 warnings in 11.51s`. A later run, after the saved-analysis assertion, reported `26 passed, 30 warnings in 12.91s`.
 
 `evaluation_summary.json` seed 7 is marked `"official": false`. Those numbers are not the model score.
 
@@ -108,4 +108,3 @@ The close-up overlay paints part of the visible crack and misses much of it. The
 - SDNET2018 and METU are still missing, so classifier negatives are background patches.
 - Czech test images have no public XML, so they were excluded from mAP.
 - Pixel geometry is not millimetres.
-- Asset add and edit were not clicked in the browser.

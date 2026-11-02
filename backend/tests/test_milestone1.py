@@ -2,6 +2,7 @@ import io
 from PIL import Image
 from fastapi.testclient import TestClient
 
+from app.models.audit_log import AuditLog
 from tests.helpers import get_user_token
 
 
@@ -34,6 +35,46 @@ def test_invalid_login_is_rejected(client: TestClient):
     assert response.status_code == 401
 
 
+def test_login_writes_an_audit_row(client: TestClient, db_session):
+    email = "audit_user@test.com"
+    registered = client.post("/auth/register", json={
+        "email": email,
+        "full_name": "Audit User",
+        "password": "Password123!",
+    })
+    assert registered.status_code == 201
+    user_id = registered.json()["id"]
+
+    logged_in = client.post("/auth/login", data={
+        "username": email,
+        "password": "Password123!",
+    })
+    assert logged_in.status_code == 200
+
+    db_session.expire_all()
+    actions = {
+        row.action
+        for row in db_session.query(AuditLog).filter(AuditLog.user_id == user_id).all()
+    }
+    assert "register" in actions
+    assert "login" in actions
+
+
+def test_assets_require_a_token(client: TestClient):
+    response = client.get("/assets/")
+    assert response.status_code == 401
+
+
+def test_inspector_cannot_create_an_asset(client: TestClient, db_session):
+    token = get_user_token(client, db_session, "Infrastructure Inspector", "insp_asset_deny")
+    response = client.post(
+        "/assets/",
+        json={"asset_code": "DENY-1", "name": "Should Fail", "type": "Bridge"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 403
+
+
 # --- 2. Test Role Denial (403) ---
 def test_role_denial_admin_endpoint(client: TestClient, db_session):
     # Inspector token
@@ -62,6 +103,13 @@ def test_asset_crud(client: TestClient, db_session):
     create_res = client.post("/assets/", json=create_payload, headers=headers)
     assert create_res.status_code == 201
     asset_id = create_res.json()["id"]
+    db_session.expire_all()
+    created_log = (
+        db_session.query(AuditLog)
+        .filter(AuditLog.entity == "asset", AuditLog.action == "create", AuditLog.entity_id == str(asset_id))
+        .one()
+    )
+    assert created_log.user_id is not None
 
     # Read Asset
     get_res = client.get(f"/assets/{asset_id}", headers=headers)

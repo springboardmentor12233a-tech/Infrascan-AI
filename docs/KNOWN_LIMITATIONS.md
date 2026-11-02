@@ -21,7 +21,7 @@ Read this before the presentation. These are limits of the system that was actua
 - Google sign-in still returns HTTP 501.
 - PostgreSQL is described in Docker Compose and was not started in this session. The running app uses SQLite at `backend\infrascan.db`.
 - File storage is the local `backend\uploads` folder. There is no S3 adapter in this build.
-- A headless Chromium pass on 2026-11-02 clicked login, assets, inspection create, upload, and analysis. Screenshots are in `docs/demo_screenshots/`. Asset editing was not clicked. Docker is not installed, so PostgreSQL was not started. The demonstration database is SQLite.
+- Headless Chromium on 2026-11-02 clicked login, assets, inspection create, upload, and analysis. A second pass signed in as the manager, created and edited `DEMO-RW-04`, then reopened the saved inspection. Screenshots are in `docs/demo_screenshots/`. Docker is not installed, so PostgreSQL was not started. The demonstration database is SQLite.
 
 ## Environment
 

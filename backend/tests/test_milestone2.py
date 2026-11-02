@@ -14,6 +14,8 @@ from PIL import Image
 from fastapi.testclient import TestClient
 
 from app.ml.datasets import parse_cfd_seg, source_group, voc_box_to_yolo
+from app.models.audit_log import AuditLog
+from app.models.image_analysis import ImageAnalysis
 from app.ml.geometry import extract_geometry
 from app.ml.paths import CFD_ROOT, CLASSIFIER_WEIGHTS, DEEPCRACK_ROOT, REPO_ROOT
 from app.ml.preprocess import preprocess_for_model, read_upload, resize_keep_aspect, resize_pair
@@ -195,6 +197,22 @@ def test_analyze_endpoint_reports_real_status(client: TestClient, db_session):
     overlay = client.get(f"/images/{image_id}/analysis/overlay", headers=headers)
     assert overlay.status_code == 200
     assert overlay.headers["content-type"].startswith("image/jpeg")
+
+    db_session.expire_all()
+    saved = db_session.query(ImageAnalysis).filter(ImageAnalysis.image_id == image_id).one()
+    assert saved.classification_status == body["classification_status"]
+    assert saved.detection_status == body["detection_status"]
+    assert saved.segmentation_status == body["segmentation_status"]
+    audit = (
+        db_session.query(AuditLog)
+        .filter(
+            AuditLog.entity == "inspection_image",
+            AuditLog.action == "analyze_image",
+            AuditLog.entity_id == str(image_id),
+        )
+        .one()
+    )
+    assert audit.user_id == me.json()["id"]
 
     stats = client.get("/stats", headers=headers)
     assert stats.status_code == 200
