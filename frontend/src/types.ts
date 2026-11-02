@@ -146,6 +146,9 @@ export interface ImageAnalysis {
     status: AnalysisTaskStatus;
     model?: string;
     detail?: string;
+    reliable?: boolean;
+    validation_map50?: number | null;
+    candidate_count?: number;
     detections?: DetectionBox[];
   };
   segmentation_status: AnalysisTaskStatus;

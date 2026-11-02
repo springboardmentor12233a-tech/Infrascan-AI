@@ -12,11 +12,11 @@ Official scores are the training-validation numbers in `models/reports/`. A late
 |---|---|---|
 | Image quality report | Implemented and tested | `backend/app/ml/quality.py`. Pytest covers blur, invalid bytes, and contrast. Live images `11120.jpg` and `Czech_000261.jpg` both returned status `ok`. |
 | Binary crack classifier | Implemented and tested | `scripts/ml/train_classifier.py` wrote `models/weights/crack_cnn.pt` and `models/reports/classifier_metrics.json`. |
-| YOLO conversion, config, train, inference | Implemented and tested | `prepare_yolo.py` wrote 60 train and 20 val images. `train_yolo.py` fine-tuned YOLOv8n for 5 epochs. Inference ran. The score is near zero. See limitations. |
+| YOLO conversion, config, train, inference | Partially implemented | `prepare_yolo.py` wrote 60 train and 20 val images. `train_yolo.py` fine-tuned YOLOv8n for 5 epochs. Label `Czech_000031.txt` matches its XML, so the conversion is not the failure. Validation mAP50 is 0.0004. The API withholds boxes below mAP50 0.05 and does not lower the 0.25 confidence threshold. |
 | U-Net segmentation | Implemented and tested | `scripts/ml/train_unet.py` wrote `models/weights/unet_deepcrack.pt`. Dice 0.4316 and IoU 0.3449 on 8 validation images. |
 | Geometry from a mask | Implemented and tested | Pytest on a synthetic line. Live DeepCrack analysis returned area 1419 px and coverage 0.6793%. |
 | Model comparison report | Implemented and tested | `docs/MODEL_EVALUATION_REPORT.md` uses the JSON files from these runs. |
-| API and UI integration | Implemented. API tested. Browser click-through not tested | `POST /images/{id}/analyze` saved two rows. Overlay and mask GET returned HTTP 200. Vite served the frontend. No browser tool was available to click the button. |
+| API and UI integration | Implemented and tested | `POST /images/{id}/analyze` saved rows. Overlay and mask GET returned HTTP 200. `scripts/browser_demo.py` clicked **Run AI analysis** on `11120.jpg`. Screenshot `docs/demo_screenshots/07_analysis.png` shows label crack at 0.512, a partial red mask, pixel geometry, and the honest detection sentence. |
 
 ## Training commands
 
@@ -72,7 +72,9 @@ Ultralytics also printed this class table while validating `best.pt` (20 images,
 | D20 | 2 | 2 | 0 | 0 | 0 | 0 |
 | D40 | 2 | 2 | 0 | 0 | 0 | 0 |
 
-The API uses confidence 0.25. On both live sample images the detector returned zero boxes. That matches a model whose precision at the validation operating point is about 0.0006.
+The API uses confidence 0.25. Boxes are shown only when the saved validation mAP50 is at least 0.05 (`RELIABLE_MAP50` in `backend/app/ml/inference.py`). The saved value is 0.0004, so the response sets `reliable` to false, returns an empty `detections` list, and starts `detail` with: “Detection model requires further training and validation. No reliable bounding boxes generated.” Candidate boxes above 0.25, if any, are counted and not drawn. The confidence threshold was not lowered.
+
+`datasets/processed/rdd2022_yolo/labels/train/Czech_000031.txt` was checked against `datasets/raw/rdd2022_czech/extracted/Czech/train/annotations/xmls/Czech_000031.xml` (600×600). The first object is class D20, box xmin 273, ymin 442, xmax 343, ymax 488. The YOLO line `2 0.513333 0.775000 0.116667 0.076667` matches that box. The poor mAP is from 5 epochs on 60 images, not from a broken coordinate conversion. The model was not retrained in the completion sprint.
 
 ## Live analysis evidence
 
@@ -93,6 +95,12 @@ The close-up overlay paints part of the visible crack and misses much of it. The
 
 `files.pythonhosted.org` timed out on this machine. The working install used `https://mirrors.aliyun.com/pypi/simple/` plus the PyTorch CPU index. `scripts/setup_ml_env.ps1` now uses that mirror.
 
+## Browser evidence
+
+`scripts/browser_demo.py` exited 0 on 2026-11-02. The analysis panel for `11120.jpg` showed quality ok, label crack at confidence 0.512, crack area 1419 px, length 348 px, mean width 4.479 px, coverage 0.6793%, and the detection sentence above. The red overlay covers part of the crack, which matches Dice 0.4316 and is not treated as a preprocessing bug. Pytest after the reliability assertion: `23 passed, 29 warnings in 11.51s`.
+
+`evaluation_summary.json` seed 7 is marked `"official": false`. Those numbers are not the model score.
+
 ## Still incomplete or blocked
 
 - The detector is trained and callable, and it is not accurate enough to show reliable boxes.
@@ -100,4 +108,4 @@ The close-up overlay paints part of the visible crack and misses much of it. The
 - SDNET2018 and METU are still missing, so classifier negatives are background patches.
 - Czech test images have no public XML, so they were excluded from mAP.
 - Pixel geometry is not millimetres.
-- The React analysis button was not clicked in a browser.
+- Asset add and edit were not clicked in the browser.

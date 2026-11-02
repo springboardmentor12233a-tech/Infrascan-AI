@@ -82,6 +82,12 @@ Geometry (area, skeleton length, width, bounding size, coverage) is computed fro
 - No physical crack width in millimetres.
 - No claim that COCO-pretrained YOLO, without the fine-tune, detects road damage. Inference loads `models/weights/yolo_rdd.pt` only.
 
+## Database in use
+
+The process that served the demonstration uses SQLite at `backend/infrascan.db`. Tables are `users`, `roles`, `infrastructure_assets`, `inspections`, `inspection_images`, `image_analyses`, and `audit_logs`. Image rows point at an inspection. An analysis row points at one image. Docker is not installed on this PC, so the PostgreSQL service in Compose was not started.
+
+Detection boxes are drawn only when `models/reports/yolo_metrics.json` records a validation mAP50 of at least 0.05. The saved value is 0.0004, so the API returns an empty box list and the sentence that no reliable boxes were generated.
+
 ## What was executed
 
-On 2026-11-02 the API was started from `backend` with the Python 3.12 virtualenv, and Vite served `http://127.0.0.1:5173/` (HTTP 200). `GET /health` returned version 0.2.0. `scripts/smoke_api.py` logged in, created an inspection, uploaded two real sample images, and stored analysis rows. Pytest reported 20 passed. Metric files and the demo script are described in `docs/MODEL_EVALUATION_REPORT.md` and `docs/DEMO_GUIDE.md`. The browser was not driven click by click.
+On 2026-11-02 the API was started from `backend` with the Python 3.12 virtualenv, and Vite served `http://127.0.0.1:5173/` (HTTP 200). `GET /health` returned version 0.2.0. `scripts/smoke_api.py` logged in, created an inspection, uploaded two real sample images, and stored analysis rows. A later pytest run reported `23 passed, 29 warnings in 11.51s`. `scripts/browser_demo.py` then signed in, created an inspection, uploaded `11120.jpg`, and displayed the analysis panel. Screenshots are in `docs/demo_screenshots/`. Metric files are described in `docs/MODEL_EVALUATION_REPORT.md`.

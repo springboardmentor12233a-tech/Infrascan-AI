@@ -66,12 +66,14 @@ export const AssetDetail: React.FC = () => {
 
   const handleCreateInspection = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inspectorId) return;
+    const assignedInspectorId =
+      user?.role?.name === 'Infrastructure Inspector' ? user.id : inspectorId;
+    if (!assignedInspectorId) return;
     setSubmitting(true);
     try {
       await api.post('/inspections/', {
         asset_id: Number(id),
-        inspector_id: Number(inspectorId),
+        inspector_id: Number(assignedInspectorId),
         inspection_date: inspDate,
         notes: notes || null,
       });

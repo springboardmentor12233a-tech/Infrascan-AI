@@ -6,6 +6,7 @@ function statusLabel(status: string): string {
   if (status === 'completed') return 'Completed';
   if (status === 'unavailable') return 'Weights not on disk';
   if (status === 'failed') return 'Failed';
+  if (status === 'unreliable') return 'Not reliable';
   return status;
 }
 
@@ -20,7 +21,12 @@ function StatusPill({ status }: { status: string }) {
 }
 
 export const AnalysisPanel: React.FC<{ analysis: ImageAnalysis; onClose: () => void }> = ({ analysis, onClose }) => {
-  const boxes = analysis.detection.detections || [];
+  const detectionReliable = analysis.detection.reliable === true;
+  const boxes = detectionReliable ? analysis.detection.detections || [] : [];
+  const detectionPill =
+    analysis.detection_status === 'completed' && !detectionReliable
+      ? 'unreliable'
+      : analysis.detection_status;
   const geometry = analysis.geometry.measurements;
   const [overlaySrc, setOverlaySrc] = useState('');
   const [maskSrc, setMaskSrc] = useState('');
@@ -128,10 +134,13 @@ export const AnalysisPanel: React.FC<{ analysis: ImageAnalysis; onClose: () => v
           <section className="rounded-xl border border-gray-100 p-4">
             <div className="mb-2 flex items-center justify-between">
               <h4 className="text-sm font-bold text-gray-900">YOLO detection</h4>
-              <StatusPill status={analysis.detection_status} />
+              <StatusPill status={detectionPill} />
             </div>
             {boxes.length === 0 ? (
-              <p className="text-xs text-gray-600">{analysis.detection.detail || 'No boxes returned.'}</p>
+              <p className="text-xs text-gray-600">
+                {analysis.detection.detail ||
+                  'Detection model requires further training and validation. No reliable bounding boxes generated.'}
+              </p>
             ) : (
               <ul className="space-y-1 text-xs text-gray-600">
                 {boxes.map((box, index) => (

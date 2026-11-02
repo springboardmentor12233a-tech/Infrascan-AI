@@ -8,6 +8,7 @@ import io
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import pytest
 import numpy as np
 from PIL import Image
 from fastapi.testclient import TestClient
@@ -15,7 +16,7 @@ from fastapi.testclient import TestClient
 from app.ml.datasets import parse_cfd_seg, source_group, voc_box_to_yolo
 from app.ml.geometry import extract_geometry
 from app.ml.paths import CFD_ROOT, CLASSIFIER_WEIGHTS, DEEPCRACK_ROOT, REPO_ROOT
-from app.ml.preprocess import preprocess_for_model, resize_keep_aspect, resize_pair
+from app.ml.preprocess import preprocess_for_model, read_upload, resize_keep_aspect, resize_pair
 from app.ml.quality import quality_report_from_array, quality_report_from_bytes
 from tests.helpers import get_user_token
 
@@ -83,6 +84,18 @@ def test_resize_pair_uses_same_output_size():
     assert resized_image.shape[:2] == (32, 32)
     assert resized_mask.shape == (32, 32)
     assert set(np.unique(resized_mask)).issubset({0, 255})
+
+
+def test_corrupt_bytes_are_rejected():
+    with pytest.raises(ValueError, match="Invalid or corrupt image"):
+        read_upload(b"this is not an image")
+
+
+def test_grayscale_and_wide_image_become_chw_tensor():
+    gray = np.full((30, 90), 140, dtype=np.uint8)
+    tensor = preprocess_for_model(gray, size=(64, 32), keep_aspect=False)
+    assert tensor.shape == (3, 32, 64)
+    assert tensor.dtype == np.float32
 
 
 def test_grayscale_tensor_has_three_channels():
@@ -172,6 +185,13 @@ def test_analyze_endpoint_reports_real_status(client: TestClient, db_session):
     assert body["segmentation_status"] in {"completed", "unavailable", "failed"}
     if body["classification_status"] == "unavailable":
         assert body["classification_label"] is None
+    if body["detection_status"] == "completed":
+        assert body["detection"]["reliable"] is False
+        assert "No reliable bounding boxes generated." in body["detection"]["detail"]
+        assert body["detection"]["detections"] == []
+    if body["geometry"]["status"] == "completed":
+        assert body["geometry"]["measurements"]["unit"] == "pixels"
+        assert "not millimetres" in body["geometry"]["measurements"]["physical_scale_note"]
     overlay = client.get(f"/images/{image_id}/analysis/overlay", headers=headers)
     assert overlay.status_code == 200
     assert overlay.headers["content-type"].startswith("image/jpeg")

@@ -63,6 +63,22 @@ These files are local EDA copies. They are gitignored and already on this PC.
 | Main demo (close-up crack) | `docs\eda_outputs\samples\deepcrack\11120.jpg` |
 | Optional limit example (street) | `docs\eda_outputs\samples\rdd2022_czech\Czech_000261.jpg` |
 
+## Screenshots from the browser pass
+
+`scripts/browser_demo.py` was run on 2026-11-02 against the servers on ports 8000 and 5173. It used the system Playwright install and the Chromium binary already cached under `%LOCALAPPDATA%\ms-playwright\chromium-1234`. Saved files:
+
+| File | What it shows |
+|---|---|
+| `docs/demo_screenshots/01_login.png` | Login screen |
+| `docs/demo_screenshots/02_dashboard.png` | Inspector dashboard, weights found |
+| `docs/demo_screenshots/03_assets.png` | Asset table |
+| `docs/demo_screenshots/04_asset_history.png` | BRG-001 before the new inspection |
+| `docs/demo_screenshots/05_inspection_created.png` | Create-inspection dialog while the request is sending |
+| `docs/demo_screenshots/06_uploaded.png` | Uploaded `11120.jpg` |
+| `docs/demo_screenshots/07_analysis.png` | Quality, label crack at 0.512, partial mask, pixel geometry, and the detection message |
+
+The detection card says: “Detection model requires further training and validation. No reliable bounding boxes generated.” Validation mAP50 shown there is 0.0004. Boxes are withheld because that score is below 0.05. The confidence threshold was not lowered.
+
 ## Click path
 
 1. Open http://127.0.0.1:5173 and sign in as `inspector@infrascan.com`.
@@ -74,7 +90,7 @@ These files are local EDA copies. They are gitignored and already on this PC.
 7. The panel shows:
    - Quality: size, blur, brightness, contrast. This file returned status `ok`.
    - Classification: `crack`, confidence about 0.51, from a 4×4 grid of 64×64 patches.
-   - Detection: status completed, and **no boxes**. The fine-tuned YOLOv8n did not pass confidence 0.25.
+   - Detection: the card says “Detection model requires further training and validation. No reliable bounding boxes generated.” Validation mAP50 is 0.0004, which is below 0.05, so no boxes are drawn. Confidence stays 0.25.
    - A red overlay and a black-and-white mask. The red pixels cover part of the crack.
    - Geometry in pixels, plus the sentence that these are not millimetres.
 8. The dashboard count of analyzed images increases. The row is in SQLite table `image_analyses`.
@@ -109,9 +125,9 @@ Set-Location D:\Infrascan-AI\backend
 .\venv\Scripts\python.exe -m pytest tests -q --tb=line
 ```
 
-Result on 2026-11-02: 20 passed.
+The first run on 2026-11-02 reported 20 passed. After the completion-sprint tests the same command reported `23 passed, 29 warnings in 11.51s`.
 
 `GET http://127.0.0.1:8000/health` returned version 0.2.0.  
 `GET http://127.0.0.1:5173/` returned HTTP 200.
 
-The analysis screen was not clicked through an automated browser. The API calls that the screen makes were run by `scripts/smoke_api.py`.
+The browser path above was also driven by `scripts/browser_demo.py`. Screenshots are listed earlier in this guide. If the browser fails during the demonstration, use `scripts/smoke_api.py` as the backup.

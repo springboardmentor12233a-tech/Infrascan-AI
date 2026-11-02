@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>InfraScan UI wireframes</title>
+  <style>
+    body { margin: 0; font-family: Georgia, serif; background: #f4f4f1; color: #222; }
+    header { padding: 24px 32px; border-bottom: 2px solid #222; }
+    h1 { margin: 0; font-size: 22px; }
+    p.note { margin: 8px 0 0; font-size: 13px; }
+    main { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; padding: 24px; }
+    section { background: #fff; border: 2px solid #222; padding: 12px; }
+    h2 { margin: 0 0 10px; font-size: 15px; }
+    .screen { border: 1px solid #222; min-height: 280px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .bar { height: 22px; border: 1px solid #222; }
+    .row { display: flex; gap: 8px; }
+    .box { border: 1px dashed #222; flex: 1; min-height: 48px; padding: 6px; font-size: 12px; }
+    .tall { min-height: 90px; }
+    .btn { border: 2px solid #222; padding: 4px 8px; font-size: 12px; display: inline-block; }
+    .muted { font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>InfraScan wireframes</h1>
+    <p class="note">Low-fidelity layout reference for the faculty demonstration. These are boxes, not the live application. Open <code>docs/wireframes/index.html</code> in a browser.</p>
+  </header>
+  <main>
+    <section>
+      <h2>1. Login</h2>
+      <div class="screen">
+        <div class="box">InfraScan</div>
+        <div class="box">Email</div>
+        <div class="box">Password</div>
+        <div><span class="btn">Sign in</span></div>
+        <p class="muted">Error text appears here when the API rejects the password.</p>
+      </div>
+    </section>
+    <section>
+      <h2>2. Dashboard</h2>
+      <div class="screen">
+        <div class="bar">Welcome and role</div>
+        <div class="row">
+          <div class="box">Assets</div>
+          <div class="box">Inspections</div>
+          <div class="box">Images analyzed</div>
+        </div>
+        <div class="box tall">Model status: classifier, segmentation, detection weights found or missing</div>
+        <div><span class="btn">View all assets</span></div>
+      </div>
+    </section>
+    <section>
+      <h2>3. Asset management</h2>
+      <div class="screen">
+        <div class="row"><div class="box">Search</div><span class="btn">New asset</span></div>
+        <div class="box">BRG-001 Bridge</div>
+        <div class="box">TUN-002 Tunnel</div>
+        <div class="box">DAM-003 Dam</div>
+        <p class="muted">Managers can edit and delete. Inspectors can open an asset.</p>
+      </div>
+    </section>
+    <section>
+      <h2>4. Inspection creation</h2>
+      <div class="screen">
+        <div class="bar">Asset header and specifications</div>
+        <div class="box tall">Inspection history list, each row links to the inspection</div>
+        <div class="box">Modal: date, assigned inspector, notes, Create inspection</div>
+      </div>
+    </section>
+    <section>
+      <h2>5. Image upload</h2>
+      <div class="screen">
+        <div class="box tall">Drop zone. Accepts JPG and PNG. Shows the API error if validation fails.</div>
+        <div class="row">
+          <div class="box">Thumbnail and quality badge</div>
+          <div class="box">Run AI analysis</div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <h2>6. Analysis results</h2>
+      <div class="screen">
+        <div class="row">
+          <div class="box tall">Overlay: original plus mask</div>
+          <div class="box tall">Predicted mask</div>
+        </div>
+        <div class="row">
+          <div class="box">Quality scores</div>
+          <div class="box">Classification label</div>
+        </div>
+        <div class="row">
+          <div class="box">Detection status, honest if no reliable boxes</div>
+          <div class="box">Geometry in pixels</div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <h2>7. Inspection history</h2>
+      <div class="screen">
+        <div class="box">Date, status, inspector, notes</div>
+        <div class="box">Date, status, inspector, notes</div>
+        <div><span class="btn">Open inspection</span></div>
+        <p class="muted">History is stored per asset and reloaded from the API.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -10,19 +10,27 @@ Pixel geometry is computed only from a segmentation mask produced in this call.
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import cv2
 import numpy as np
 
 from app.ml.geometry import extract_geometry
-from app.ml.paths import CLASSIFIER_WEIGHTS, UNET_WEIGHTS, YOLO_WEIGHTS
+from app.ml.paths import CLASSIFIER_WEIGHTS, REPORTS_DIR, UNET_WEIGHTS, YOLO_WEIGHTS
 from app.ml.preprocess import preprocess_for_model, resize_stretch, to_bgr
 from app.ml.quality import quality_report_from_array
 
 CLASSIFIER_SIZE = 64
 UNET_SIZE = 128
 PATCH_GRID_SIDE = 256
+# Boxes are shown only when the saved validation mAP50 clears this bar.
+# The current Czech fine-tune is far below it, so its boxes are withheld.
+RELIABLE_MAP50 = 0.05
+UNRELIABLE_DETECTION = (
+    "Detection model requires further training and validation. "
+    "No reliable bounding boxes generated."
+)
 
 _classifier = None
 _unet = None
@@ -211,25 +219,42 @@ def _segment(image_bgr: np.ndarray) -> tuple[dict[str, Any], np.ndarray | None]:
         )
 
 
+def _validation_map50() -> float | None:
+    report = REPORTS_DIR / "yolo_metrics.json"
+    if not report.is_file():
+        return None
+    try:
+        payload = json.loads(report.read_text(encoding="utf-8"))
+        value = payload.get("validation_metrics", {}).get("map50")
+        if value is None:
+            return None
+        return float(value)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return None
+
+
 def _detect(image_bgr: np.ndarray) -> dict[str, Any]:
     if not YOLO_WEIGHTS.is_file():
         return {
             "status": "unavailable",
             "model": "YOLOv8n",
+            "reliable": False,
+            "validation_map50": _validation_map50(),
             "detections": [],
+            "candidate_count": 0,
             "detail": "YOLO weights were not found. Run scripts/ml/prepare_yolo.py and scripts/ml/train_yolo.py.",
         }
     try:
         model = _load_yolo()
         results = model.predict(image_bgr, conf=0.25, verbose=False)
-        detections: list[dict[str, Any]] = []
+        candidates: list[dict[str, Any]] = []
         names = results[0].names if results else {}
         boxes = results[0].boxes if results else None
         if boxes is not None:
             for box in boxes:
                 class_id = int(box.cls.item())
                 x1, y1, x2, y2 = [float(value) for value in box.xyxy[0].tolist()]
-                detections.append(
+                candidates.append(
                     {
                         "class_id": class_id,
                         "class_name": str(names.get(class_id, class_id)),
@@ -240,17 +265,43 @@ def _detect(image_bgr: np.ndarray) -> dict[str, Any]:
                         "ymax": round(y2, 2),
                     }
                 )
+        map50 = _validation_map50()
+        reliable = map50 is not None and map50 >= RELIABLE_MAP50
+        if reliable:
+            detail = (
+                "Boxes come from the fine-tuned YOLOv8n checkpoint. "
+                f"Validation mAP50 is {map50}, which clears {RELIABLE_MAP50}."
+            )
+            shown = candidates
+        else:
+            detail = UNRELIABLE_DETECTION
+            if map50 is None:
+                detail += " No validation mAP50 report was found, so boxes are withheld."
+            else:
+                detail += f" Validation mAP50 on the labeled Czech subset was {map50}."
+            if candidates:
+                detail += (
+                    f" The checkpoint emitted {len(candidates)} candidate boxes above 0.25. "
+                    "They are not shown."
+                )
+            shown = []
         return {
             "status": "completed",
             "model": "YOLOv8n",
-            "detections": detections,
-            "detail": "Boxes come from the fine-tuned YOLOv8n checkpoint, confidence threshold 0.25.",
+            "reliable": reliable,
+            "validation_map50": map50,
+            "detections": shown,
+            "candidate_count": len(candidates),
+            "confidence_threshold": 0.25,
+            "detail": detail,
         }
     except Exception as exc:
         return {
             "status": "failed",
             "model": "YOLOv8n",
+            "reliable": False,
             "detections": [],
+            "candidate_count": 0,
             "detail": str(exc),
         }
 

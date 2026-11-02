@@ -26,6 +26,14 @@ def test_register_and_login(client: TestClient, db_session):
     assert "access_token" in login_res.json()
 
 
+def test_invalid_login_is_rejected(client: TestClient):
+    response = client.post("/auth/login", data={
+        "username": "nobody@infrascan.com",
+        "password": "not-the-password",
+    })
+    assert response.status_code == 401
+
+
 # --- 2. Test Role Denial (403) ---
 def test_role_denial_admin_endpoint(client: TestClient, db_session):
     # Inspector token

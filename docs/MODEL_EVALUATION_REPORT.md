@@ -92,6 +92,10 @@ Per-class lines printed by Ultralytics on `best.pt` are in `docs/MILESTONE_2_COM
 
 Live inference at confidence 0.25 returned 0 boxes on both `11120.jpg` and `Czech_000261.jpg`.
 
+A label file was checked against its source XML. `Czech_000031.xml` has a D20 box from (273, 442) to (343, 488) on a 600×600 image. The prepared line is `2 0.513333 0.775000 0.116667 0.076667`, which is the same box in YOLO xywh form. Class 2 is D20. The conversion is consistent with the XML. The low mAP comes from training YOLOv8n for 5 epochs on 60 images.
+
+The API treats validation mAP50 below 0.05 as not reliable. The saved mAP50 is 0.0004, so inference returns no boxes to draw and the message “No reliable bounding boxes generated.” The confidence threshold remains 0.25. Candidate boxes, if any, are counted and then withheld.
+
 This is a working training and inference pipeline with a weak model. It is not a detector you can trust in a field inspection.
 
 ## Which baseline to describe as the best
