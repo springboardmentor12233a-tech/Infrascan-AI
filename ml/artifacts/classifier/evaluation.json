@@ -1,0 +1,75 @@
+{
+  "task": "binary crack classification",
+  "dataset_root": "datasets\\concrete_cracks\\extracted",
+  "samples": {
+    "total": 200,
+    "train": 160,
+    "test": 40
+  },
+  "classes": {
+    "0": "Negative",
+    "1": "Positive"
+  },
+  "preprocessing": {
+    "grayscale": true,
+    "resize": [
+      64,
+      64
+    ],
+    "standardize": true
+  },
+  "classification_report": {
+    "Negative": {
+      "precision": 0.782608695652174,
+      "recall": 0.9,
+      "f1-score": 0.8372093023255814,
+      "support": 20.0
+    },
+    "Positive": {
+      "precision": 0.8823529411764706,
+      "recall": 0.75,
+      "f1-score": 0.8108108108108109,
+      "support": 20.0
+    },
+    "accuracy": 0.825,
+    "macro avg": {
+      "precision": 0.8324808184143222,
+      "recall": 0.825,
+      "f1-score": 0.8240100565681961,
+      "support": 40.0
+    },
+    "weighted avg": {
+      "precision": 0.8324808184143222,
+      "recall": 0.825,
+      "f1-score": 0.8240100565681961,
+      "support": 40.0
+    }
+  },
+  "accuracy": 0.825,
+  "confusion_matrix": [
+    [
+      18,
+      2
+    ],
+    [
+      5,
+      15
+    ]
+  ],
+  "test_examples": [
+    "datasets\\concrete_cracks\\extracted\\Negative\\00038.jpg",
+    "datasets\\concrete_cracks\\extracted\\Positive\\00041.jpg",
+    "datasets\\concrete_cracks\\extracted\\Positive\\00096.jpg",
+    "datasets\\concrete_cracks\\extracted\\Positive\\00097.jpg",
+    "datasets\\concrete_cracks\\extracted\\Negative\\00024.jpg",
+    "datasets\\concrete_cracks\\extracted\\Positive\\00005.jpg",
+    "datasets\\concrete_cracks\\extracted\\Negative\\00030.jpg",
+    "datasets\\concrete_cracks\\extracted\\Positive\\00081.jpg",
+    "datasets\\concrete_cracks\\extracted\\Positive\\00062.jpg",
+    "datasets\\concrete_cracks\\extracted\\Negative\\00087.jpg"
+  ],
+  "limitations": [
+    "This is a baseline image-level classifier, not a detector or segmenter.",
+    "Predictions are decision-support outputs and require qualified engineering review."
+  ]
+}
