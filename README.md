@@ -8,12 +8,12 @@ InfraScan explores how computer vision can help identify visible cracks in concr
 
 - frontend/ – React and TypeScript application
 - backend/ – FastAPI application and AI-related modules
-- notebooks/ – Current repository contains a preprocessing demonstration notebook and its comparison image
+- notebooks/ – Preprocessing demonstration, comparison image, and [executed Milestone 2 detection and segmentation notebook](notebooks/InfraScan_Milestone_2_Detection_Segmentation.ipynb)
 - datasets/ and docs/ – Add dataset notes and project documentation here as they are prepared
 
 ## Current Status (4 November 2026)
 
-Milestone 1 dataset preparation and the initial web-application code are in the repository. Milestone 2 model experiments have been run in Colab, but the repository still needs the corresponding training notebook, selected result figures, and a clear record of what has been tested end to end.
+Milestone 1 dataset preparation and the initial web-application code are in the repository. The executed Milestone 2 detection and segmentation notebook, including its outputs, has now been added under notebooks/. Selected report figures and end-to-end application verification are still pending.
 
 ## Milestone 1: Dataset and Project Foundation
 
@@ -45,7 +45,7 @@ The frontend is a React and TypeScript application. Its page files include the h
 - Run the backend and frontend locally and verify the full flow: sign in, create an asset, upload an image, and view the inspection record. Record any errors and fixes.
 - Run the backend tests and record the actual pass/fail result.
 - Check and document whether trained model inference is connected to the application upload flow. Do not describe this as complete until it has been tested.
-- Add the Milestone 2 Colab notebook, metrics output, and selected figures to notebooks/ or docs/ after checking them.
+- Add selected Milestone 2 result figures to notebooks/ or docs/; the executed [Colab notebook](notebooks/InfraScan_Milestone_2_Detection_Segmentation.ipynb) and its outputs are committed.
 - Confirm with the mentor whether the CCIC plus Crack-Seg dataset approach satisfies the requested dataset size.
 - Test on independent concrete images if available and record false positives or missed cracks.
 
