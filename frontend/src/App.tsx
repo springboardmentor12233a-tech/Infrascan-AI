@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -9,9 +8,19 @@ import './App.css'
 type InspectionResult = {
   filename: string
   size_bytes: number
-  image_width: number
-  image_height: number
-  edge_pixels: number
+  count: number
+  detections: {
+    class_id: number
+    class_name: string
+    confidence: number
+    box_xyxy: number[]
+  }[]
+}
+
+type PredictionResult = {
+  prediction: string
+  confidence_percent: number
+  classes: string[]
   note: string
 }
 
@@ -26,6 +35,7 @@ function App() {
   const [showResults, setShowResults] = useState(false)
   const [assessmentResult, setAssessmentResult] = useState('')
   const [inspection, setInspection] = useState<InspectionResult | null>(null)
+  const [prediction, setPrediction] = useState<PredictionResult | null>(null)
 
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -38,6 +48,7 @@ function App() {
     setLoading(true)
     setMessage('Uploading image...')
     setInspection(null)
+    setPrediction(null)
     setAssessmentResult('')
 
     try {
@@ -56,69 +67,97 @@ function App() {
       const uploadData = await uploadResponse.json()
 
       if (!uploadResponse.ok) {
-        throw new Error(
-          uploadData.detail || 'Image upload failed.'
-        )
+        throw new Error(uploadData.detail || 'Image upload failed.')
       }
 
-      // Upload has succeeded. Keep this success even if
-      // the following image-processing request fails.
       setMessage(`Image uploaded successfully: ${uploadData.filename}`)
 
-      // Step 2: Run basic image processing without PyTorch.
-      try {
-        const detectionData = new FormData()
-        detectionData.append('file', selectedFile)
+      // Step 2: Run the existing AI classification endpoint.
+      const token = localStorage.getItem('infrascan_token')
 
-        const detectionResponse = await fetch(
-          'http://127.0.0.1:8000/detect-cracks',
-          {
-            method: 'POST',
-            body: detectionData,
-          }
-        )
+      if (!token) {
+        throw new Error('Please log in again.')
+      }
 
-        const detection = await detectionResponse.json()
+      const predictionData = new FormData()
+      predictionData.append('file', selectedFile)
 
-        if (!detectionResponse.ok) {
-          throw new Error(
-            detection.detail || 'Image processing failed.'
-          )
+      const predictionResponse = await fetch(
+        'http://127.0.0.1:8000/predict-crack',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: predictionData,
         }
+      )
 
-        const result: InspectionResult = {
-          filename: uploadData.filename,
-          size_bytes: uploadData.size_bytes,
-          image_width: detection.image_width,
-          image_height: detection.image_height,
-          edge_pixels: detection.edge_pixels,
-          note: detection.note,
-        }
+      const predictionResult = await predictionResponse.json()
 
-        setInspection(result)
-
-        const resultText =
-          `Image uploaded successfully. ` +
-          `Image size: ${result.image_width} × ${result.image_height}. ` +
-          `Edge pixels: ${result.edge_pixels}. ` +
-          `This is basic image processing, not an AI prediction.`
-
-        setAssessmentResult(resultText)
-        setMessage('Upload successful! Image processing completed.')
-      } catch (processingError) {
-        const detail =
-          processingError instanceof Error
-            ? processingError.message
-            : 'Unknown processing error.'
-
-        setMessage(
-          `Image uploaded successfully, but processing failed: ${detail}`
+      if (!predictionResponse.ok) {
+        throw new Error(
+          predictionResult.detail || 'AI prediction failed.'
         )
       }
+
+      setPrediction(predictionResult)
+
+      // Step 3: Run YOLO crack detection.
+      const detectionData = new FormData()
+      detectionData.append('file', selectedFile)
+
+      const detectionResponse = await fetch(
+        'http://127.0.0.1:8000/detect-yolo',
+        {
+          method: 'POST',
+          body: detectionData,
+        }
+      )
+
+      const detection = await detectionResponse.json()
+
+      if (!detectionResponse.ok) {
+        throw new Error(
+          detection.detail || 'YOLO detection failed.'
+        )
+      }
+
+      const result: InspectionResult = {
+        filename: uploadData.filename,
+        size_bytes: uploadData.size_bytes,
+        count: detection.count,
+        detections: detection.detections,
+      }
+
+      setInspection(result)
+
+      const detectionSummary = result.detections.length
+        ? result.detections
+            .map(
+              (item, index) =>
+                `Crack ${index + 1}: ${item.class_name}, ` +
+                `${(item.confidence * 100).toFixed(2)}% confidence, ` +
+                `box [${item.box_xyxy.join(', ')}]`
+            )
+            .join('\n')
+        : 'No cracks detected in this image.'
+
+      const predictionSummary = predictionResult
+        ? `AI prediction: ${predictionResult.prediction} ` +
+          `(${predictionResult.confidence_percent}% confidence).`
+        : 'AI prediction is unavailable.'
+
+      setAssessmentResult(
+        `YOLO detections: ${result.count}\n` +
+        `${detectionSummary}\n\n${predictionSummary}`
+      )
+
+      setMessage('Upload successful! YOLO detection completed.')
     } catch (error) {
       setMessage(
         error instanceof Error
-          ? `Upload failed: ${error.message}`
+          ? `Processing failed: ${error.message}`
           : 'Could not connect to the backend.'
       )
     } finally {
@@ -139,6 +178,7 @@ function App() {
     setPreview(file ? URL.createObjectURL(file) : '')
     setMessage('')
     setAssessmentResult('')
+    setPrediction(null)
     setInspection(null)
   }
 
@@ -265,7 +305,10 @@ function App() {
 
             <section className="upload-card">
               <h2>Start a New Inspection</h2>
-              <p>Select a JPG, PNG or WEBP image (maximum 10 MB).</p>
+              <p>
+                Select a JPG, PNG or WEBP image of concrete or
+                infrastructure (maximum 10 MB).
+              </p>
 
               <form onSubmit={handleUpload}>
                 <input
@@ -296,23 +339,52 @@ function App() {
 
               {inspection && (
                 <section className="inspection-result">
-                  <h2>Image Processing Result</h2>
-                  <p><strong>Saved filename:</strong> {inspection.filename}</p>
+                  <h2>YOLO Detection Result</h2>
+
+                  <p>
+                    <strong>Saved filename:</strong>{' '}
+                    {inspection.filename}
+                  </p>
+
                   <p>
                     <strong>File size:</strong>{' '}
                     {(inspection.size_bytes / 1024).toFixed(1)} KB
                   </p>
+
                   <p>
-                    <strong>Image dimensions:</strong>{' '}
-                    {inspection.image_width} × {inspection.image_height}
+                    <strong>Cracks detected:</strong>{' '}
+                    {inspection.count}
                   </p>
+
+                  {inspection.detections.length > 0 ? (
+                    <ul>
+                      {inspection.detections.map((item, index) => (
+                        <li key={`${item.class_id}-${index}`}>
+                          <strong>{item.class_name}</strong>
+                          {' — '}
+                          {(item.confidence * 100).toFixed(2)}%
+                          {' confidence — Box: ['}
+                          {item.box_xyxy.join(', ')}
+                          {']'}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No cracks detected in this image.</p>
+                  )}
+
+                  {prediction && (
+                    <p>
+                      <strong>AI prediction:</strong>{' '}
+                      {prediction.prediction}
+                      {' ('}
+                      {prediction.confidence_percent}% confidence)
+                    </p>
+                  )}
+
                   <p>
-                    <strong>Edge pixels detected:</strong>{' '}
-                    {inspection.edge_pixels}
-                  </p>
-                  <p>{inspection.note}</p>
-                  <p>
-                    <strong>AI prediction:</strong> Not available yet.
+                    YOLO results are model predictions, not a safety
+                    assessment. Human engineering review is required.
                   </p>
                 </section>
               )}

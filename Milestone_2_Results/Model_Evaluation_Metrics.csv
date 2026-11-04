@@ -1,0 +1,27 @@
+﻿Model,Task,Metric,Value,Dataset
+HOG + LinearSVC,Classification,Accuracy,35.07%,6 classes
+HOG + LinearSVC,Classification,Macro Precision,35.19%,6 classes
+HOG + LinearSVC,Classification,Macro Recall,35.07%,6 classes
+HOG + LinearSVC,Classification,Macro F1,35.08%,6 classes
+CNN,Classification,Accuracy,50.83%,2 classes
+CNN,Classification,Precision,64.76%,120 evaluation images
+CNN,Classification,Recall,54.97%,120 evaluation images
+CNN,Classification,F1 Score,43.59%,120 evaluation images
+YOLOv8n,Detection,Validation mAP50,72.96%,20 validation images
+YOLOv8n,Detection,Test mAP50,81.70%,10 test images
+YOLOv8n,Detection,Validation Precision,62.96%,20 validation images
+YOLOv8n,Detection,Validation Recall,80.95%,20 validation images
+U-Net,Segmentation,IoU,29.86%,24 validation images
+U-Net,Segmentation,Dice Score,45.99%,24 validation images
+U-Net,Segmentation,Pixel Accuracy,98.03%,24 validation images
+U-Net Improved,Segmentation,IoU,36.83%,24 validation images
+U-Net Improved,Segmentation,Dice Score,53.83%,24 validation images
+U-Net Improved,Segmentation,Pixel Accuracy,98.29%,24 validation images
+CNN Improved,Classification,Accuracy,72.72%,810 validation images
+CNN Improved,Classification,Macro Precision,75.75%,810 validation images
+CNN Improved,Classification,Macro Recall,72.72%,810 validation images
+CNN Improved,Classification,Macro F1,71.89%,810 validation images
+
+YOLOv8n,Detection,Test Precision,68.60%,10 test images
+YOLOv8n,Detection,Test Recall,80.00%,10 test images
+YOLOv8n,Detection,Test mAP50-95,35.70%,10 test images

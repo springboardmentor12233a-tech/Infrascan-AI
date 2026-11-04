@@ -11,7 +11,9 @@ function Results({ result, onBack }: ResultsProps) {
         <p>AI-assisted infrastructure damage assessment</p>
 
         {result ? (
-          <p className="status-message">{result}</p>
+        <p className="status-message" style={{ whiteSpace : 'pre-line' }}>
+  {result}
+</p>
         ) : (
           <p>No assessment results yet. Please complete an inspection first.</p>
         )}

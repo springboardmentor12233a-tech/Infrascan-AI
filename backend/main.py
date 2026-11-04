@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image
 from pwdlib import PasswordHash
 from pydantic import BaseModel, EmailStr, Field
+from ultralytics import YOLO
 
 from fastapi import (
     FastAPI,
@@ -211,7 +212,7 @@ async def detect_cracks(file: UploadFile = File(...)):
 # ---------------- CNN model ----------------
 
 
-# ---------------- CNN model ----------------
+
 
 MODEL_PATH = (
     Path(__file__).resolve().parent
@@ -337,6 +338,75 @@ async def predict_crack(
 
 
 # ---------------- Infrastructure assets ----------------
+
+# ---------------- YOLO crack detection ----------------
+
+YOLO_MODEL_PATH = (
+    Path(__file__).resolve().parent
+    / "models"
+    / "yolo"
+    / "best.pt"
+)
+
+yolo_model = None
+
+try:
+    yolo_model = YOLO(str(YOLO_MODEL_PATH))
+    print("YOLO model loaded successfully.")
+except Exception as exc:
+    print(f"YOLO model unavailable: {exc}")
+
+
+@app.post("/detect-yolo")
+async def detect_yolo(file: UploadFile = File(...)):
+    if yolo_model is None:
+        raise HTTPException(
+            status_code=503,
+            detail="YOLO model is unavailable.",
+        )
+
+    content, _, _ = await read_valid_image(file)
+    image_array = np.frombuffer(content, dtype=np.uint8)
+    image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+    if image is None:
+        raise HTTPException(status_code=400, detail="Invalid image.")
+
+    try:
+        results = yolo_model.predict(
+            source=image,
+            conf=0.10,
+            verbose=False,
+        )
+        result = results[0]
+        detections = []
+
+        for box in result.boxes:
+            class_id = int(box.cls[0].item())
+            detections.append({
+                "class_id": class_id,
+                "class_name": result.names[class_id],
+                "confidence": round(float(box.conf[0].item()), 4),
+                "box_xyxy": [
+                    round(float(v), 2)
+                    for v in box.xyxy[0].tolist()
+                ],
+            })
+
+        return {
+            "model": "YOLO",
+            "detections": detections,
+            "count": len(detections),
+        }
+
+    except Exception as exc:
+        print(f"YOLO detection error: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail="YOLO detection failed. Check the backend terminal.",
+        )
+    
+
 
 class AssetCreate(BaseModel):
     name: str = Field(min_length=1, max_length=150)
