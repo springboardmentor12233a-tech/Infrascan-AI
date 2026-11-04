@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+venv/
+.env
+all_test_images/
+all_test_labels/
+all_test_images.zip
+all_test_labels.zip
+predicted_crack_mask.png
