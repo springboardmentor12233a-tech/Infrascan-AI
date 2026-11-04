@@ -1,0 +1,2 @@
+"""InfraScan classification package."""
+

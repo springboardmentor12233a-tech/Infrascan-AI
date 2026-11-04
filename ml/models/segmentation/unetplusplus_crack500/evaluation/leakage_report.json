@@ -1,0 +1,18 @@
+{
+  "train_image_count": 1860,
+  "test_image_count": 1087,
+  "unique_train_parents": 245,
+  "unique_test_parents": 142,
+  "shared_parents_count": 0,
+  "shared_parents_list": [],
+  "parent_leakage_detected": false,
+  "hamming_dist_0_exact_duplicates": 0,
+  "hamming_dist_1_near_duplicates": 0,
+  "hamming_dist_2_near_duplicates": 0,
+  "total_test_images_with_near_duplicate": 0,
+  "total_test_images_without_near_duplicate": 1087,
+  "mean_min_hamming_distance": 17.8,
+  "mean_dice_with_near_duplicate": 0.0,
+  "mean_dice_without_near_duplicate": 0.6899,
+  "dice_difference": 0.6899
+}

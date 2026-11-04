@@ -1,0 +1,4 @@
+group_code,surface_name,total_images,crack_images,no_crack_images,recall,precision,f1,auc_roc,specificity,tp,fp,tn,fn
+D,Decks (Bridge Decks),2268,290,1978,0.9276,0.2325,0.3718,0.9082,0.5511,269,888,1090,21
+P,Pavements,3510,367,3143,0.8965,0.3194,0.471,0.9307,0.777,329,701,2442,38
+W,Walls,3024,598,2426,0.9532,0.4043,0.5677,0.9486,0.6538,570,840,1586,28

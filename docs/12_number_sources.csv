@@ -1,0 +1,213 @@
+Category,Metric_Name,Split,Value,Source_File
+Project Target,Detection mAP@50 Target,TEST,>= 0.85,Project Plan
+Project Target,Detection Recall Target,TEST,>= 0.90,Project Plan
+Project Target,Segmentation Dice Target,TEST,>= 0.85,Project Plan
+Project Target,Segmentation IoU Target,TEST,>= 0.75,Project Plan
+Project Target,Classification Macro F1 Target,TEST,>= 0.85,Project Plan
+Project Target,Inference Latency Target,TEST,< 3.0 s on GPU,Project Plan
+Classification - CCIC,Test Sample Count,TEST,5760,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Operating Threshold,TEST,0.4951,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Accuracy,TEST,0.9997,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Balanced Accuracy,TEST,0.9997,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Precision (Crack),TEST,0.9997,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Recall (Crack),TEST,0.9997,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Specificity,TEST,0.9996,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,F1 (Crack),TEST,0.9997,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,F1 (No-Crack),TEST,0.9996,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_predictions.csv
+Classification - CCIC,Macro F1,TEST,0.9997,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_predictions.csv
+Classification - CCIC,AUC-ROC,TEST,1.0000,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,PR-AUC (Average Precision),TEST,1.0000,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,True Positives,TEST,2951,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,False Positives,TEST,1,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,True Negatives,TEST,2807,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,False Negatives,TEST,1,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Near-Duplicates (dHash <= 2),TEST,931,infrascan/ml/models/classification/concrete_crack_cls/evaluation/near_duplicate_summary.json
+Classification - CCIC,Near-Duplicates Percentage,TEST,16.16%,infrascan/ml/models/classification/concrete_crack_cls/evaluation/near_duplicate_summary.json
+Classification - CCIC,Clean Non-Duplicate Count,TEST,4829,infrascan/ml/models/classification/concrete_crack_cls/evaluation/near_duplicate_summary.json
+Classification - CCIC,Non-Duplicate Subset F1,TEST,0.9995,infrascan/ml/models/classification/concrete_crack_cls/evaluation/near_duplicate_summary.json
+Classification - CCIC,Best Epoch (history.csv),VALIDATION,13,infrascan/ml/notebooks/models/classification/concrete_crack_cls/history.csv
+Classification - CCIC,Best Epoch (model_card.json bug),VALIDATION,0,infrascan/ml/notebooks/models/classification/concrete_crack_cls/model_card.json
+Classification - CCIC,Best Validation Loss,VALIDATION,0.0008,infrascan/ml/notebooks/models/classification/concrete_crack_cls/history.csv
+Classification - CCIC,Best Validation F1,VALIDATION,0.9997,infrascan/ml/notebooks/models/classification/concrete_crack_cls/history.csv
+Classification - CCIC,Single Image Latency (Host CPU),TEST,9.19 ms,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - CCIC,Model Size,TRAIN,89.97 MB,infrascan/ml/models/classification/concrete_crack_cls/evaluation/test_metrics.json
+Classification - SDNET2018,Test Sample Count,TEST,8802,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Operating Threshold,TEST,0.0100,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Accuracy,TEST,0.7142,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Balanced Accuracy,TEST,0.8044,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Precision (Crack),TEST,0.3247,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Recall (Crack),TEST,0.9307,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Specificity,TEST,0.6782,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,F1 (Crack),TEST,0.4815,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,F1 (No-Crack),TEST,0.8027,infrascan/ml/models/classification/sdnet2018/evaluation/test_predictions.csv
+Classification - SDNET2018,Macro F1,TEST,0.6421,infrascan/ml/models/classification/sdnet2018/evaluation/test_predictions.csv
+Classification - SDNET2018,AUC-ROC,TEST,0.9342,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,PR-AUC (Average Precision),TEST,0.8419,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,True Positives,TEST,1168,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,False Positives,TEST,2429,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,True Negatives,TEST,5118,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,False Negatives,TEST,87,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Bridge Decks Recall,TEST,0.9276,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Bridge Decks Precision,TEST,0.2325,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Bridge Decks F1,TEST,0.3718,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Pavements Recall,TEST,0.8965,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Pavements Precision,TEST,0.3194,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Pavements F1,TEST,0.4710,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Walls Recall,TEST,0.9532,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Walls Precision,TEST,0.4043,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Walls F1,TEST,0.5677,infrascan/ml/models/classification/sdnet2018/evaluation/metrics_by_group.csv
+Classification - SDNET2018,Near-Duplicates (dHash <= 2),TEST,7,infrascan/ml/models/classification/sdnet2018/evaluation/near_duplicate_summary.json
+Classification - SDNET2018,Near-Duplicates Percentage,TEST,0.08%,infrascan/ml/models/classification/sdnet2018/evaluation/near_duplicate_summary.json
+Classification - SDNET2018,Best Validation Loss Epoch,VALIDATION,7,infrascan/ml/notebooks/models/classification/sdnet2018/history.csv
+Classification - SDNET2018,Best Validation Loss,VALIDATION,0.4955,infrascan/ml/notebooks/models/classification/sdnet2018/history.csv
+Classification - SDNET2018,Epoch 14 Validation Loss,VALIDATION,0.7225,infrascan/ml/notebooks/models/classification/sdnet2018/history.csv
+Classification - SDNET2018,Epoch 14 Training Loss,TRAIN,0.0150,infrascan/ml/notebooks/models/classification/sdnet2018/history.csv
+Classification - SDNET2018,Single Image Latency (Host CPU),TEST,9.53 ms,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Classification - SDNET2018,Model Size,TRAIN,89.97 MB,infrascan/ml/models/classification/sdnet2018/evaluation/test_metrics.json
+Detection - RDD2022,Training Subset Image Count,TRAIN,8000,data/processed/rdd2022_yolo_small
+Detection - RDD2022,Validation Image Count,VALIDATION,1500,data/processed/rdd2022_yolo_small
+Detection - RDD2022,Test Image Count,TEST,not evaluated,data/processed/rdd2022_yolo_small
+Detection - YOLOv8s,Best Epoch (by mAP@50),VALIDATION,38,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation Precision (Epoch 38),VALIDATION,0.5211,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation Recall (Epoch 38),VALIDATION,0.4528,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation mAP@50 (Epoch 38),VALIDATION,0.4554,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation mAP@50:95 (Epoch 38),VALIDATION,0.2220,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation Precision (Epoch 40),VALIDATION,0.5505,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation Recall (Epoch 40),VALIDATION,0.4440,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation mAP@50 (Epoch 40),VALIDATION,0.4545,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLOv8s,Validation mAP@50:95 (Epoch 40),VALIDATION,0.2220,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - YOLO11s,Best Epoch (by mAP@50),VALIDATION,38,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation Precision (Epoch 38),VALIDATION,0.5534,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation Recall (Epoch 38),VALIDATION,0.4161,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation mAP@50 (Epoch 38),VALIDATION,0.4437,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation mAP@50:95 (Epoch 38),VALIDATION,0.2151,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation Precision (Epoch 40),VALIDATION,0.5457,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation Recall (Epoch 40),VALIDATION,0.4197,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation mAP@50 (Epoch 40),VALIDATION,0.4415,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - YOLO11s,Validation mAP@50:95 (Epoch 40),VALIDATION,0.2159,infrascan/ml/detection/yolo11s_rdd2022/results.csv
+Detection - RDD2022,Validation mAP@50:95 Gap (v8s - 11s),VALIDATION,0.0061,infrascan/ml/detection/yolov8s_rdd2022/results.csv
+Detection - RDD2022,Test Split Metrics,TEST,test split not evaluated,infrascan/ml/detection/yolov8s_rdd2022
+Segmentation - Validation,Validation Sample Count,VALIDATION,341,infrascan/ml/models/segmentation/unetplusplus_crack500/run_card.json
+Segmentation - Validation,U-Net++ Optimal Threshold,VALIDATION,0.40,infrascan/ml/models/segmentation/unetplusplus_crack500/run_card.json
+Segmentation - Validation,U-Net++ Validation Dice,VALIDATION,0.7482,infrascan/ml/models/segmentation/unetplusplus_crack500/run_card.json
+Segmentation - Validation,U-Net++ Validation IoU,VALIDATION,0.6265,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Validation,U-Net++ Validation Precision,VALIDATION,0.7698,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Validation,U-Net++ Validation Recall,VALIDATION,0.7962,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Validation,Standard U-Net Optimal Threshold,VALIDATION,0.25,infrascan/ml/models/segmentation/unet_crack500/run_card.json
+Segmentation - Validation,Standard U-Net Validation Dice,VALIDATION,0.7335,infrascan/ml/models/segmentation/unet_crack500/run_card.json
+Segmentation - Validation,Standard U-Net Validation IoU,VALIDATION,0.6056,infrascan/ml/models/segmentation/unet_crack500/run_card.json
+Segmentation - Validation,Validation Dice Difference (U-Net++ vs U-Net),VALIDATION,0.0147,infrascan/ml/models/segmentation/unetplusplus_crack500/run_card.json
+Segmentation - Validation,Local Validation Reproducibility Diff,VALIDATION,0.000005,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Clean Test Sample Count,TEST,1087,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Raw Test Crops,TEST,1124,docs/08_dataset_cleaning.md
+Segmentation - Crack500,Excluded Overlap Crops,TEST,37,docs/08_dataset_cleaning.md
+Segmentation - Crack500,Mean Dice,TEST,0.6899,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Dice 95% CI Lower,TEST,0.6801,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Dice 95% CI Upper,TEST,0.7001,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Mean IoU,TEST,0.5481,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,IoU 95% CI Lower,TEST,0.5382,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,IoU 95% CI Upper,TEST,0.5586,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Precision,TEST,0.6933,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Recall,TEST,0.7442,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Pixel-Pooled Dice,TEST,0.7309,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Pixel-Pooled IoU,TEST,0.5759,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Boundary F1 (3px),TEST,0.4523,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Pixel Accuracy,TEST,0.9696,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Specificity,TEST,0.9826,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_test_metrics.json
+Segmentation - Crack500,Thickness Thin Count,TEST,363,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thin Mean Width,TEST,9.62 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thin Mean Dice,TEST,0.6296,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thin Mean IoU,TEST,0.4804,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Medium Count,TEST,362,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Medium Mean Width,TEST,16.99 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Medium Mean Dice,TEST,0.7095,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Medium Mean IoU,TEST,0.5650,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thick Count,TEST,362,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thick Mean Width,TEST,30.28 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thick Mean Dice,TEST,0.7308,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Thickness Thick Mean IoU,TEST,0.5989,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Crack500,Shared Parent Photos,TEST,0,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/leakage_report.json
+Segmentation - Crack500,Near-Duplicates (dHash <= 2),TEST,0,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/leakage_report.json
+Segmentation - Crack500,Mean Min Hamming Distance,TEST,17.80 bits,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/leakage_report.json
+Segmentation - Crack500,Empty Predictions Count,TEST,17,infrascan/ml/geometry/geometry_results.csv
+Segmentation - Crack500,Empty Predictions Percentage,TEST,1.56%,infrascan/ml/geometry/geometry_results.csv
+Segmentation - Crack500,Empty True Masks Count,TEST,0,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - CFD,Test Sample Count,TEST,118,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Mean Dice,TEST,0.4533,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Dice 95% CI Lower,TEST,0.4187,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Dice 95% CI Upper,TEST,0.4873,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Mean IoU,TEST,0.3109,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,IoU 95% CI Lower,TEST,0.2839,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,IoU 95% CI Upper,TEST,0.3384,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Precision,TEST,0.4390,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Recall,TEST,0.7024,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Pixel-Pooled Dice,TEST,0.4214,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Pixel-Pooled IoU,TEST,0.2669,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Boundary F1 (3px),TEST,0.5906,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Pixel Accuracy,TEST,0.9663,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Specificity,TEST,0.9764,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_test_metrics.json
+Segmentation - CFD,Thickness Thin Count,TEST,40,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thin Width Range,TEST,[2.08, 3.06] px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thin Mean Width,TEST,2.76 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thin Mean Dice,TEST,0.3472,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thin Mean IoU,TEST,0.2223,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Medium Count,TEST,39,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Medium Width Range,TEST,[3.07, 3.85] px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Medium Mean Width,TEST,3.41 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Medium Mean Dice,TEST,0.4727,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Medium Mean IoU,TEST,0.3232,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thick Count,TEST,39,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thick Width Range,TEST,[3.89, 40.76] px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thick Mean Width,TEST,6.96 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thick Mean Dice,TEST,0.5428,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - CFD,Thickness Thick Mean IoU,TEST,0.3896,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/summary.md
+Segmentation - Comparison,CFD Overall Mean True Width,TEST,4.38 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_per_image_metrics.csv
+Segmentation - Comparison,Crack500 Overall Mean True Width,TEST,18.96 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,Crack500 Count in CFD Thin Range [2.08, 3.06],TEST,0,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,Crack500 Count in CFD Medium Range [3.07, 3.85],TEST,1,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,Crack500 in [3.89, 10.0 px] Count,TEST,191,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,Crack500 in [3.89, 10.0 px] Mean Width,TEST,7.93 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,Crack500 in [3.89, 10.0 px] Mean Dice,TEST,0.6163,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,Crack500 in [3.89, 10.0 px] Mean IoU,TEST,0.4633,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/crack500_per_image_metrics.csv
+Segmentation - Comparison,CFD in [3.89, 10.0 px] Count,TEST,35,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_per_image_metrics.csv
+Segmentation - Comparison,CFD in [3.89, 10.0 px] Mean Width,TEST,4.93 px,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_per_image_metrics.csv
+Segmentation - Comparison,CFD in [3.89, 10.0 px] Mean Dice,TEST,0.5654,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_per_image_metrics.csv
+Segmentation - Comparison,CFD in [3.89, 10.0 px] Mean IoU,TEST,0.4084,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/cfd_per_image_metrics.csv
+Segmentation - Complexity,Model Size,TRAIN,99.66 MB,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/speed_and_size.json
+Segmentation - Complexity,Total Parameters,TRAIN,26078609,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/speed_and_size.json
+Segmentation - Latency,Mean Inference Latency (Host CPU),TEST,1349.14 ms,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/speed_and_size.json
+Segmentation - Latency,Median Inference Latency (Host CPU),TEST,1331.18 ms,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/speed_and_size.json
+Segmentation - Latency,P95 Inference Latency (Host CPU),TEST,1510.49 ms,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/speed_and_size.json
+Segmentation - Latency,Inference Latency (GPU),TEST,not assessed on GPU,infrascan/ml/models/segmentation/unetplusplus_crack500/evaluation/speed_and_size.json
+Geometry - 1087 Images,Length MAE (All 1,087),TEST,140.32 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1087 Images,Length Signed Error (All 1,087),TEST,-39.06 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1087 Images,Width MAE (All 1,087),TEST,4.74 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1087 Images,Width Signed Error (All 1,087),TEST,+0.80 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1087 Images,Ground Truth Mean Length (All 1,087),TEST,732.85 px,data/processed/manifests/crack500.csv
+Geometry - 1087 Images,Predicted Mean Length (All 1,087),TEST,693.79 px,infrascan/ml/geometry/geometry_results.csv
+Geometry - 1087 Images,Ground Truth Mean Width (All 1,087),TEST,19.01 px,data/processed/manifests/crack500.csv
+Geometry - 1087 Images,Predicted Mean Width (All 1,087),TEST,19.80 px,infrascan/ml/geometry/geometry_results.csv
+Geometry - 1070 Non-Empty,Length MAE (1,070 Non-Empty),TEST,138.04 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1070 Non-Empty,Length Signed Error (1,070 Non-Empty),TEST,-35.18 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1070 Non-Empty,Width MAE (1,070 Non-Empty),TEST,4.54 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1070 Non-Empty,Width Signed Error (1,070 Non-Empty),TEST,+1.08 px,data/processed/manifests/crack500.csv & infrascan/ml/geometry/geometry_results.csv
+Geometry - 1070 Non-Empty,Ground Truth Mean Length (1,070 Non-Empty),TEST,739.99 px,data/processed/manifests/crack500.csv
+Geometry - 1070 Non-Empty,Predicted Mean Length (1,070 Non-Empty),TEST,704.81 px,infrascan/ml/geometry/geometry_results.csv
+Geometry - 1070 Non-Empty,Ground Truth Mean Width (1,070 Non-Empty),TEST,19.03 px,data/processed/manifests/crack500.csv
+Geometry - 1070 Non-Empty,Predicted Mean Width (1,070 Non-Empty),TEST,20.11 px,infrascan/ml/geometry/geometry_results.csv
+Geometry - 17 Empty Preds,Ground Truth Mean Length (17 Empty Preds),TEST,283.34 px,data/processed/manifests/crack500.csv
+Geometry - 17 Empty Preds,Ground Truth Mean Width (17 Empty Preds),TEST,17.26 px,data/processed/manifests/crack500.csv
+Geometry - Method,Method Uncertainty Bound,VALIDATION,+-1.0 px,infrascan/ml/geometry/crack_geometry.py
+Geometry - Distribution,Mean Skeleton Length (1,070 Cracked),TEST,704.81 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Median Skeleton Length (1,070 Cracked),TEST,676.66 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,P95 Skeleton Length (1,070 Cracked),TEST,1322.84 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Transverse Width (1,070 Cracked),TEST,20.11 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Median Transverse Width (1,070 Cracked),TEST,18.80 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,P95 Transverse Width (1,070 Cracked),TEST,34.83 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Max Width (1,070 Cracked),TEST,40.95 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Crack Area (1,070 Cracked),TEST,13516.25 px,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Surface Area Fraction (1,070 Cracked),TEST,5.87%,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Orientation (1,070 Cracked),TEST,90.14 deg,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Connected Components (1,070 Cracked),TEST,1.98,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Branch Points (1,070 Cracked),TEST,10.68,infrascan/ml/geometry/geometry_summary.csv
+Geometry - Distribution,Mean Endpoints (1,070 Cracked),TEST,7.03,infrascan/ml/geometry/geometry_summary.csv

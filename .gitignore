@@ -51,3 +51,15 @@ datasets/
 .vscode/
 .idea/
 *.log
+# Model weights, checkpoints, and archives
+*.pth
+*.pt
+*.bin
+*.onnx
+*.weights
+**/weights/
+**/checkpoints/
+*.zip
+*.tar
+*.tar.gz
+*.rar

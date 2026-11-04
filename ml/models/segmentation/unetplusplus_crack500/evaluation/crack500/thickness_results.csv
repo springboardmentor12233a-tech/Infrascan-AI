@@ -1,0 +1,4 @@
+thickness_group,count,min_width_px,max_width_px,mean_width_px,mean_dice,mean_iou,mean_recall
+thin,363,3.75,13.05,9.62,0.6296,0.4804,0.7504
+medium,362,13.06,21.31,16.99,0.7095,0.565,0.757
+thick,362,21.34,73.02,30.28,0.7308,0.5989,0.7252

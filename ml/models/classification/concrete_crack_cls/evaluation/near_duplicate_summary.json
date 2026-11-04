@@ -1,0 +1,20 @@
+{
+  "total_test_images_checked": 5760,
+  "exact_duplicates_dist_0": 518,
+  "near_duplicates_dist_1": 264,
+  "near_duplicates_dist_2": 149,
+  "total_near_duplicates_dist_0_to_2": 931,
+  "percentage_near_duplicates": 16.16,
+  "metrics_with_near_duplicate": {
+    "count": 931,
+    "recall": 1.0,
+    "f1": 1.0,
+    "precision": 1.0
+  },
+  "metrics_without_near_duplicate": {
+    "count": 4829,
+    "recall": 0.9995,
+    "f1": 0.9995,
+    "precision": 0.9995
+  }
+}

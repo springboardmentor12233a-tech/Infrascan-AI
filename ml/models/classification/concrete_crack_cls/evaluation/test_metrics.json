@@ -1,0 +1,69 @@
+{
+  "accuracy": 0.9997,
+  "balanced_accuracy": 0.9997,
+  "precision": 0.9997,
+  "recall": 0.9997,
+  "specificity": 0.9996,
+  "f1": 0.9997,
+  "false_positive_rate": 0.0004,
+  "false_negative_rate": 0.0003,
+  "auc_roc": 1.0,
+  "average_precision": 1.0,
+  "tp": 2951,
+  "fp": 1,
+  "tn": 2807,
+  "fn": 1,
+  "threshold_used": 0.4951,
+  "number_of_images": 5760,
+  "confidence_intervals_95": {
+    "recall": {
+      "mean": 0.9997,
+      "ci_lower_95": 0.999,
+      "ci_upper_95": 1.0
+    },
+    "precision": {
+      "mean": 0.9997,
+      "ci_lower_95": 0.999,
+      "ci_upper_95": 1.0
+    },
+    "f1": {
+      "mean": 0.9997,
+      "ci_lower_95": 0.9991,
+      "ci_upper_95": 1.0
+    },
+    "auc_roc": {
+      "mean": 1.0,
+      "ci_lower_95": 1.0,
+      "ci_upper_95": 1.0
+    }
+  },
+  "leakage_audit": {
+    "total_test_images_checked": 5760,
+    "exact_duplicates_dist_0": 518,
+    "near_duplicates_dist_1": 264,
+    "near_duplicates_dist_2": 149,
+    "total_near_duplicates_dist_0_to_2": 931,
+    "percentage_near_duplicates": 16.16,
+    "metrics_with_near_duplicate": {
+      "count": 931,
+      "recall": 1.0,
+      "f1": 1.0,
+      "precision": 1.0
+    },
+    "metrics_without_near_duplicate": {
+      "count": 4829,
+      "recall": 0.9995,
+      "f1": 0.9995,
+      "precision": 0.9995
+    }
+  },
+  "speed_and_size_benchmark": {
+    "model_file_size_mb": 89.97,
+    "single_image_latency_ms": 9.19,
+    "single_image_latency_std_ms": 1.5,
+    "single_image_latency_sec": 0.0092,
+    "batch_64_throughput_images_per_sec": 299.94,
+    "target_latency_sec": 3.0,
+    "target_satisfied": true
+  }
+}

@@ -1,0 +1,11 @@
+Metric,Mean,Median (p50),95th Percentile (p95)
+length_px,704.81,676.66,1322.84
+avg_width_px,20.11,18.8,34.83
+max_width_px,40.95,38.73,70.0
+p95_width_px,34.42,32.25,61.9
+area_px,13516.25,11912.0,29692.0
+density_percent,5.87,5.17,12.89
+orientation_deg,90.14,89.55,178.01
+num_components,1.98,1.0,5.0
+num_branch_points,10.68,7.0,30.55
+num_end_points,7.03,6.0,16.0

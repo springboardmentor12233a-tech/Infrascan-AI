@@ -1,0 +1,36 @@
+{
+  "model_name": "unet",
+  "run_name": "unet_crack500",
+  "date_utc": "2026-10-30T13:12:29.175606+00:00",
+  "torch_version": "2.11.0+cu128",
+  "smp_version": "0.6.0",
+  "seed": 42,
+  "debug_mode": false,
+  "hyperparameters": {
+    "encoder": "resnet34",
+    "encoder_weights": "imagenet",
+    "image_crop_train": 384,
+    "pad_multiple_eval": 32,
+    "batch_size": 8,
+    "max_epochs": 40,
+    "early_stopping_patience": 8,
+    "lr_encoder": 0.0003,
+    "lr_decoder": 0.001,
+    "mixed_precision": true
+  },
+  "dataset_counts": {
+    "train": 1860,
+    "val": 341
+  },
+  "best_validation_results": {
+    "best_val_dice_at_05": 0.7299,
+    "optimal_threshold": 0.25,
+    "optimal_val_dice": 0.7335
+  },
+  "hardware": {
+    "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+    "python_version": "3.13.15",
+    "cuda_available": true,
+    "device_name": "Tesla T4"
+  }
+}

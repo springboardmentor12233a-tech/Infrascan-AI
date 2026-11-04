@@ -1,0 +1,33 @@
+{
+  "model_name": "resnet50",
+  "dataset": "concrete_crack_cls",
+  "manifest_name": "concrete_crack_cls.csv",
+  "class_mapping": {
+    "cracked": 1,
+    "uncracked": 0,
+    "positive": 1,
+    "negative": 0,
+    "1": 1,
+    "0": 0
+  },
+  "image_size": 224,
+  "normalize_mode": "imagenet",
+  "clahe_enabled": true,
+  "chosen_threshold": 0.4951,
+  "validation_metrics_at_threshold": {
+    "f1_score": 0.9997,
+    "recall": 1.0,
+    "precision": 0.9993,
+    "accuracy": 0.9997,
+    "auc_roc": 1.0
+  },
+  "seed": 42,
+  "best_epoch": 0,
+  "epochs_run": 14,
+  "train_samples": 26881,
+  "val_samples": 5761,
+  "pos_weight": 0.9509,
+  "torch_version": "2.11.0+cu128",
+  "torchvision_version": "0.26.0+cu128",
+  "date": "2026-10-28T02:45:51.237940"
+}

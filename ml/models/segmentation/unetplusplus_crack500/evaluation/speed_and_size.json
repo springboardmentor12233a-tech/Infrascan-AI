@@ -1,0 +1,18 @@
+{
+  "model_file_size_mb": 99.66,
+  "parameter_count_total": 26078609,
+  "parameter_count_trainable": 26078609,
+  "benchmark_input_size": [
+    384,
+    384
+  ],
+  "benchmark_device": "CPU (Intel64 Family 6 Model 142 Stepping 12, GenuineIntel)",
+  "device_type": "cpu",
+  "warmup_runs": 10,
+  "timed_runs": 100,
+  "mean_latency_ms": 1349.14,
+  "median_latency_ms": 1331.18,
+  "p95_latency_ms": 1510.49,
+  "frames_per_second": 0.74,
+  "hardware_sla_note": "Inference benchmark was executed on CPU. CPU timings reflect execution on host development hardware and are not comparable with the production 3-second GPU SLA target. On Kaggle Tesla T4 GPU, mean inference latency is ~42 ms/image."
+}
