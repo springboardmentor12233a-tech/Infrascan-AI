@@ -1,0 +1,8 @@
+@"
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.env
+*.pyc
+data/
+"@ | Out-File -Encoding utf8 .gitignore
