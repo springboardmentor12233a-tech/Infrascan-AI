@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f3f6fa;
+}
+
+.navbar {
+  width: 100%;
+  background: #142b4a;
+  color: white;
+  padding: 20px 7%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.navbar span {
+  font-size: 14px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 20px;
+  flex: 1;
+}
+
+.welcome {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.welcome h1 {
+  color: #142b4a;
+  font-size: 32px;
+}
+
+.welcome p {
+  color: #64748b;
+}
+
+.upload-card {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 35px;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.upload-card h2 {
+  margin-top: 0;
+}
+
+.upload-card input {
+  display: block;
+  margin: 25px auto;
+  max-width: 100%;
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+button {
+  background: #1769aa;
+  color: white;
+  border: none;
+  padding: 13px 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #125487;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+footer {
+  width: 100%;
+  text-align: center;
+  padding: 25px;
+  color: #64748b;
+}
