@@ -2,6 +2,16 @@ import io
 import json
 import os
 import uuid
+
+import threading
+import cv2
+import numpy as np
+from fastapi.responses import FileResponse
+
+try:
+    from ultralytics import YOLO
+except ImportError:
+    YOLO = None
 from pathlib import Path
 from PIL import Image as PILImage, ImageEnhance, ImageFilter, ImageOps
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
@@ -9,8 +19,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from .auth import current_user, hash_password, make_token, verify_password
 from .db import Base, engine, get_db
-from .models import Asset, Image, Inspection, User
-from .schemas import AssetIn, AssetOut, AuthIn, InspectionIn, InspectionOut, PasswordIn, TokenOut, UserOut
+from .models import Image, InfrastructureAsset, Inspection, User
+from .legacy_schemas import AssetIn, AssetOut, AuthIn, InspectionIn, InspectionOut, PasswordIn, TokenOut, UserOut
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="InfraScan API", version="1.0.0")
@@ -28,6 +38,29 @@ MEDIA = Path(os.getenv("INFRASCAN_MEDIA_DIR", Path(__file__).resolve().parent.pa
 MEDIA.mkdir(parents=True, exist_ok=True)
 MAX_BYTES = 25 * 1024 * 1024
 ALLOWED = {"image/jpeg", "image/png"}
+
+YOLO_MODEL_PATH = Path(__file__).resolve().parents[2] / "runs" / "road_damage" / "yolo11n_initial" / "weights" / "best.pt"
+_yolo_model = None
+_yolo_model_lock = threading.Lock()
+_yolo_annotated_paths: dict[int, Path] = {}
+
+
+def get_yolo_model():
+    global _yolo_model
+    if _yolo_model is not None:
+        return _yolo_model
+    if YOLO is None:
+        raise HTTPException(503, "Ultralytics YOLO is not installed")
+    if not YOLO_MODEL_PATH.is_file():
+        raise HTTPException(503, f"YOLO model file not found: {YOLO_MODEL_PATH}")
+    with _yolo_model_lock:
+        if _yolo_model is None:
+            try:
+                _yolo_model = YOLO(str(YOLO_MODEL_PATH))
+            except Exception as exc:
+                raise HTTPException(503, "Unable to load the YOLO model") from exc
+    return _yolo_model
+
 
 @app.get("/health")
 def health():
@@ -61,33 +94,33 @@ def change_password(payload: PasswordIn, db: Session = Depends(get_db), user: Us
 
 @app.get("/api/assets", response_model=list[AssetOut])
 def list_assets(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    return db.query(Asset).order_by(Asset.created_at.desc()).all()
+    return db.query(InfrastructureAsset).order_by(InfrastructureAsset.created_at.desc()).all()
 
 @app.post("/api/assets", response_model=AssetOut, status_code=201)
 def create_asset(payload: AssetIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if db.query(Asset).filter(Asset.asset_id == payload.asset_id).first():
+    if db.query(InfrastructureAsset).filter(InfrastructureAsset.asset_id == payload.asset_id).first():
         raise HTTPException(409, "Asset ID already exists")
-    asset = Asset(**payload.model_dump()); db.add(asset); db.commit(); db.refresh(asset)
+    asset = InfrastructureAsset(**payload.model_dump()); db.add(asset); db.commit(); db.refresh(asset)
     return asset
 
 @app.put("/api/assets/{asset_id}", response_model=AssetOut)
 def update_asset(asset_id: str, payload: AssetIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    asset = db.query(Asset).filter(Asset.asset_id == asset_id).first()
+    asset = db.query(InfrastructureAsset).filter(InfrastructureAsset.asset_id == asset_id).first()
     if not asset: raise HTTPException(404, "Asset not found")
-    duplicate = db.query(Asset).filter(Asset.asset_id == payload.asset_id, Asset.id != asset.id).first()
+    duplicate = db.query(InfrastructureAsset).filter(InfrastructureAsset.asset_id == payload.asset_id, InfrastructureAsset.asset_id != asset.asset_id).first()
     if duplicate: raise HTTPException(409, "Asset ID already exists")
     for key, value in payload.model_dump().items(): setattr(asset, key, value)
     db.commit(); db.refresh(asset); return asset
 
 @app.delete("/api/assets/{asset_id}", status_code=204)
 def delete_asset(asset_id: str, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    asset = db.query(Asset).filter(Asset.asset_id == asset_id).first()
+    asset = db.query(InfrastructureAsset).filter(InfrastructureAsset.asset_id == asset_id).first()
     if not asset: raise HTTPException(404, "Asset not found")
     db.delete(asset); db.commit()
 
 @app.post("/api/inspections", response_model=InspectionOut, status_code=201)
 def create_inspection(payload: InspectionIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not db.get(Asset, payload.asset_id): raise HTTPException(404, "Asset not found")
+    if not db.get(InfrastructureAsset, payload.asset_id): raise HTTPException(404, "Asset not found")
     inspection = Inspection(**payload.model_dump()); db.add(inspection); db.commit(); db.refresh(inspection); return inspection
 
 @app.get("/api/inspections", response_model=list[InspectionOut])
@@ -126,3 +159,80 @@ def preprocess_image(image_id: int, resize: int = 1024, brightness: float = 1.0,
     record.processed_path = str(out); record.preprocessing_metadata = json.dumps({"resize": [resize, resize], "brightness": brightness, "contrast": contrast, "noise_reduction": "median-3", "sharpening": "Pillow SHARPEN", "original_preserved": True})
     db.commit()
     return {"image_id": image_id, "processed_path": str(out), "metadata": json.loads(record.preprocessing_metadata)}
+
+
+@app.post("/api/images/{image_id}/analyze/yolo")
+def analyze_yolo(image_id: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    record = db.get(Image, image_id)
+    if not record:
+        raise HTTPException(404, "Image not found")
+
+    image_path = Path(record.original_path).resolve()
+    try:
+        image_path.relative_to(MEDIA.resolve())
+    except ValueError:
+        raise HTTPException(400, "Image is outside the configured media directory")
+
+    if not image_path.is_file():
+        raise HTTPException(404, "Uploaded image file not found")
+
+    model = get_yolo_model()
+    try:
+        predictions = model.predict(source=str(image_path), device="cpu", verbose=False)
+    except Exception as exc:
+        raise HTTPException(500, "YOLO prediction failed") from exc
+
+    if not predictions:
+        raise HTTPException(500, "YOLO returned no prediction result")
+
+    prediction = predictions[0]
+    names = prediction.names
+    detections = []
+    boxes = prediction.boxes
+
+    if boxes is not None:
+        coordinates = boxes.xyxy.detach().cpu().numpy()
+        confidences = boxes.conf.detach().cpu().numpy()
+        class_ids = boxes.cls.detach().cpu().numpy().astype(int)
+
+        for box, confidence, class_id in zip(coordinates, confidences, class_ids):
+            class_name = names[class_id] if isinstance(names, (list, tuple)) else names.get(class_id, str(class_id))
+            detections.append({
+                "class_id": int(class_id),
+                "class_name": str(class_name),
+                "confidence": float(confidence),
+                "bounding_box": {
+                    "x1": float(box[0]),
+                    "y1": float(box[1]),
+                    "x2": float(box[2]),
+                    "y2": float(box[3]),
+                },
+            })
+
+    output_path = MEDIA / f"yolo_{image_id}_{uuid.uuid4().hex}.jpg"
+    if not cv2.imwrite(str(output_path), np.asarray(prediction.plot())):
+        raise HTTPException(500, "Unable to save annotated YOLO prediction image")
+
+    _yolo_annotated_paths[image_id] = output_path
+
+    return {
+        "image_id": image_id,
+        "model": YOLO_MODEL_PATH.name,
+        "total_detections": len(detections),
+        "detections": detections,
+        "annotated_image_url": f"/api/images/{image_id}/analyze/yolo/annotated",
+    }
+
+
+@app.get("/api/images/{image_id}/analyze/yolo/annotated")
+def get_annotated_yolo_image(image_id: int, user: User = Depends(current_user)):
+    output_path = _yolo_annotated_paths.get(image_id)
+    if output_path is None or not output_path.is_file():
+        raise HTTPException(404, "Annotated YOLO image not found; run analysis first")
+
+    try:
+        output_path.resolve().relative_to(MEDIA.resolve())
+    except ValueError as exc:
+        raise HTTPException(500, "Annotated image path is outside the media directory") from exc
+
+    return FileResponse(output_path, media_type="image/jpeg")
