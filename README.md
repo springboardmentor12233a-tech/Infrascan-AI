@@ -20,7 +20,8 @@ InfraScan aims to use Artificial Intelligence and Computer Vision to identify cr
 
 ## Current Status
 
-Initial project structure created. Dataset research and EDA are the next steps.
+Milestone 2 AI development and evaluation are complete for the verified
+classification, detection, segmentation, and crack-measurement workflows.
 
 ## Milestone 1 Implementation
 
@@ -38,3 +39,30 @@ audit logging.
 
 Keep credentials and local `.env` files out of Git. Virtual environments,
 dependency directories, caches, generated output, and raw datasets are ignored.
+
+## Milestone 2 Implementation
+
+Milestone 2 adds the AI model development and evaluation workflows:
+
+- **CNN crack classification:** trained on 40,000 concrete images
+  (32,000 training and 8,000 validation images). Validation accuracy is
+  `0.996875`, with F1-score `0.9968762`.
+- **YOLO road-damage detection:** detects `Crack`, `Pothole`, and
+  `Surface Erosion` using bounding boxes. The verified model achieved
+  precision `0.597`, recall `0.551`, mAP50 `0.586`, and mAP50-95 `0.273`.
+- **U-Net crack segmentation:** trained and evaluated using 118 verified
+  CrackForest image-mask pairs (94 training and 24 validation pairs).
+  Verified IoU is `0.4054` and Dice is `0.5769`.
+- **Crack geometry measurement:** reports cleaned crack area, skeleton-based
+  length, average width, and maximum width in pixels.
+- **FastAPI integration:** the existing YOLO model can be run through the
+  authenticated image-analysis endpoint and displayed in the frontend.
+
+Milestone 2 models are decision-support tools, not certified structural safety
+assessments. The YOLO model is trained for road-damage imagery and may
+misclassify unusual or building-related cracks. An experimental fine-tuned
+checkpoint exists separately, but it has not replaced the verified production
+checkpoint because further representative road-crack annotations are needed.
+
+Detailed results and limitations are documented in
+[`reports/milestone_2_report.md`](../reports/milestone_2_report.md).
