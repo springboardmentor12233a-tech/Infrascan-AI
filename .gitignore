@@ -51,3 +51,10 @@ datasets/
 .vscode/
 .idea/
 *.log
+# Training outputs and model weights
+runs/
+**/runs/
+*.pt
+*.pth
+*.keras
+*.h5
