@@ -16,7 +16,7 @@ def test_segmentation_metrics_and_geometry():
 
 
 def test_quality_assessment_uses_real_image():
-    path = next(Path("datasets/concrete_cracks/extracted/Positive").glob("*.jpg"))
+    path = next(Path("datasets/Positive").glob("*.jpg"))
     quality = assess_image(path)
     assert quality.width > 0
     assert quality.height > 0

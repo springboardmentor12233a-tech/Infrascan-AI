@@ -1,25 +1,19 @@
-﻿{
-    "scripts":  {
-                    "dev":  "vite",
-                    "build":  "vite build",
-                    "preview":  "vite preview"
-                },
-    "dependencies":  {
-                         "@vitejs/plugin-react":  "latest",
-                         "vite":  "latest",
-                         "react":  "latest",
-                         "react-dom":  "latest",
-                         "lucide-react":  "latest",
-                         "chart.js":  "latest",
-                         "react-chartjs-2":  "latest",
-                         "plotly.js-dist-min":  "latest",
-                         "react-plotly.js":  "latest",
-                         "tailwindcss":  "latest",
-                         "@tailwindcss/vite":  "latest",
-                         "typescript":  "latest"
-                     },
-    "devDependencies":  {
-
-                        },
-    "type":  "module"
+{
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@vitejs/plugin-react": "latest",
+        "chart.js": "latest",
+        "lucide-react": "latest",
+        "plotly.js-dist-min": "latest",
+        "react": "latest",
+        "react-chartjs-2": "latest",
+        "react-dom": "latest",
+        "react-plotly.js": "latest",
+        "vite": "latest"
+    },
+    "type": "module"
 }

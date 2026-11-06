@@ -69,3 +69,6 @@ backend/*.db
 backend/uploads/*
 backend/processed/*
 frontend/node_modules/
+
+# Frontend npm cache
+frontend/.npm-cache/
