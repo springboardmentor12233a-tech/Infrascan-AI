@@ -65,10 +65,15 @@ runs/
 *.pyc
 .env
 datasets/
-backend/*.db
+*.db
+**/*.db
+*.sqlite
+*.sqlite3
 backend/uploads/*
 backend/processed/*
 frontend/node_modules/
 
 # Frontend npm cache
 frontend/.npm-cache/
+.pip-cache/
+**/.pip-cache/

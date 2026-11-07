@@ -19,7 +19,8 @@ def register(
 ):
     """Register a new user. Role is automatically set to inspector."""
     # Check if email is already taken
-    existing_user = db.query(User).filter(User.email == user_data.email).first()
+    email = user_data.email.lower().strip()
+    existing_user = db.query(User).filter(User.email == email).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -32,7 +33,7 @@ def register(
     # New users always receive the inspector role
     new_user = User(
         full_name=user_data.full_name,
-        email=user_data.email,
+        email=email,
         password_hash=hashed,
         role="inspector",
         is_active=True,
@@ -52,34 +53,56 @@ def register(
         ip_address=client_ip,
     )
 
-    return new_user
+    token = create_access_token({"sub": new_user.email, "role": new_user.role, "user_id": new_user.user_id})
+    res = UserResponse.model_validate(new_user)
+    res.access_token = token
+    return res
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(
+async def login(
     request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    """Authenticate with OAuth2 password form and return JWT token and role."""
+    """Authenticate with OAuth2 password form or JSON and return JWT token and role."""
     client_ip = request.client.host if request.client else None
+    content_type = request.headers.get("content-type", "")
+    username = None
+    password = None
 
-    # Look up user by email
-    user = db.query(User).filter(User.email == form_data.username).first()
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            username = body.get("username") or body.get("email")
+            password = body.get("password")
+        except Exception:
+            pass
+    else:
+        try:
+            form = await request.form()
+            username = form.get("username") or form.get("email")
+            password = form.get("password")
+        except Exception:
+            pass
 
-    # Generic error message to prevent email enumeration
     invalid_credentials_error = HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Incorrect email or password",
     )
 
-    if not user or not verify_password(form_data.password, user.password_hash):
+    if not username or not password:
+        raise invalid_credentials_error
+
+    # Look up user by email
+    user = db.query(User).filter(User.email == str(username).lower().strip()).first()
+
+    if not user or not verify_password(password, user.password_hash):
         create_audit_log(
             db=db,
             action="login_failure",
             user_id=user.user_id if user else None,
             entity_type="auth",
-            entity_id=form_data.username,
+            entity_id=str(username),
             ip_address=client_ip,
         )
         raise invalid_credentials_error
@@ -90,7 +113,7 @@ def login(
             action="login_failure",
             user_id=user.user_id,
             entity_type="auth",
-            entity_id=form_data.username,
+            entity_id=str(username),
             ip_address=client_ip,
         )
         raise HTTPException(
@@ -110,4 +133,11 @@ def login(
         ip_address=client_ip,
     )
 
-    return TokenResponse(access_token=token, token_type="bearer", role=user.role)
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        role=user.role,
+        user_id=user.user_id,
+        email=user.email,
+        full_name=user.full_name,
+    )

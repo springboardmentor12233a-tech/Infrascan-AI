@@ -343,7 +343,7 @@ export const Upload: React.FC = () => {
                     or drag and drop inspection images here
                   </div>
                   <p className="text-xs text-slate-400">
-                    JPG, JPEG, PNG up to 20 MB each (min 640 x 480 resolution)
+                    JPG, JPEG, PNG up to 25 MB each (minimum 227 x 227 resolution)
                   </p>
 
                   <div className="pt-2 flex justify-center space-x-3">

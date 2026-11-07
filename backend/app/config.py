@@ -10,14 +10,14 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/infrascan_db"
 
     # Application secret key
-    SECRET_KEY: str = "dev_secret_key_change_me"
+    SECRET_KEY: str = "dev_secret_key_change_me_super_secure_32bytes"
 
     # Storage configuration
     UPLOAD_DIR: str = "storage/uploads"
     PROCESSED_DIR: str = "storage/processed"
     MAX_UPLOAD_SIZE_MB: int = 20
-    MIN_IMAGE_WIDTH: int = 640
-    MIN_IMAGE_HEIGHT: int = 480
+    MIN_IMAGE_WIDTH: int = 227
+    MIN_IMAGE_HEIGHT: int = 227
 
     # Image quality check thresholds (tuned in config)
     BLUR_THRESHOLD: float = 100.0

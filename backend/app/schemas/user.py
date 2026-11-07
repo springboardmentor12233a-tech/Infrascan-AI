@@ -1,12 +1,19 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 
 # Schema for user registration (role is not selectable by user)
 class UserRegisterRequest(BaseModel):
-    full_name: str = Field(..., min_length=1, max_length=100, description="Full name")
+    full_name: str | None = None
+    name: str | None = None
     email: EmailStr = Field(..., description="Valid email address")
-    password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
+    password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
+
+    @model_validator(mode="after")
+    def populate_name(self):
+        if not self.full_name:
+            self.full_name = self.name or self.email.split("@")[0]
+        return self
 
 
 # Schema returned upon successful login
@@ -14,6 +21,9 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     role: str
+    user_id: int | None = None
+    email: str | None = None
+    full_name: str | None = None
 
 
 # Public/Safe user representation
@@ -24,6 +34,8 @@ class UserResponse(BaseModel):
     role: str
     is_active: bool
     created_at: datetime
+    access_token: str | None = None
+    token_type: str | None = "bearer"
 
     model_config = ConfigDict(from_attributes=True)
 

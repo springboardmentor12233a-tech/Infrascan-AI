@@ -24,13 +24,21 @@ def get_current_user(
     )
     try:
         payload = decode_access_token(token)
-        email: str | None = payload.get("sub")
-        if email is None:
+        sub: str | None = payload.get("sub")
+        if sub is None:
             raise credentials_exception
-    except jwt.PyJWTError:
+    except (jwt.PyJWTError, Exception):
         raise credentials_exception
 
-    user = db.query(User).filter(User.email == email).first()
+    if "@" in str(sub):
+        user = db.query(User).filter(User.email == str(sub)).first()
+    else:
+        try:
+            uid = int(sub)
+            user = db.query(User).filter(User.user_id == uid).first()
+        except ValueError:
+            user = db.query(User).filter(User.email == str(sub)).first()
+
     if user is None:
         raise credentials_exception
 
