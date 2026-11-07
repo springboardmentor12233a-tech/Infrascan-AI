@@ -3,9 +3,11 @@ import docx
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+from docx.enum.table import WD_TABLE_ALIGNMENT
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # F:\Infosys Intern 7.0\InfraScan
+FIGURES_DIR = os.path.join(SCRIPT_DIR, "reports", "figures")
 
 def create_report():
     doc = Document()
@@ -31,7 +33,7 @@ def create_report():
     normal_style.font.size = Pt(10.5)
     normal_style.font.color.rgb = CHARCOAL
 
-    # Helper: Title Paragraphs
+    # Header / Title Block
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
@@ -113,27 +115,6 @@ def create_report():
         p.add_run(text)
         return p
 
-    def add_fig(img_path, caption):
-        if os.path.exists(img_path):
-            p_cap = doc.add_paragraph()
-            p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p_cap.paragraph_format.space_before = Pt(8)
-            p_cap.paragraph_format.space_after = Pt(3)
-            p_cap.paragraph_format.keep_with_next = True
-            r_cap = p_cap.add_run(caption)
-            r_cap.bold = True
-            r_cap.font.size = Pt(10)
-            r_cap.font.color.rgb = NAVY
-
-            p_img = doc.add_paragraph()
-            p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            p_img.paragraph_format.space_before = Pt(2)
-            p_img.paragraph_format.space_after = Pt(8)
-            doc.add_picture(img_path, width=Inches(6.0))
-            # Move the newly created shape to p_img
-            shape = doc.paragraphs[-1]._p
-            # in python-docx, add_picture creates a new paragraph at end, let's keep it clean
-
     # Section 1
     add_h1("1. Executive Summary & Milestone 2 Scope")
     add_p(
@@ -186,20 +167,22 @@ def create_report():
     )
 
     # Insert Figure 1
-    p_cap1 = doc.add_paragraph()
-    p_cap1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_cap1.paragraph_format.space_before = Pt(8)
-    p_cap1.paragraph_format.space_after = Pt(3)
-    p_cap1.paragraph_format.keep_with_next = True
-    r_c1 = p_cap1.add_run("Figure 1. InfraScan Preprocessing & Quality Assessment Stages: (a) Raw Concrete Surface, (b) Bilateral Denoising, (c) CLAHE Contrast Enhancement, (d) Crack Boundary Response Map")
-    r_c1.bold = True
-    r_c1.font.size = Pt(9.5)
-    r_c1.font.color.rgb = NAVY
+    fig1_path = os.path.join(FIGURES_DIR, "preprocessing_stages.png")
+    if os.path.exists(fig1_path):
+        p_cap1 = doc.add_paragraph()
+        p_cap1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap1.paragraph_format.space_before = Pt(8)
+        p_cap1.paragraph_format.space_after = Pt(3)
+        p_cap1.paragraph_format.keep_with_next = True
+        r_c1 = p_cap1.add_run("Figure 1. InfraScan Preprocessing & Quality Assessment Stages: (a) Raw Concrete Surface, (b) Bilateral Denoising, (c) CLAHE Contrast Enhancement, (d) Crack Boundary Response Map")
+        r_c1.bold = True
+        r_c1.font.size = Pt(9.5)
+        r_c1.font.color.rgb = NAVY
 
-    doc.add_picture(r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\figures\preprocessing_stages.png", width=Inches(6.3))
-    p_f1 = doc.paragraphs[-1]
-    p_f1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_f1.paragraph_format.space_after = Pt(8)
+        doc.add_picture(fig1_path, width=Inches(6.3))
+        p_f1 = doc.paragraphs[-1]
+        p_f1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_f1.paragraph_format.space_after = Pt(8)
 
     # Section 4
     add_h1("4. Machine Learning Workflow & Model Implementations")
@@ -213,20 +196,22 @@ def create_report():
     add_bullet(" Evaluated on 8,000 unseen test samples, the model achieved an accuracy of 99.69%, precision of 0.997, recall of 0.997, and F1-score of 0.997. The confusion matrix recorded 3,988 True Negatives, 3,987 True Positives, with only 12 False Positives and 13 False Negatives.", "Verified Test Performance:")
 
     # Insert Figure 2 (Confusion matrix)
-    p_cap2 = doc.add_paragraph()
-    p_cap2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_cap2.paragraph_format.space_before = Pt(8)
-    p_cap2.paragraph_format.space_after = Pt(3)
-    p_cap2.paragraph_format.keep_with_next = True
-    r_c2 = p_cap2.add_run("Figure 2. Confusion Matrix for Concrete Crack Binary Classification on 8,000 Held-Out Test Samples")
-    r_c2.bold = True
-    r_c2.font.size = Pt(9.5)
-    r_c2.font.color.rgb = NAVY
+    fig2_path = os.path.join(FIGURES_DIR, "confusion_matrix_classification.png")
+    if os.path.exists(fig2_path):
+        p_cap2 = doc.add_paragraph()
+        p_cap2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap2.paragraph_format.space_before = Pt(8)
+        p_cap2.paragraph_format.space_after = Pt(3)
+        p_cap2.paragraph_format.keep_with_next = True
+        r_c2 = p_cap2.add_run("Figure 2. Confusion Matrix for Concrete Crack Binary Classification on 8,000 Held-Out Test Samples")
+        r_c2.bold = True
+        r_c2.font.size = Pt(9.5)
+        r_c2.font.color.rgb = NAVY
 
-    doc.add_picture(r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\figures\confusion_matrix_classification.png", width=Inches(4.2))
-    p_f2 = doc.paragraphs[-1]
-    p_f2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_f2.paragraph_format.space_after = Pt(8)
+        doc.add_picture(fig2_path, width=Inches(4.2))
+        p_f2 = doc.paragraphs[-1]
+        p_f2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_f2.paragraph_format.space_after = Pt(8)
 
     add_h2("4.2 YOLO Road Damage & Defect Detection Engine")
     add_bullet(" Road Damage Dataset (RDD2022) annotated with multi-class bounding boxes for road and pavement surface distress.", "Dataset:")
@@ -280,20 +265,22 @@ def create_report():
     doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
     # Insert Figure 3 (Model comparison chart)
-    p_cap3 = doc.add_paragraph()
-    p_cap3.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_cap3.paragraph_format.space_before = Pt(8)
-    p_cap3.paragraph_format.space_after = Pt(3)
-    p_cap3.paragraph_format.keep_with_next = True
-    r_c3 = p_cap3.add_run("Figure 3. Quantitative Performance Comparison across InfraScan Computer Vision Models")
-    r_c3.bold = True
-    r_c3.font.size = Pt(9.5)
-    r_c3.font.color.rgb = NAVY
+    fig3_path = os.path.join(FIGURES_DIR, "model_performance_comparison.png")
+    if os.path.exists(fig3_path):
+        p_cap3 = doc.add_paragraph()
+        p_cap3.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap3.paragraph_format.space_before = Pt(8)
+        p_cap3.paragraph_format.space_after = Pt(3)
+        p_cap3.paragraph_format.keep_with_next = True
+        r_c3 = p_cap3.add_run("Figure 3. Quantitative Performance Comparison across InfraScan Computer Vision Models")
+        r_c3.bold = True
+        r_c3.font.size = Pt(9.5)
+        r_c3.font.color.rgb = NAVY
 
-    doc.add_picture(r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\figures\model_performance_comparison.png", width=Inches(5.5))
-    p_f3 = doc.paragraphs[-1]
-    p_f3.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_f3.paragraph_format.space_after = Pt(8)
+        doc.add_picture(fig3_path, width=Inches(5.5))
+        p_f3 = doc.paragraphs[-1]
+        p_f3.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_f3.paragraph_format.space_after = Pt(8)
 
     # Section 6
     add_h1("6. Backend API Implementation & Security Architecture")
@@ -465,8 +452,8 @@ def create_report():
         "The InfraScan platform is stable, fully verified, and ready for internship mentor review and live demonstration."
     )
 
-    out_path_1 = r"F:\Infosys Intern 7.0\InfraScan\InfraScan_Milestone_2_Report.docx"
-    out_path_2 = r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\InfraScan_Milestone_2_Report.docx"
+    out_path_1 = os.path.join(PROJECT_ROOT, "InfraScan_Milestone_2_Report.docx")
+    out_path_2 = os.path.join(SCRIPT_DIR, "reports", "InfraScan_Milestone_2_Report.docx")
     
     doc.save(out_path_1)
     doc.save(out_path_2)

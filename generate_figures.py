@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import os
 
-os.makedirs(r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\figures", exist_ok=True)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+FIGURES_DIR = os.path.join(SCRIPT_DIR, "reports", "figures")
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 # 1. Model Performance Comparison Chart
 plt.figure(figsize=(9, 5), dpi=300)
@@ -34,7 +37,6 @@ plt.grid(axis='y', linestyle='--', alpha=0.5, zorder=0)
 plt.axhline(100, color='gray', linestyle=':', linewidth=0.8, alpha=0.7)
 
 # Custom legend
-from matplotlib.patches import Patch
 legend_elements = [
     Patch(facecolor="#1F4E79", edgecolor="#143452", label='Binary Classification (CCIC 40k)'),
     Patch(facecolor="#2E75B6", edgecolor="#143452", label='YOLOv8 Detection (Road Defects)'),
@@ -43,7 +45,7 @@ legend_elements = [
 plt.legend(handles=legend_elements, loc='upper right', framealpha=0.9, fontsize=8.5)
 
 plt.tight_layout()
-chart_path = r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\figures\model_performance_comparison.png"
+chart_path = os.path.join(FIGURES_DIR, "model_performance_comparison.png")
 plt.savefig(chart_path, dpi=300)
 plt.close()
 print("Saved:", chart_path)
@@ -73,7 +75,7 @@ plt.ylabel('Ground Truth Class', fontsize=10.5, fontweight='bold', color="#1F4E7
 plt.xlabel('Model Predicted Class', fontsize=10.5, fontweight='bold', color="#1F4E79")
 plt.tight_layout()
 
-cm_path = r"F:\Infosys Intern 7.0\InfraScan\Infrascan-AI\reports\figures\confusion_matrix_classification.png"
+cm_path = os.path.join(FIGURES_DIR, "confusion_matrix_classification.png")
 plt.savefig(cm_path, dpi=300)
 plt.close()
 print("Saved:", cm_path)
