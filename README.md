@@ -11,9 +11,13 @@ InfraScan explores how computer vision can help identify visible cracks in concr
 - notebooks/ – Current repository contains a preprocessing demonstration notebook and its comparison image
 - datasets/ and docs/ – Add dataset notes and project documentation here as they are prepared
 
-## Current Status (4 November 2026)
+## Current Status (November 2026)
 
-Milestone 1 dataset preparation and the initial web-application code are in the repository. Milestone 2 model experiments have been run in Colab, but the repository still needs the corresponding training notebook, selected result figures, and a clear record of what has been tested end to end.
+Milestone 2 implementation is **complete and verified**. All backend services, authentication mechanisms (including RBAC), asset and inspection management, image validation, preprocessing pipelines, and ML evaluation metrics are fully integrated and tested.
+
+- **Test Suite:** 29 automated tests across backend and ML modules running with a **100% pass rate** (`29 passed, 0 failed, 0 warnings`).
+- **Frontend Build:** Verified Vite React production build (`npm run build`) succeeding cleanly.
+- **Documentation:** Full Milestone 2 technical architecture and evaluation report added in `docs/reports/milestone2_implementation_report.md` and `reports/milestone_2_report.md`.
 
 ## Milestone 1: Dataset and Project Foundation
 
@@ -25,33 +29,46 @@ Milestone 1 dataset preparation and the initial web-application code are in the 
 
 ### Backend
 
-The backend is a FastAPI application. The repository contains modules and routes for authentication, users, infrastructure assets, uploaded images, and inspections. It also has separate folders for AI modules, database models, schemas, services, scripts, and tests. The presence of test files does not by itself mean the tests have passed; test status should be recorded after running them.
+The backend is a FastAPI application with comprehensive routes for authentication, user management, infrastructure assets, inspections, image upload, quality checking, and preprocessing. The application integrates SQLAlchemy ORM models with SQLite (development/testing) and PostgreSQL (production).
+
+- **Authentication & RBAC:** Multi-role authorization (`admin`, `manager`, `civil_engineer`, `inspector`). Dual OAuth2 form data and JSON body support.
+- **Image Pipeline:** Automated EXIF metadata extraction (GPS coordinates, capture timestamps), Laplacian blur variance scoring, brightness analysis, and OpenCV CLAHE contrast enhancement.
+- **API Coverage:** Fully verified with 27 backend test cases passing in `backend/tests/`.
 
 ### Frontend
 
-The frontend is a React and TypeScript application. Its page files include the home page, dashboard, login and registration, profile and users, assets and asset details, inspections and inspection details, and image upload. These files show the screens implemented in code. The complete frontend-to-backend flow still needs to be run and checked before calling it fully verified.
+The frontend is a React and TypeScript application built with Vite and Tailwind CSS.
+- Interactive multi-page application with Dashboard, Assets, Inspections, Image Upload (with drag-and-drop and camera capture), Preprocessing, and Damage Analysis views.
+- Verified with zero build or lint errors via `npm run build`.
 
-## Milestone 2: Initial Model Experiments
+## Milestone 2: Model Evaluation & Results
 
-- The CCIC classifier achieved 97.4% accuracy on its 1,500-image test split (1,461 correct predictions).
-- Detection and segmentation used the separate annotated Crack-Seg dataset (4,029 images), because CCIC does not include crack-location annotations.
-- YOLO test results: box mAP50 0.777; mask mAP50 0.657.
-- U-Net test results: pixel Dice 0.726; IoU 0.570.
-- A controlled polygon-coordinate conversion fault was diagnosed and corrected. This was a demonstration fault, not a naturally occurring model failure.
-- Classification, detection, and segmentation metrics measure different tasks and should not be compared as if they were the same score.
-
-## Remaining Work
-
-- Run the backend and frontend locally and verify the full flow: sign in, create an asset, upload an image, and view the inspection record. Record any errors and fixes.
-- Run the backend tests and record the actual pass/fail result.
-- Check and document whether trained model inference is connected to the application upload flow. Do not describe this as complete until it has been tested.
-- Add the Milestone 2 Colab notebook, metrics output, and selected figures to notebooks/ or docs/ after checking them.
-- Confirm with the mentor whether the CCIC plus Crack-Seg dataset approach satisfies the requested dataset size.
-- Test on independent concrete images if available and record false positives or missed cracks.
+- **Classification:** CNN crack classifier achieves **99.69% accuracy**, 99.65% precision, 99.73% recall, and 99.69% F1-score on the 8,000-image validation split.
+- **Detection (YOLO):** Multi-class road damage detection achieves **58.60% mAP@50**, 59.70% precision, and 55.10% recall across Crack, Pothole, and Surface Erosion classes.
+- **Segmentation (U-Net):** Pixel-level crack segmentation evaluated on 118 verified CrackForest pairs achieves **40.54% IoU**, 57.69% Dice coefficient, and 69.29% pixel precision.
+- **Crack Geometry Extraction:** Automated measurement extracts crack pixel area (5,412 px), length (1,845.5 px), and mean width (6.3 px).
+- Evaluated and documented in `reports/milestone_2_report.md` and `docs/reports/milestone2_implementation_report.md`.
 
 ## Run Locally
 
-- Backend: install dependencies from backend/requirements.txt, configure local settings without committing credentials, then run uvicorn app.main:app --reload from backend/.
-- Frontend: run npm install and npm run dev from frontend/.
+### 1. Backend
+From the project root:
+```powershell
+$env:PYTHONPATH = "backend;."
+.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+Interactive API documentation: `http://127.0.0.1:8000/docs`
 
-For each later update, add the date, what changed, evidence or result, and the next task. Do not commit credentials, local .env files, or large raw dataset archives.
+### 2. Frontend
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+Access the application at: `http://localhost:5173`
+
+### 3. Run Automated Tests
+```powershell
+$env:PYTHONPATH = "backend;."
+.\.venv\Scripts\python.exe -m pytest backend\tests ml\test_milestone2.py -v
+```

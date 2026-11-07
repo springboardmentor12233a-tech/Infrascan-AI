@@ -245,3 +245,4 @@ dist/assets/index-C4LtfBLS.js   445.20 kB │ gzip: 144.77 kB
 ## 9. Conclusion
 
 Milestone 2 for InfraScan is technically complete, fully integrated across backend and frontend, and rigorously verified against all unit and functional test specifications. The application is ready for demonstration and evaluation for the Infosys Internship Program.
+
