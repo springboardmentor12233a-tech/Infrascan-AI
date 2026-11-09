@@ -3,30 +3,30 @@
   "total_test_images": 450,
   "confusion_matrix": {
     "TP": 181,
-    "FP": 36,
-    "TN": 189,
+    "FP": 30,
+    "TN": 195,
     "FN": 44
   },
   "classification_metrics": {
-    "accuracy": 0.8222,
-    "precision": 0.8341,
+    "accuracy": 0.8356,
+    "precision": 0.8578,
     "recall": 0.8044,
-    "f1_score": 0.819
+    "f1_score": 0.8302
   },
   "segmentation_metrics": {
     "mean_dice_coefficient": 1.0,
     "mean_iou_jaccard": 1.0,
-    "pixel_accuracy": 0.8222
+    "pixel_accuracy": 0.8356
   },
   "geometry_metrics": {
-    "mean_crack_length_px": 3872.1,
+    "mean_crack_length_px": 3873.9,
     "mean_max_crack_width_px": 16.9,
-    "mean_crack_density_pct": 37.27
+    "mean_crack_density_pct": 37.45
   },
   "morphology_distribution": {
-    "Diagonal / Shear Crack": 102,
-    "Alligator / Map Cracking": 73,
+    "Diagonal / Shear Crack": 104,
+    "Alligator / Map Cracking": 72,
     "Vertical / Longitudinal Crack": 4,
-    "Transverse / Horizontal Crack": 2
+    "Transverse / Horizontal Crack": 1
   }
 }
