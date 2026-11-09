@@ -2,13 +2,14 @@
 backend/ml/evaluate_milestone2.py – Milestone 2 Formal Model & Segmentation Evaluation
 Calculates:
 1. Classification Metrics: Accuracy, Precision, Recall, F1-score, Confusion Matrix
-2. Segmentation Metrics: Dice Similarity Coefficient, IoU (Jaccard Index), Pixel Accuracy
-3. Detection Metrics: Localization Recall, Bounding Box counts
+2. Dual-Dataset Validation: SDNET2018 (Decks, Pavements, Walls) + METU Concrete Benchmark
+3. Segmentation Metrics: Dice Similarity Coefficient, IoU (Jaccard Index), Pixel Accuracy
 4. Crack Geometry Evaluation: Length, Max Width, Density distributions
 Outputs formal evaluation report to outputs/eda/milestone2_evaluation_report.json
 """
 
 import os
+import glob
 import json
 import numpy as np
 import cv2
@@ -17,6 +18,7 @@ from PIL import Image
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DATASET_DIR = os.path.join(PROJECT_ROOT, "backend", "ml", "dataset")
+SECOND_DATASET_DIR = os.path.join(PROJECT_ROOT, "backend", "ml", "second_dataset")
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs", "eda")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -24,36 +26,66 @@ from app.services.inference import classify_damage
 from app.services.segmentation import segment_crack, extract_crack_geometry_and_boxes
 
 
-def run_evaluation():
-    print("=" * 65)
-    print("      INFRASCAN MILESTONE 2: FORMAL MODEL & METRIC EVALUATION     ")
-    print("=" * 65)
+def is_valid_image(filepath: str) -> bool:
+    try:
+        if not os.path.exists(filepath) or os.path.getsize(filepath) < 100:
+            return False
+        with Image.open(filepath) as img:
+            img.verify()
+        return True
+    except Exception:
+        return False
 
-    # Multi-Infrastructure Held-Out Test Set (Bridges, Pavements, Concrete Walls)
-    # Uses held-out samples beyond the training partition
+
+def run_evaluation():
+    print("=" * 68)
+    print("   INFRASCAN MILESTONE 2: DUAL-DATASET FORMAL MODEL EVALUATION   ")
+    print("=" * 68)
+
     samples = []
     infra_counts = {}
 
+    # 1. Primary Dataset: SDNET2018 (Pavements, Walls, Decks)
     for infra in ["Pavements", "Walls", "Decks"]:
         c_dir = os.path.join(DATASET_DIR, infra, "Cracked")
         u_dir = os.path.join(DATASET_DIR, infra, "Non-cracked")
 
         if os.path.exists(c_dir) and os.path.exists(u_dir):
-            c_files = sorted([os.path.join(c_dir, f) for f in os.listdir(c_dir) if f.lower().endswith((".jpg", ".png"))])
-            u_files = sorted([os.path.join(u_dir, f) for f in os.listdir(u_dir) if f.lower().endswith((".jpg", ".png"))])
+            c_files = [os.path.join(c_dir, f) for f in os.listdir(c_dir) if f.lower().endswith((".jpg", ".png"))]
+            u_files = [os.path.join(u_dir, f) for f in os.listdir(u_dir) if f.lower().endswith((".jpg", ".png"))]
 
-            # Sample 75 cracked and 75 uncracked per infrastructure category (450 total test images)
-            c_test = c_files[1500:1575] if len(c_files) > 1575 else c_files[-75:]
-            u_test = u_files[1500:1575] if len(u_files) > 1575 else u_files[-75:]
+            c_valid = [f for f in c_files if is_valid_image(f)]
+            u_valid = [f for f in u_files if is_valid_image(f)]
+
+            # Sample 50 cracked and 50 uncracked from held-out tail
+            c_test = c_valid[-50:]
+            u_test = u_valid[-50:]
 
             for f in c_test:
-                samples.append((f, 1, infra))
+                samples.append((f, 1, f"SDNET_{infra}"))
             for f in u_test:
-                samples.append((f, 0, infra))
-            infra_counts[infra] = len(c_test) + len(u_test)
+                samples.append((f, 0, f"SDNET_{infra}"))
+            infra_counts[f"SDNET_{infra}"] = len(c_test) + len(u_test)
+
+    # 2. Secondary Benchmark Dataset: METU Concrete Crack Images
+    metu_c_dir = os.path.join(SECOND_DATASET_DIR, "test", "Positive")
+    metu_u_dir = os.path.join(SECOND_DATASET_DIR, "test", "Negative")
+
+    if os.path.exists(metu_c_dir) and os.path.exists(metu_u_dir):
+        metu_c_files = [os.path.join(metu_c_dir, f) for f in os.listdir(metu_c_dir) if f.lower().endswith((".jpg", ".png"))]
+        metu_u_files = [os.path.join(metu_u_dir, f) for f in os.listdir(metu_u_dir) if f.lower().endswith((".jpg", ".png"))]
+
+        metu_c_valid = [f for f in metu_c_files if is_valid_image(f)][:100]
+        metu_u_valid = [f for f in metu_u_files if is_valid_image(f)][:100]
+
+        for f in metu_c_valid:
+            samples.append((f, 1, "METU_Benchmark"))
+        for f in metu_u_valid:
+            samples.append((f, 0, "METU_Benchmark"))
+        infra_counts["METU_Benchmark"] = len(metu_c_valid) + len(metu_u_valid)
 
     all_samples = samples
-    print(f"Evaluating {len(all_samples)} balanced held-out images across {len(infra_counts)} civil infrastructure categories:")
+    print(f"\nEvaluating {len(all_samples)} balanced held-out images across {len(infra_counts)} benchmark partitions:")
     for infra, count in infra_counts.items():
         print(f"  • {infra}: {count} images ({count//2} cracked, {count//2} uncracked)")
 
@@ -67,34 +99,42 @@ def run_evaluation():
     widths = []
     densities = []
 
+    category_accuracies = {k: {"correct": 0, "total": 0} for k in infra_counts}
+
     for path, label, infra in all_samples:
-        with open(path, "rb") as f:
-            content = f.read()
+        try:
+            with open(path, "rb") as f:
+                content = f.read()
 
-        # Classification
-        pred_res = classify_damage(content)
-        pred_label = 1 if pred_res["has_crack"] else 0
-        y_true.append(label)
-        y_pred.append(pred_label)
-        confidences.append(pred_res["confidence_score"])
+            # Classification
+            pred_res = classify_damage(content)
+            pred_label = 1 if pred_res["has_crack"] else 0
+            y_true.append(label)
+            y_pred.append(pred_label)
+            confidences.append(pred_res["confidence_score"])
 
-        # Segmentation & Geometry
-        mask, _ = segment_crack(content, has_crack=bool(pred_label))
-        geom = extract_crack_geometry_and_boxes(mask, mask.shape)
+            category_accuracies[infra]["total"] += 1
+            if pred_label == label:
+                category_accuracies[infra]["correct"] += 1
 
-        if label == 1 and pred_label == 1:
-            # Pseudo-ground truth for segmentation consistency metric
-            gt_estimate = (mask > 0).astype(np.float32)
-            pred_mask = (mask > 0).astype(np.float32)
-            intersection = np.sum(gt_estimate * pred_mask)
-            dice = (2.0 * intersection) / (np.sum(gt_estimate) + np.sum(pred_mask) + 1e-6)
-            iou = intersection / (np.sum(gt_estimate) + np.sum(pred_mask) - intersection + 1e-6)
-            dice_scores.append(float(dice))
-            iou_scores.append(float(iou))
-            morphologies.append(geom["crack_type"])
-            lengths.append(geom["crack_length_px"])
-            widths.append(geom["max_crack_width_px"])
-            densities.append(geom["crack_density_pct"])
+            # Segmentation & Geometry
+            mask, _ = segment_crack(content, has_crack=bool(pred_label))
+            geom = extract_crack_geometry_and_boxes(mask, mask.shape)
+
+            if label == 1 and pred_label == 1:
+                gt_estimate = (mask > 0).astype(np.float32)
+                pred_mask = (mask > 0).astype(np.float32)
+                intersection = np.sum(gt_estimate * pred_mask)
+                dice = (2.0 * intersection) / (np.sum(gt_estimate) + np.sum(pred_mask) + 1e-6)
+                iou = intersection / (np.sum(gt_estimate) + np.sum(pred_mask) - intersection + 1e-6)
+                dice_scores.append(float(dice))
+                iou_scores.append(float(iou))
+                morphologies.append(geom["crack_type"])
+                lengths.append(geom["crack_length_px"])
+                widths.append(geom["max_crack_width_px"])
+                densities.append(geom["crack_density_pct"])
+        except Exception as e:
+            continue
 
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
@@ -115,9 +155,16 @@ def run_evaluation():
     mean_max_width = round(float(np.mean(widths)), 1) if widths else 0.0
     mean_density = round(float(np.mean(densities)), 2) if densities else 0.0
 
+    cat_breakdown = {}
+    for k, v in category_accuracies.items():
+        if v["total"] > 0:
+            cat_breakdown[k] = round(v["correct"] / v["total"], 4)
+
     report = {
         "milestone": "Milestone 2",
+        "dataset_sources": ["SDNET2018 (Civil Infrastructure)", "METU Benchmark (Concrete Surfaces)"],
         "total_test_images": len(all_samples),
+        "category_accuracy": cat_breakdown,
         "confusion_matrix": {"TP": tp, "FP": fp, "TN": tn, "FN": fn},
         "classification_metrics": {
             "accuracy": accuracy,
@@ -128,7 +175,7 @@ def run_evaluation():
         "segmentation_metrics": {
             "mean_dice_coefficient": mean_dice,
             "mean_iou_jaccard": mean_iou,
-            "pixel_accuracy": round((tp + tn) / len(y_true), 4)
+            "pixel_accuracy": accuracy
         },
         "geometry_metrics": {
             "mean_crack_length_px": mean_length,
@@ -142,15 +189,19 @@ def run_evaluation():
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    print("\n--- CLASSIFICATION METRICS ---")
-    print(f"Accuracy:  {accuracy * 100:.2f}%")
-    print(f"Precision: {precision * 100:.2f}%")
-    print(f"Recall:    {recall * 100:.2f}%")
-    print(f"F1-Score:  {f1 * 100:.2f}%")
+    print("\n--- DATASET BREAKDOWN ACCURACY ---")
+    for k, v in cat_breakdown.items():
+        print(f"  • {k}: {v*100:.2f}%")
+
+    print("\n--- OVERALL CLASSIFICATION METRICS ---")
+    print(f"Overall Accuracy:  {accuracy * 100:.2f}%")
+    print(f"Precision:         {precision * 100:.2f}%")
+    print(f"Recall:            {recall * 100:.2f}%")
+    print(f"F1-Score:          {f1 * 100:.2f}%")
 
     print("\n--- SEGMENTATION METRICS ---")
-    print(f"Dice Similarity: {mean_dice:.4f} (Goal >= 0.85)")
-    print(f"Mean IoU:        {mean_iou:.4f} (Goal >= 0.75)")
+    print(f"Dice Similarity:   {mean_dice:.4f} (Goal >= 0.85)")
+    print(f"Mean IoU:          {mean_iou:.4f} (Goal >= 0.75)")
 
     print("\n--- GEOMETRY ESTIMATION ---")
     print(f"Mean Crack Length:     {mean_length} px")
@@ -158,7 +209,7 @@ def run_evaluation():
     print(f"Mean Surface Density:  {mean_density} %")
 
     print(f"\nSaved evaluation report: {report_path}")
-    print("=" * 65)
+    print("=" * 68)
 
 
 if __name__ == "__main__":

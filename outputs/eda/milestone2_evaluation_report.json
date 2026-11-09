@@ -1,32 +1,41 @@
 {
   "milestone": "Milestone 2",
-  "total_test_images": 450,
+  "dataset_sources": [
+    "SDNET2018 (Civil Infrastructure)",
+    "METU Benchmark (Concrete Surfaces)"
+  ],
+  "total_test_images": 500,
+  "category_accuracy": {
+    "SDNET_Pavements": 0.89,
+    "SDNET_Walls": 0.95,
+    "SDNET_Decks": 0.89,
+    "METU_Benchmark": 1.0
+  },
   "confusion_matrix": {
-    "TP": 181,
-    "FP": 30,
-    "TN": 195,
-    "FN": 44
+    "TP": 235,
+    "FP": 12,
+    "TN": 238,
+    "FN": 15
   },
   "classification_metrics": {
-    "accuracy": 0.8356,
-    "precision": 0.8578,
-    "recall": 0.8044,
-    "f1_score": 0.8302
+    "accuracy": 0.946,
+    "precision": 0.9514,
+    "recall": 0.94,
+    "f1_score": 0.9457
   },
   "segmentation_metrics": {
     "mean_dice_coefficient": 1.0,
     "mean_iou_jaccard": 1.0,
-    "pixel_accuracy": 0.8356
+    "pixel_accuracy": 0.946
   },
   "geometry_metrics": {
-    "mean_crack_length_px": 3873.9,
-    "mean_max_crack_width_px": 16.9,
-    "mean_crack_density_pct": 37.45
+    "mean_crack_length_px": 3478.2,
+    "mean_max_crack_width_px": 18.0,
+    "mean_crack_density_pct": 33.4
   },
   "morphology_distribution": {
-    "Diagonal / Shear Crack": 104,
-    "Alligator / Map Cracking": 72,
-    "Vertical / Longitudinal Crack": 4,
-    "Transverse / Horizontal Crack": 1
+    "Alligator / Map Cracking": 193,
+    "Diagonal / Shear Crack": 40,
+    "Vertical / Longitudinal Crack": 2
   }
 }

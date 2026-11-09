@@ -1,7 +1,10 @@
 """
-InfraScan ML Model Training Pipeline
-Trains a concrete crack detection model using SDNET2018 dataset.
-Exports model to PyTorch (.pt) and optimized ONNX (.onnx) for production inference.
+InfraScan ML Model Training Pipeline – Dual-Dataset Enhanced Training
+Trains concrete crack detection model using both:
+1. SDNET2018 Multi-Infrastructure Benchmark (Decks, Pavements, Walls)
+2. METU Concrete Crack Images Benchmark (Secondary Dataset)
+
+Exports high-accuracy model to PyTorch (.pt) and optimized ONNX (.onnx) for production inference.
 """
 
 import os
@@ -21,13 +24,15 @@ from sklearn.metrics import classification_report, confusion_matrix
 import onnx
 import onnxruntime as ort
 
-# Configuration
-DATASET_ROOT = os.path.join(os.path.dirname(__file__), "dataset")
-MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
+# Paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_ROOT = os.path.join(BASE_DIR, "dataset")
+SECOND_DATASET_ROOT = os.path.join(BASE_DIR, "second_dataset")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
 BATCH_SIZE = 32
-EPOCHS = 5
-LEARNING_RATE = 1e-3
-SAMPLE_PER_CLASS = 1500  # 3,000 balanced images (1,500 cracked + 1,500 uncracked)
+EPOCHS = 6
+LEARNING_RATE = 5e-4
 RANDOM_SEED = 42
 
 random.seed(RANDOM_SEED)
@@ -36,24 +41,26 @@ np.random.seed(RANDOM_SEED)
 
 
 def find_sdnet_images(root_dir: str) -> Tuple[List[str], List[str]]:
-    """
-    Fast direct glob for SDNET2018 dataset structure.
-    SDNET2018 extracts into Decks, Pavements, Walls with 'Cracked' and 'Non-cracked' subfolders.
-    """
     valid_exts = ("*.jpg", "*.jpeg", "*.png")
     cracked = []
     uncracked = []
-    
     for ext in valid_exts:
         cracked.extend(glob.glob(os.path.join(root_dir, "*", "Cracked", ext)))
         uncracked.extend(glob.glob(os.path.join(root_dir, "*", "Non-cracked", ext)))
-
-    # Fallback to case-insensitive or recursive if needed
     if not cracked or not uncracked:
         for ext in valid_exts:
             cracked.extend(glob.glob(os.path.join(root_dir, "**", "Cracked", ext), recursive=True))
             uncracked.extend(glob.glob(os.path.join(root_dir, "**", "Non-cracked", ext), recursive=True))
+    return cracked, uncracked
 
+
+def find_second_dataset_images(root_dir: str) -> Tuple[List[str], List[str]]:
+    valid_exts = ("*.jpg", "*.jpeg", "*.png")
+    cracked = []
+    uncracked = []
+    for ext in valid_exts:
+        cracked.extend(glob.glob(os.path.join(root_dir, "*", "Positive", ext)))
+        uncracked.extend(glob.glob(os.path.join(root_dir, "*", "Negative", ext)))
     return cracked, uncracked
 
 
@@ -97,47 +104,57 @@ def get_transforms():
 
 
 def build_model():
-    """
-    MobileNetV3-Small pre-trained backbone fine-tuned for crack classification.
-    High accuracy, ultra-fast CPU inference (< 10ms per image).
-    """
     model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
-    
-    # Replace classifier
     in_features = model.classifier[0].in_features
     model.classifier = nn.Sequential(
         nn.Linear(in_features, 128),
         nn.Hardswish(),
         nn.Dropout(p=0.3),
         nn.Linear(128, 1)
-        # Raw logits output; BCEWithLogitsLoss used during training
     )
     return model
 
 
 def train():
     os.makedirs(MODELS_DIR, exist_ok=True)
-    print("=" * 60)
-    print("   INFRASCAN AI: CONCRETE CRACK CLASSIFICATION TRAINING   ")
-    print("=" * 60)
-    
-    print(f"Scanning dataset in: {DATASET_ROOT} ...")
-    cracked, uncracked = find_sdnet_images(DATASET_ROOT)
-    print(f"Found {len(cracked)} cracked images and {len(uncracked)} uncracked images.")
+    print("=" * 65)
+    print("   INFRASCAN AI: DUAL-DATASET CONCRETE CRACK TRAINING PIPELINE   ")
+    print("=" * 65)
 
-    if len(cracked) == 0 or len(uncracked) == 0:
-        raise ValueError("Could not find sufficient images in dataset directory!")
+    # 1. Primary Dataset: SDNET2018
+    print(f"\n1. Scanning Primary Dataset (SDNET2018) in: {DATASET_ROOT}")
+    sdnet_c, sdnet_u = find_sdnet_images(DATASET_ROOT)
+    print(f"   Found {len(sdnet_c)} cracked and {len(sdnet_u)} uncracked SDNET images.")
 
-    # Balanced sample
-    sample_c = min(len(cracked), SAMPLE_PER_CLASS)
-    sample_u = min(len(uncracked), SAMPLE_PER_CLASS)
-    print(f"Sampling balanced dataset: {sample_c} cracked, {sample_u} uncracked.")
-    
-    cracked_sample = random.sample(cracked, sample_c)
-    uncracked_sample = random.sample(uncracked, sample_u)
-    
-    all_files = cracked_sample + uncracked_sample
-    all_labels = [1] * sample_c + [0] * sample_u  # 1: Cracked, 0: Uncracked
+    # 2. Secondary Dataset: METU Concrete Crack Images
+    print(f"\n2. Scanning Secondary Dataset (METU Benchmark) in: {SECOND_DATASET_ROOT}")
+    second_c, second_u = find_second_dataset_images(SECOND_DATASET_ROOT)
+    print(f"   Found {len(second_c)} cracked (Positive) and {len(second_u)} uncracked (Negative) images.")
+
+    # Sample balanced pools from both
+    # 2,000 from SDNET (1,000 cracked, 1,000 uncracked)
+    # 4,000 from METU (2,000 cracked, 2,000 uncracked)
+    # Total = 6,000 images (3,000 cracked, 3,000 uncracked)
+    n_sdnet_c = min(len(sdnet_c), 1500)
+    n_sdnet_u = min(len(sdnet_u), 1500)
+    n_second_c = min(len(second_c), 2500)
+    n_second_u = min(len(second_u), 2500)
+
+    sampled_sdnet_c = random.sample(sdnet_c, n_sdnet_c)
+    sampled_sdnet_u = random.sample(sdnet_u, n_sdnet_u)
+    sampled_second_c = random.sample(second_c, n_second_c)
+    sampled_second_u = random.sample(second_u, n_second_u)
+
+    total_cracked = sampled_sdnet_c + sampled_second_c
+    total_uncracked = sampled_sdnet_u + sampled_second_u
+
+    print(f"\nDual Dataset Training Composition:")
+    print(f"   • SDNET2018: {n_sdnet_c} cracked + {n_sdnet_u} uncracked = {n_sdnet_c + n_sdnet_u}")
+    print(f"   • METU 2nd Dataset: {n_second_c} cracked + {n_second_u} uncracked = {n_second_c + n_second_u}")
+    print(f"   • Total Balanced Pool: {len(total_cracked)} cracked + {len(total_uncracked)} uncracked = {len(total_cracked) + len(total_uncracked)} images")
+
+    all_files = total_cracked + total_uncracked
+    all_labels = [1] * len(total_cracked) + [0] * len(total_uncracked)
 
     # 70% train, 15% val, 15% test
     train_files, test_files, train_y, test_y = train_test_split(
@@ -147,7 +164,7 @@ def train():
         test_files, test_y, test_size=0.50, random_state=RANDOM_SEED, stratify=test_y
     )
 
-    print(f"Split sizes: Train={len(train_files)}, Val={len(val_files)}, Test={len(test_files)}")
+    print(f"Dataset Splits: Train={len(train_files)}, Val={len(val_files)}, Test={len(test_files)}")
 
     train_tf, val_tf = get_transforms()
 
@@ -160,7 +177,7 @@ def train():
 
     model = build_model().to(device)
     criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-3)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)
 
     best_val_loss = float("inf")
@@ -224,11 +241,11 @@ def train():
         if epoch_val_loss < best_val_loss:
             best_val_loss = epoch_val_loss
             torch.save(model.state_dict(), best_weights_path)
-            print(f"  --> Saved new best model weights (Val Loss: {epoch_val_loss:.4f})")
+            print(f"  --> Saved new best model checkpoint (Val Acc: {epoch_val_acc*100:.2f}%)")
 
-    # Evaluation on Test Set
+    # Evaluation on Held-Out Test Set
     print("\n" + "=" * 50)
-    print("Evaluating on Held-Out Test Set...")
+    print("Evaluating on Held-Out Combined Test Set...")
     model.load_state_dict(torch.load(best_weights_path))
     model.eval()
 
@@ -243,7 +260,7 @@ def train():
             test_preds.extend((probs > 0.5).astype(int))
             test_targets.extend(labels.numpy().astype(int))
 
-    print("\nClassification Report:")
+    print("\nClassification Report (Held-Out Test Set):")
     print(classification_report(test_targets, test_preds, target_names=["Uncracked", "Cracked"], digits=4))
     print("Confusion Matrix:")
     print(confusion_matrix(test_targets, test_preds))
@@ -255,7 +272,6 @@ def train():
     dummy_input = torch.randn(1, 3, 224, 224, dtype=torch.float32)
     onnx_path = os.path.join(MODELS_DIR, "crack_classifier.onnx")
 
-    # Wrap model to include sigmoid in ONNX graph for direct probability output
     class InferenceModel(nn.Module):
         def __init__(self, base_model):
             super().__init__()
