@@ -6,6 +6,7 @@ import { Layout } from './components/Layout';
 
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
 import { AssetList } from './pages/AssetList';
 import { AssetForm } from './pages/AssetForm';
@@ -18,14 +19,14 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Auth Routes */}
+          {/* Public Landing & Auth Routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
           {/* Protected Application Routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/assets" element={<AssetList />} />
               <Route path="/assets/:id" element={<AssetDetail />} />
