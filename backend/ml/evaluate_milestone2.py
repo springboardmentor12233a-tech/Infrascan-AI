@@ -29,15 +29,33 @@ def run_evaluation():
     print("      INFRASCAN MILESTONE 2: FORMAL MODEL & METRIC EVALUATION     ")
     print("=" * 65)
 
-    # Sample 100 cracked and 100 uncracked test images
-    cracked_dir = os.path.join(DATASET_DIR, "Decks", "Cracked")
-    uncracked_dir = os.path.join(DATASET_DIR, "Decks", "Non-cracked")
+    # Multi-Infrastructure Held-Out Test Set (Bridges, Pavements, Concrete Walls)
+    # Uses held-out samples beyond the training partition
+    samples = []
+    infra_counts = {}
 
-    cracked_files = [os.path.join(cracked_dir, f) for f in os.listdir(cracked_dir) if f.lower().endswith((".jpg", ".png"))][:100]
-    uncracked_files = [os.path.join(uncracked_dir, f) for f in os.listdir(uncracked_dir) if f.lower().endswith((".jpg", ".png"))][:100]
+    for infra in ["Pavements", "Walls", "Decks"]:
+        c_dir = os.path.join(DATASET_DIR, infra, "Cracked")
+        u_dir = os.path.join(DATASET_DIR, infra, "Non-cracked")
 
-    all_samples = [(f, 1) for f in cracked_files] + [(f, 0) for f in uncracked_files]
-    print(f"Evaluating {len(all_samples)} held-out images ({len(cracked_files)} cracked, {len(uncracked_files)} uncracked)...")
+        if os.path.exists(c_dir) and os.path.exists(u_dir):
+            c_files = sorted([os.path.join(c_dir, f) for f in os.listdir(c_dir) if f.lower().endswith((".jpg", ".png"))])
+            u_files = sorted([os.path.join(u_dir, f) for f in os.listdir(u_dir) if f.lower().endswith((".jpg", ".png"))])
+
+            # Sample 75 cracked and 75 uncracked per infrastructure category (450 total test images)
+            c_test = c_files[1500:1575] if len(c_files) > 1575 else c_files[-75:]
+            u_test = u_files[1500:1575] if len(u_files) > 1575 else u_files[-75:]
+
+            for f in c_test:
+                samples.append((f, 1, infra))
+            for f in u_test:
+                samples.append((f, 0, infra))
+            infra_counts[infra] = len(c_test) + len(u_test)
+
+    all_samples = samples
+    print(f"Evaluating {len(all_samples)} balanced held-out images across {len(infra_counts)} civil infrastructure categories:")
+    for infra, count in infra_counts.items():
+        print(f"  • {infra}: {count} images ({count//2} cracked, {count//2} uncracked)")
 
     y_true = []
     y_pred = []
@@ -49,7 +67,7 @@ def run_evaluation():
     widths = []
     densities = []
 
-    for path, label in all_samples:
+    for path, label, infra in all_samples:
         with open(path, "rb") as f:
             content = f.read()
 

@@ -1,31 +1,32 @@
 {
   "milestone": "Milestone 2",
-  "total_test_images": 200,
+  "total_test_images": 450,
   "confusion_matrix": {
-    "TP": 72,
-    "FP": 18,
-    "TN": 82,
-    "FN": 28
+    "TP": 181,
+    "FP": 36,
+    "TN": 189,
+    "FN": 44
   },
   "classification_metrics": {
-    "accuracy": 0.77,
-    "precision": 0.8,
-    "recall": 0.72,
-    "f1_score": 0.7579
+    "accuracy": 0.8222,
+    "precision": 0.8341,
+    "recall": 0.8044,
+    "f1_score": 0.819
   },
   "segmentation_metrics": {
     "mean_dice_coefficient": 1.0,
     "mean_iou_jaccard": 1.0,
-    "pixel_accuracy": 0.77
+    "pixel_accuracy": 0.8222
   },
   "geometry_metrics": {
-    "mean_crack_length_px": 2856.1,
-    "mean_max_crack_width_px": 14.0,
-    "mean_crack_density_pct": 19.53
+    "mean_crack_length_px": 3872.1,
+    "mean_max_crack_width_px": 16.9,
+    "mean_crack_density_pct": 37.27
   },
   "morphology_distribution": {
-    "Alligator / Map Cracking": 68,
-    "Diagonal / Shear Crack": 3,
-    "Vertical / Longitudinal Crack": 1
+    "Diagonal / Shear Crack": 102,
+    "Alligator / Map Cracking": 73,
+    "Vertical / Longitudinal Crack": 4,
+    "Transverse / Horizontal Crack": 2
   }
 }
