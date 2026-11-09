@@ -90,6 +90,13 @@ export interface InspectionImage {
   has_crack?: boolean;
   confidence_score?: number;
   severity_level?: 'None' | 'Low' | 'Medium' | 'High' | 'Critical';
+  crack_type?: string;
+  crack_length_px?: number;
+  max_crack_width_px?: number;
+  avg_crack_width_px?: number;
+  crack_density_pct?: number;
+  crack_area_px?: number;
+  bounding_boxes?: string;
   uploaded_at: string;
   url?: string;
 }

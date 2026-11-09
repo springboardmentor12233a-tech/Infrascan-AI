@@ -19,6 +19,13 @@ class ImageOut(BaseModel):
     has_crack: Optional[bool] = None
     confidence_score: Optional[float] = None
     severity_level: Optional[str] = None
+    crack_type: Optional[str] = None
+    crack_length_px: Optional[int] = None
+    max_crack_width_px: Optional[float] = None
+    avg_crack_width_px: Optional[float] = None
+    crack_density_pct: Optional[float] = None
+    crack_area_px: Optional[int] = None
+    bounding_boxes: Optional[str] = None
     uploaded_at: datetime
     url: Optional[str] = None
 

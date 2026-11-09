@@ -16,7 +16,10 @@ import {
   Building2,
   FileText,
   Sparkles,
-  ShieldAlert
+  ShieldAlert,
+  Layers,
+  Box,
+  Ruler
 } from 'lucide-react';
 import { Inspection, InspectionImage, QualityStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -38,9 +41,9 @@ export const InspectionView: React.FC = () => {
   const [status, setStatus] = useState<string>('pending');
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  // Preview Modal for Original vs Enhanced CLAHE vs AI Grad-CAM Heatmap
+  // Preview Modal for Original vs Enhanced CLAHE vs AI Grad-CAM vs Mask vs Boxes
   const [previewImage, setPreviewImage] = useState<InspectionImage | null>(null);
-  const [previewMode, setPreviewMode] = useState<'original' | 'enhanced' | 'gradcam'>('original');
+  const [previewMode, setPreviewMode] = useState<'original' | 'enhanced' | 'gradcam' | 'mask' | 'boxes'>('original');
   const [downloadingReport, setDownloadingReport] = useState(false);
 
   const handleDownloadReport = async () => {
@@ -446,6 +449,20 @@ export const InspectionView: React.FC = () => {
                   <div className="space-y-1">
                     <div>{getQualityBadge(img.quality_status, img.blur_score, img.brightness)}</div>
                     <div>{getDamageBadge(img.has_crack, img.confidence_score, img.severity_level)}</div>
+                    {img.has_crack && (
+                      <div className="bg-slate-50 border border-slate-200 rounded p-1.5 space-y-0.5 text-[10px] text-slate-700">
+                        <div className="font-semibold text-slate-900 truncate">
+                          {img.crack_type || 'Crack Defect'}
+                        </div>
+                        <div className="flex items-center justify-between text-slate-500 font-mono">
+                          <span>Len: {img.crack_length_px || 0}px</span>
+                          <span>MaxW: {img.max_crack_width_px || 0}px</span>
+                        </div>
+                        <div className="text-slate-500 font-mono">
+                          Density: {img.crack_density_pct || 0}%
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <p className="text-xs font-medium text-gray-800 truncate" title={img.original_filename}>
@@ -478,36 +495,56 @@ export const InspectionView: React.FC = () => {
               </div>
 
               {/* Mode Toggle */}
-              <div className="flex items-center bg-gray-100 p-1 rounded-lg gap-1">
+              <div className="flex items-center bg-gray-100 p-1 rounded-lg gap-1 flex-wrap">
                 <button
                   onClick={() => setPreviewMode('original')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
                     previewMode === 'original'
                       ? 'bg-white text-blue-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Original Image
+                  Original
                 </button>
                 <button
                   onClick={() => setPreviewMode('enhanced')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
                     previewMode === 'enhanced'
                       ? 'bg-blue-600 text-white shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Enhanced (CLAHE)
+                  CLAHE
+                </button>
+                <button
+                  onClick={() => setPreviewMode('mask')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                    previewMode === 'mask'
+                      ? 'bg-red-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Crack Mask
+                </button>
+                <button
+                  onClick={() => setPreviewMode('boxes')}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                    previewMode === 'boxes'
+                      ? 'bg-amber-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Bounding Boxes
                 </button>
                 <button
                   onClick={() => setPreviewMode('gradcam')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
                     previewMode === 'gradcam'
                       ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  AI Heatmap (Grad-CAM)
+                  Grad-CAM
                 </button>
               </div>
             </div>

@@ -191,9 +191,10 @@ def generate_inspection_pdf(inspection: Inspection) -> bytes:
         [
             Paragraph("<b>#</b>", normal_style),
             Paragraph("<b>Image File</b>", normal_style),
-            Paragraph("<b>Quality</b>", normal_style),
-            Paragraph("<b>Defect Status</b>", normal_style),
+            Paragraph("<b>Defect / Morphology</b>", normal_style),
             Paragraph("<b>Confidence</b>", normal_style),
+            Paragraph("<b>Length / Max W</b>", normal_style),
+            Paragraph("<b>Density</b>", normal_style),
             Paragraph("<b>Severity</b>", normal_style)
         ]
     ]
@@ -201,31 +202,35 @@ def generate_inspection_pdf(inspection: Inspection) -> bytes:
     for idx, img in enumerate(images, start=1):
         defect_label = "<font color='#10b981'><b>Healthy</b></font>"
         if img.has_crack is True:
-            defect_label = "<font color='#dc2626'><b>CRACK</b></font>"
+            ctype = img.crack_type or "Crack"
+            defect_label = f"<font color='#dc2626'><b>{ctype}</b></font>"
         elif img.has_crack is None:
             defect_label = "<font color='#64748b'>Pending</font>"
 
         conf_str = f"{(img.confidence_score * 100):.1f}%" if img.confidence_score is not None else "N/A"
         sev_str = img.severity_level or "None"
-        q_str = img.quality_status.value.upper() if hasattr(img.quality_status, 'value') else str(img.quality_status or "OK")
+        
+        geom_str = f"{img.crack_length_px or 0}px / {img.max_crack_width_px or 0:.1f}px" if img.has_crack else "—"
+        dens_str = f"{img.crack_density_pct or 0:.1f}%" if img.has_crack else "0%"
 
         fname = img.original_filename
-        if len(fname) > 24:
-            fname = fname[:21] + "..."
+        if len(fname) > 20:
+            fname = fname[:17] + "..."
 
         table_rows.append([
             Paragraph(str(idx), normal_style),
             Paragraph(fname, normal_style),
-            Paragraph(q_str, normal_style),
             Paragraph(defect_label, normal_style),
             Paragraph(conf_str, normal_style),
+            Paragraph(geom_str, normal_style),
+            Paragraph(dens_str, normal_style),
             Paragraph(sev_str, normal_style)
         ])
 
     if len(table_rows) == 1:
-        table_rows.append([Paragraph("No inspection images uploaded.", normal_style), "", "", "", "", ""])
+        table_rows.append([Paragraph("No inspection images uploaded.", normal_style), "", "", "", "", "", ""])
 
-    t_records = Table(table_rows, colWidths=[25, 175, 75, 95, 80, 80])
+    t_records = Table(table_rows, colWidths=[20, 120, 140, 65, 85, 50, 55])
     t_records.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e293b")),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),

@@ -4,6 +4,7 @@ import os
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
+import cv2
 from PIL import Image as PILImage
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,7 @@ from app.core.deps import get_current_user
 from app.services.storage import storage
 from app.services.preprocessing import assess_quality, enhance_image
 from app.services.inference import classify_damage, generate_gradcam
+from app.services.segmentation import segment_crack, extract_crack_geometry_and_boxes, draw_bounding_boxes, render_mask_png
 from app.services.audit import log_action
 
 router = APIRouter(tags=["Images"])
@@ -122,8 +124,12 @@ async def upload_inspection_images(
         safe_filename = f"{uuid.uuid4().hex}{ext}"
         storage.save_file(safe_filename, io.BytesIO(content))
 
-        # 7. AI Crack & Damage Classification
+        # 7. AI Crack & Damage Classification + Segmentation & Geometry
         damage_eval = classify_damage(content)
+        has_crack = damage_eval.get("has_crack", False)
+
+        mask, _ = segment_crack(content, has_crack=has_crack)
+        geom = extract_crack_geometry_and_boxes(mask, (height, width))
 
         image_record = InspectionImage(
             inspection_id=inspection_id,
@@ -136,9 +142,16 @@ async def upload_inspection_images(
             blur_score=blur_score,
             brightness=brightness,
             quality_status=q_status,
-            has_crack=damage_eval.get("has_crack"),
+            has_crack=has_crack,
             confidence_score=damage_eval.get("confidence_score"),
             severity_level=damage_eval.get("severity_level"),
+            crack_type=geom.get("crack_type"),
+            crack_length_px=geom.get("crack_length_px"),
+            max_crack_width_px=geom.get("max_crack_width_px"),
+            avg_crack_width_px=geom.get("avg_crack_width_px"),
+            crack_density_pct=geom.get("crack_density_pct"),
+            crack_area_px=geom.get("crack_area_px"),
+            bounding_boxes=geom.get("bounding_boxes"),
         )
         db.add(image_record)
         uploaded_records.append(image_record)
@@ -183,11 +196,16 @@ def list_inspection_images(
 @router.get("/images/{image_id}/preview")
 def preview_image(
     image_id: int,
-    mode: str = Query("original", pattern="^(original|enhanced|gradcam)$"),
+    mode: str = Query("original", pattern="^(original|enhanced|gradcam|mask|boxes)$"),
     db: Session = Depends(get_db)
 ):
     """
-    Stream either the original, enhanced (CLAHE), or AI Grad-CAM heatmap visualization preview.
+    Stream either:
+    - original: Raw uploaded image
+    - enhanced: CLAHE + Gaussian denoising
+    - gradcam: Activation heatmap (explainable AI)
+    - mask: Segmentation mask overlay (crack boundary delineation)
+    - boxes: Bounding boxes (defect localization)
     """
     image_record = db.query(InspectionImage).filter(InspectionImage.id == image_id).first()
     if not image_record:
@@ -226,6 +244,27 @@ def preview_image(
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to generate Grad-CAM heatmap: {str(e)}"
+            )
+
+    if mode == "mask":
+        try:
+            _, overlay_rgb = segment_crack(content, has_crack=bool(image_record.has_crack))
+            is_success, buffer = cv2.imencode(".jpg", cv2.cvtColor(overlay_rgb, cv2.COLOR_RGB2BGR))
+            return Response(content=buffer.tobytes(), media_type="image/jpeg")
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to generate crack segmentation mask: {str(e)}"
+            )
+
+    if mode == "boxes":
+        try:
+            boxes_bytes = draw_bounding_boxes(content, image_record.bounding_boxes or "[]")
+            return Response(content=boxes_bytes, media_type="image/jpeg")
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to draw bounding boxes: {str(e)}"
             )
 
     return Response(content=content, media_type=media_type)
@@ -268,9 +307,21 @@ def analyze_inspection_images(
             with open(file_path, "rb") as f:
                 content = f.read()
             eval_res = classify_damage(content)
-            img.has_crack = eval_res.get("has_crack")
+            has_crack = eval_res.get("has_crack", False)
+            img.has_crack = has_crack
             img.confidence_score = eval_res.get("confidence_score")
             img.severity_level = eval_res.get("severity_level")
+
+            # Extract segmentation mask, bounding boxes & morphology measurements
+            mask, _ = segment_crack(content, has_crack=has_crack)
+            geom = extract_crack_geometry_and_boxes(mask, (img.height, img.width))
+            img.crack_type = geom.get("crack_type")
+            img.crack_length_px = geom.get("crack_length_px")
+            img.max_crack_width_px = geom.get("max_crack_width_px")
+            img.avg_crack_width_px = geom.get("avg_crack_width_px")
+            img.crack_density_pct = geom.get("crack_density_pct")
+            img.crack_area_px = geom.get("crack_area_px")
+            img.bounding_boxes = geom.get("bounding_boxes")
 
             if img.has_crack:
                 cracked_count += 1

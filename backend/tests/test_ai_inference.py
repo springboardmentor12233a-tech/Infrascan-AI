@@ -59,9 +59,44 @@ def test_pdf_report_generation():
     mock_img.has_crack = True
     mock_img.confidence_score = 0.942
     mock_img.severity_level = "High"
+    mock_img.crack_type = "Vertical / Longitudinal Crack"
+    mock_img.crack_length_px = 380
+    mock_img.max_crack_width_px = 6.4
+    mock_img.crack_density_pct = 4.2
     mock_insp.images = [mock_img]
 
     pdf_bytes = generate_inspection_pdf(mock_insp)
     assert isinstance(pdf_bytes, bytes)
     assert pdf_bytes.startswith(b"%PDF-")
+
+
+def test_segmentation_and_geometry_extraction():
+    from app.services.segmentation import segment_crack, extract_crack_geometry_and_boxes, draw_bounding_boxes
+    import cv2
+    import numpy as np
+
+    # Synthetic image with dark line defect
+    img = np.ones((256, 256, 3), dtype=np.uint8) * 200
+    cv2.line(img, (50, 40), (60, 220), (30, 30, 30), 4)
+
+    is_success, buf = cv2.imencode(".jpg", img)
+    img_bytes = buf.tobytes()
+
+    mask, overlay = segment_crack(img_bytes, has_crack=True)
+    assert mask.shape == (256, 256)
+    assert overlay.shape == (256, 256, 3)
+
+    geom = extract_crack_geometry_and_boxes(mask, (256, 256))
+    assert "crack_length_px" in geom
+    assert "max_crack_width_px" in geom
+    assert "crack_density_pct" in geom
+    assert "crack_type" in geom
+    assert "bounding_boxes" in geom
+    assert geom["crack_length_px"] > 0
+    assert geom["max_crack_width_px"] > 0
+
+    boxes_bytes = draw_bounding_boxes(img_bytes, geom["bounding_boxes"])
+    assert isinstance(boxes_bytes, bytes)
+    assert len(boxes_bytes) > 0
+
 

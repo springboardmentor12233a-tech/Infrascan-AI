@@ -69,6 +69,15 @@ class InspectionImage(Base):
     confidence_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     severity_level: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
+    # Milestone 2: Segmentation, Morphology & Geometry Measurements
+    crack_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    crack_length_px: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    max_crack_width_px: Mapped[float | None] = mapped_column(Float, nullable=True)
+    avg_crack_width_px: Mapped[float | None] = mapped_column(Float, nullable=True)
+    crack_density_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+    crack_area_px: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    bounding_boxes: Mapped[str | None] = mapped_column(String(2000), nullable=True)  # JSON-serialized boxes
+
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), nullable=False
     )
