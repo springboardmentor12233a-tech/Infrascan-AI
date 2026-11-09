@@ -27,7 +27,7 @@ import onnxruntime as ort
 # Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_ROOT = os.path.join(BASE_DIR, "dataset")
-SECOND_DATASET_ROOT = os.path.join(BASE_DIR, "second_dataset")
+METU_DATASET_ROOT = os.path.join(BASE_DIR, "second_dataset")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 BATCH_SIZE = 32
@@ -54,7 +54,7 @@ def find_sdnet_images(root_dir: str) -> Tuple[List[str], List[str]]:
     return cracked, uncracked
 
 
-def find_second_dataset_images(root_dir: str) -> Tuple[List[str], List[str]]:
+def find_metu_dataset_images(root_dir: str) -> Tuple[List[str], List[str]]:
     valid_exts = ("*.jpg", "*.jpeg", "*.png")
     cracked = []
     uncracked = []
@@ -127,8 +127,8 @@ def train():
     print(f"   Found {len(sdnet_c)} cracked and {len(sdnet_u)} uncracked SDNET images.")
 
     # 2. Secondary Dataset: METU Concrete Crack Images
-    print(f"\n2. Scanning Secondary Dataset (METU Benchmark) in: {SECOND_DATASET_ROOT}")
-    second_c, second_u = find_second_dataset_images(SECOND_DATASET_ROOT)
+    print(f"\n2. Scanning Secondary Dataset (METU Benchmark) in: {METU_DATASET_ROOT}")
+    second_c, second_u = find_metu_dataset_images(METU_DATASET_ROOT)
     print(f"   Found {len(second_c)} cracked (Positive) and {len(second_u)} uncracked (Negative) images.")
 
     # Sample balanced pools from both

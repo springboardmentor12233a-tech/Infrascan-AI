@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { InfrastructureAsset, Inspection, User } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { AssetMap } from '../components/AssetMap';
 
 export const AssetDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -187,9 +188,15 @@ export const AssetDetail: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-center text-xs text-blue-800">
-            <p className="font-semibold">Milestone 2 Map View Placeholder</p>
-            <p className="text-[11px] mt-0.5 text-blue-600">Interactive PostGIS GIS Map integration</p>
+          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+            {asset.latitude && asset.longitude ? (
+              <AssetMap assets={[asset]} height="180px" selectedAssetId={asset.id} />
+            ) : (
+              <div className="p-4 bg-slate-50 text-center text-xs text-slate-500">
+                <MapPin className="w-5 h-5 mx-auto text-slate-400 mb-1" />
+                <p>Coordinates not specified for map rendering</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 {
-  "milestone": "Milestone 2",
+  "evaluation_name": "InfraScan AI Model Performance Benchmark",
   "dataset_sources": [
     "SDNET2018 (Civil Infrastructure)",
     "METU Benchmark (Concrete Surfaces)"

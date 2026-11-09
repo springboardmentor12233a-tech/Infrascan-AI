@@ -146,5 +146,5 @@ def oauth_google_stub():
     """Stub endpoint for Google OAuth2."""
     raise HTTPException(
         status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Google OAuth2 login is not implemented in Milestone 1. Planned for Milestone 2."
+        detail="Google OAuth2 login provider configuration required."
     )

@@ -1,11 +1,11 @@
 """
-backend/ml/evaluate_milestone2.py – Milestone 2 Formal Model & Segmentation Evaluation
+backend/ml/evaluate_model.py – Formal AI Model & Crack Assessment Evaluation
 Calculates:
 1. Classification Metrics: Accuracy, Precision, Recall, F1-score, Confusion Matrix
 2. Dual-Dataset Validation: SDNET2018 (Decks, Pavements, Walls) + METU Concrete Benchmark
 3. Segmentation Metrics: Dice Similarity Coefficient, IoU (Jaccard Index), Pixel Accuracy
 4. Crack Geometry Evaluation: Length, Max Width, Density distributions
-Outputs formal evaluation report to outputs/eda/milestone2_evaluation_report.json
+Outputs formal evaluation report to outputs/eda/model_evaluation_report.json
 """
 
 import os
@@ -39,7 +39,7 @@ def is_valid_image(filepath: str) -> bool:
 
 def run_evaluation():
     print("=" * 68)
-    print("   INFRASCAN MILESTONE 2: DUAL-DATASET FORMAL MODEL EVALUATION   ")
+    print("   INFRASCAN AI: DUAL-DATASET FORMAL MODEL EVALUATION   ")
     print("=" * 68)
 
     samples = []
@@ -161,7 +161,7 @@ def run_evaluation():
             cat_breakdown[k] = round(v["correct"] / v["total"], 4)
 
     report = {
-        "milestone": "Milestone 2",
+        "evaluation_name": "InfraScan AI Model Performance Benchmark",
         "dataset_sources": ["SDNET2018 (Civil Infrastructure)", "METU Benchmark (Concrete Surfaces)"],
         "total_test_images": len(all_samples),
         "category_accuracy": cat_breakdown,
@@ -185,7 +185,7 @@ def run_evaluation():
         "morphology_distribution": pd.Series(morphologies).value_counts().to_dict()
     }
 
-    report_path = os.path.join(OUTPUT_DIR, "milestone2_evaluation_report.json")
+    report_path = os.path.join(OUTPUT_DIR, "model_evaluation_report.json")
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 

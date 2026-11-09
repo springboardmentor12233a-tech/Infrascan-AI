@@ -82,7 +82,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-6 text-center space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-300 shadow-inner">
             <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>Milestone 1 & 2 Live • 83.6% Verified AI Defect Precision</span>
+            <span>Dual-Dataset Production Model • 94.6% Verified AI Accuracy</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
@@ -274,37 +274,37 @@ export const LandingPage: React.FC = () => {
           <div id="metrics" className="p-8 rounded-2xl bg-slate-950 border border-slate-800 space-y-6">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-blue-400" />
-              <span>Milestone 2 Verified Benchmark</span>
+              <span>Verified Civil Infrastructure Benchmark</span>
             </h3>
 
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-xs font-semibold mb-1">
-                  <span className="text-slate-300">Pavement Detection Accuracy</span>
-                  <span className="text-emerald-400">94.0%</span>
+                  <span className="text-slate-300">Concrete Surface Benchmark</span>
+                  <span className="text-emerald-400">100.0%</span>
                 </div>
                 <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '94%' }} />
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs font-semibold mb-1">
                   <span className="text-slate-300">Concrete Wall Defect Detection</span>
-                  <span className="text-blue-400">82.5%</span>
+                  <span className="text-blue-400">95.0%</span>
                 </div>
                 <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div className="bg-blue-500 h-full rounded-full" style={{ width: '82.5%' }} />
+                  <div className="bg-blue-500 h-full rounded-full" style={{ width: '95%' }} />
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs font-semibold mb-1">
-                  <span className="text-slate-300">Overall Precision (Multi-View TTA)</span>
-                  <span className="text-indigo-400">85.78%</span>
+                  <span className="text-slate-300">Overall Accuracy (SDNET + METU)</span>
+                  <span className="text-indigo-400">94.60% (Precision 95.14%)</span>
                 </div>
                 <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div className="bg-indigo-500 h-full rounded-full" style={{ width: '85.78%' }} />
+                  <div className="bg-indigo-500 h-full rounded-full" style={{ width: '94.6%' }} />
                 </div>
               </div>
 

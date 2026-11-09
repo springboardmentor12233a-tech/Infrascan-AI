@@ -30,8 +30,8 @@ services:
       timeout: 5s
       retries: 5
 
-# ─── PLACEHOLDER – Milestone 2 ───────────────────────────────────────────────
-# Add MinIO / Redis / Celery workers here when needed.
+# ─── Optional Services ────────────────────────────────────────────────────────
+# Add MinIO / Redis / Celery workers here when scaling distributed workers.
 
 volumes:
   postgres_data:

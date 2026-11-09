@@ -1,6 +1,6 @@
 """
 app/services/segmentation.py – Crack Segmentation, Detection & Geometry Engine
-Milestone 2 Core:
+Features:
 1. Crack pixel segmentation mask generation
 2. Bounding box defect localization
 3. Crack skeletonization & geometry measurement (length, width, area, density)

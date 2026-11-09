@@ -2,8 +2,7 @@
 models/infrastructure_asset.py – civil infrastructure assets tracked by InfraScan.
 
 An asset is a physical structure (bridge, building, dam, etc.) that gets
-inspected over time. Latitude/longitude are plain floats for now;
-PostGIS geometry columns come in Milestone 2.
+inspected over time. Includes geographic coordinates and maintenance records.
 """
 
 import enum
@@ -48,7 +47,7 @@ class InfrastructureAsset(Base):
     # Free-text description of where the asset is located
     location_text: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
-    # Decimal degrees; PostGIS will replace these in Milestone 2
+    # Decimal degrees (WGS84 GPS coordinates)
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
 

@@ -1,7 +1,7 @@
 """
-backend/ml/download_second_dataset.py
-Downloads and prepares the METU Concrete Crack Benchmark Dataset (Özgenel et al.)
-Used in dual-dataset training alongside SDNET2018.
+backend/ml/download_metu_dataset.py
+Automated downloader for the METU Concrete Crack Benchmark Dataset (Özgenel et al.)
+Used for multi-dataset concrete crack training and validation alongside SDNET2018.
 """
 
 import os

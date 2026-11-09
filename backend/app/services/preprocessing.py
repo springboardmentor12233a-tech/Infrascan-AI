@@ -81,8 +81,7 @@ def resize_image(image_bytes: bytes, target_size: Tuple[int, int] = (224, 224)) 
 
 def normalize_imagenet(image_bytes: bytes) -> np.ndarray:
     """
-    Prepares tensor normalized with standard ImageNet mean and std.
-    Placeholder for Milestone 2 AI inference.
+    Prepares tensor normalized with standard ImageNet mean and std for model inference.
     """
     np_arr = np.frombuffer(image_bytes, np.uint8)
     img_bgr = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
