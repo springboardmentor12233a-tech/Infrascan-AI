@@ -87,6 +87,9 @@ export interface InspectionImage {
   blur_score?: number;
   brightness?: number;
   quality_status: QualityStatus;
+  has_crack?: boolean;
+  confidence_score?: number;
+  severity_level?: 'None' | 'Low' | 'Medium' | 'High' | 'Critical';
   uploaded_at: string;
   url?: string;
 }

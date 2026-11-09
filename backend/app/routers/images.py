@@ -16,6 +16,7 @@ from app.schemas.image import ImageOut
 from app.core.deps import get_current_user
 from app.services.storage import storage
 from app.services.preprocessing import assess_quality, enhance_image
+from app.services.inference import classify_damage, generate_gradcam
 from app.services.audit import log_action
 
 router = APIRouter(tags=["Images"])
@@ -121,6 +122,9 @@ async def upload_inspection_images(
         safe_filename = f"{uuid.uuid4().hex}{ext}"
         storage.save_file(safe_filename, io.BytesIO(content))
 
+        # 7. AI Crack & Damage Classification
+        damage_eval = classify_damage(content)
+
         image_record = InspectionImage(
             inspection_id=inspection_id,
             file_path=safe_filename,
@@ -131,7 +135,10 @@ async def upload_inspection_images(
             file_size_kb=file_size_kb,
             blur_score=blur_score,
             brightness=brightness,
-            quality_status=q_status
+            quality_status=q_status,
+            has_crack=damage_eval.get("has_crack"),
+            confidence_score=damage_eval.get("confidence_score"),
+            severity_level=damage_eval.get("severity_level"),
         )
         db.add(image_record)
         uploaded_records.append(image_record)
@@ -176,11 +183,11 @@ def list_inspection_images(
 @router.get("/images/{image_id}/preview")
 def preview_image(
     image_id: int,
-    mode: str = Query("original", regex="^(original|enhanced)$"),
+    mode: str = Query("original", pattern="^(original|enhanced|gradcam)$"),
     db: Session = Depends(get_db)
 ):
     """
-    Stream either the original or the enhanced (CLAHE + Gaussian denoise) image preview.
+    Stream either the original, enhanced (CLAHE), or AI Grad-CAM heatmap visualization preview.
     """
     image_record = db.query(InspectionImage).filter(InspectionImage.id == image_id).first()
     if not image_record:
@@ -211,4 +218,79 @@ def preview_image(
                 detail=f"Failed to enhance image: {str(e)}"
             )
 
+    if mode == "gradcam":
+        try:
+            gradcam_bytes = generate_gradcam(content)
+            return Response(content=gradcam_bytes, media_type="image/jpeg")
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to generate Grad-CAM heatmap: {str(e)}"
+            )
+
     return Response(content=content, media_type=media_type)
+
+
+@router.post("/inspections/{inspection_id}/analyze")
+def analyze_inspection_images(
+    inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Runs AI crack and damage assessment on all uploaded images in an inspection.
+    Updates detection confidence and damage severity in the database.
+    """
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    if not inspection:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Inspection not found"
+        )
+
+    images = db.query(InspectionImage).filter(InspectionImage.inspection_id == inspection_id).all()
+    if not images:
+        return {
+            "inspection_id": inspection_id,
+            "total_images": 0,
+            "cracked_count": 0,
+            "max_severity": "None",
+            "images": []
+        }
+
+    cracked_count = 0
+    severity_order = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1, "None": 0}
+    max_severity = "None"
+
+    for img in images:
+        file_path = storage.get_file_path(img.file_path)
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as f:
+                content = f.read()
+            eval_res = classify_damage(content)
+            img.has_crack = eval_res.get("has_crack")
+            img.confidence_score = eval_res.get("confidence_score")
+            img.severity_level = eval_res.get("severity_level")
+
+            if img.has_crack:
+                cracked_count += 1
+            if severity_order.get(img.severity_level, 0) > severity_order.get(max_severity, 0):
+                max_severity = img.severity_level
+
+    db.commit()
+
+    results = []
+    for img in images:
+        data = ImageOut.model_validate(img)
+        data.url = f"/uploads/{img.file_path}"
+        results.append(data)
+
+    return {
+        "inspection_id": inspection_id,
+        "total_images": len(images),
+        "cracked_count": cracked_count,
+        "uncracked_count": len(images) - cracked_count,
+        "max_severity": max_severity,
+        "images": results
+    }
+

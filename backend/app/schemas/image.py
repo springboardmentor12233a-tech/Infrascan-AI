@@ -16,6 +16,9 @@ class ImageOut(BaseModel):
     blur_score: Optional[float] = None
     brightness: Optional[float] = None
     quality_status: QualityStatus
+    has_crack: Optional[bool] = None
+    confidence_score: Optional[float] = None
+    severity_level: Optional[str] = None
     uploaded_at: datetime
     url: Optional[str] = None
 

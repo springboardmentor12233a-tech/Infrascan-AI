@@ -14,7 +14,9 @@ import {
   RefreshCw,
   Eye,
   Building2,
-  FileText
+  FileText,
+  Sparkles,
+  ShieldAlert
 } from 'lucide-react';
 import { Inspection, InspectionImage, QualityStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +28,7 @@ export const InspectionView: React.FC = () => {
   const [images, setImages] = useState<InspectionImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -35,9 +38,33 @@ export const InspectionView: React.FC = () => {
   const [status, setStatus] = useState<string>('pending');
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  // Preview Modal for Original vs Enhanced CLAHE
+  // Preview Modal for Original vs Enhanced CLAHE vs AI Grad-CAM Heatmap
   const [previewImage, setPreviewImage] = useState<InspectionImage | null>(null);
-  const [previewMode, setPreviewMode] = useState<'original' | 'enhanced'>('original');
+  const [previewMode, setPreviewMode] = useState<'original' | 'enhanced' | 'gradcam'>('original');
+  const [downloadingReport, setDownloadingReport] = useState(false);
+
+  const handleDownloadReport = async () => {
+    if (!id) return;
+    try {
+      setDownloadingReport(true);
+      setError('');
+      const res = await api.get(`/inspections/${id}/report/pdf`, {
+        responseType: 'blob'
+      });
+      const blobUrl = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.setAttribute('download', `InfraScan_Inspection_${id}_Report.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setSuccess('PDF Inspection Report downloaded successfully.');
+    } catch (err: any) {
+      setError('Failed to generate structural inspection PDF report.');
+    } finally {
+      setDownloadingReport(false);
+    }
+  };
 
   const fetchInspectionData = async () => {
     setLoading(true);
@@ -116,6 +143,59 @@ export const InspectionView: React.FC = () => {
     }
   };
 
+  const handleRunAIAnalysis = async () => {
+    setAnalyzing(true);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await api.post(`/inspections/${id}/analyze`);
+      setImages(res.data.images || []);
+      setSuccess(
+        `AI Damage Assessment Complete: ${res.data.cracked_count} of ${res.data.total_images} image(s) flagged with defect presence. Max Severity: ${res.data.max_severity}.`
+      );
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'AI Analysis failed to run.');
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const getDamageBadge = (hasCrack?: boolean, conf?: number, severity?: string) => {
+    if (hasCrack === undefined || hasCrack === null) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500">
+          Not Analyzed
+        </span>
+      );
+    }
+    if (hasCrack) {
+      const colorMap: Record<string, string> = {
+        Critical: 'bg-purple-100 text-purple-900 border-purple-300',
+        High: 'bg-red-100 text-red-900 border-red-300',
+        Medium: 'bg-orange-100 text-orange-900 border-orange-300',
+        Low: 'bg-amber-100 text-amber-900 border-amber-300',
+      };
+      const badgeStyle = colorMap[severity || 'Low'] || 'bg-red-100 text-red-900 border-red-300';
+      return (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border ${badgeStyle}`}>
+            <AlertTriangle className="w-3 h-3 text-red-600" />
+            Crack Detected ({((conf || 0) * 100).toFixed(1)}%)
+          </span>
+          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${badgeStyle}`}>
+            {severity}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+        <CheckCircle className="w-3 h-3 text-emerald-600" />
+        Healthy ({(((1 - (conf || 0))) * 100).toFixed(1)}%)
+      </span>
+    );
+  };
+
   const getQualityBadge = (status: QualityStatus, blur?: number, bright?: number) => {
     switch (status) {
       case 'ok':
@@ -183,19 +263,34 @@ export const InspectionView: React.FC = () => {
           </span>
         </div>
 
-        {/* Status Dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase text-gray-500">Status:</span>
-          <select
-            value={status}
-            disabled={updatingStatus}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="input-field py-1 text-xs font-semibold bg-white rounded-md"
+        {/* Status Dropdown & PDF Download */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleDownloadReport}
+            disabled={downloadingReport}
+            className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5 border-gray-300 hover:bg-gray-100 shadow-sm"
           >
-            <option value="pending">Pending</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
+            {downloadingReport ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600" />
+            ) : (
+              <FileText className="w-3.5 h-3.5 text-red-600" />
+            )}
+            <span>{downloadingReport ? 'Building PDF...' : 'Download PDF Report'}</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase text-gray-500">Status:</span>
+            <select
+              value={status}
+              disabled={updatingStatus}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="input-field py-1 text-xs font-semibold bg-white rounded-md"
+            >
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -286,13 +381,33 @@ export const InspectionView: React.FC = () => {
         </div>
       </div>
 
-      {/* Uploaded Images Gallery */}
+      {/* Uploaded Images Gallery & AI Assessment */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Camera className="w-5 h-5 text-blue-600" />
-            <span>Inspection Images & Quality Validation ({images.length})</span>
+            <span>Inspection Images & AI Assessment ({images.length})</span>
           </h2>
+
+          {images.length > 0 && (
+            <button
+              onClick={handleRunAIAnalysis}
+              disabled={analyzing}
+              className="btn-primary flex items-center gap-2 text-xs py-1.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-sm"
+            >
+              {analyzing ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Evaluating Structural Defects...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
+                  <span>Run AI Damage Assessment</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {images.length === 0 ? (
@@ -327,9 +442,10 @@ export const InspectionView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Quality Badge */}
-                  <div>
-                    {getQualityBadge(img.quality_status, img.blur_score, img.brightness)}
+                  {/* Quality & Damage Badges */}
+                  <div className="space-y-1">
+                    <div>{getQualityBadge(img.quality_status, img.blur_score, img.brightness)}</div>
+                    <div>{getDamageBadge(img.has_crack, img.confidence_score, img.severity_level)}</div>
                   </div>
 
                   <p className="text-xs font-medium text-gray-800 truncate" title={img.original_filename}>
@@ -362,7 +478,7 @@ export const InspectionView: React.FC = () => {
               </div>
 
               {/* Mode Toggle */}
-              <div className="flex items-center bg-gray-100 p-1 rounded-lg">
+              <div className="flex items-center bg-gray-100 p-1 rounded-lg gap-1">
                 <button
                   onClick={() => setPreviewMode('original')}
                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
@@ -382,6 +498,16 @@ export const InspectionView: React.FC = () => {
                   }`}
                 >
                   Enhanced (CLAHE)
+                </button>
+                <button
+                  onClick={() => setPreviewMode('gradcam')}
+                  className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                    previewMode === 'gradcam'
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  AI Heatmap (Grad-CAM)
                 </button>
               </div>
             </div>

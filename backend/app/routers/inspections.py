@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -9,6 +9,7 @@ from app.models.user import User
 from app.schemas.asset_inspection import InspectionCreate, InspectionUpdate, InspectionOut
 from app.core.deps import get_current_user, require_roles
 from app.services.audit import log_action
+from app.services.reporting import generate_inspection_pdf
 
 router = APIRouter(tags=["Inspections"])
 
@@ -148,3 +149,29 @@ def update_inspection(
 
     log_action(db, action="update", entity="inspection", entity_id=str(inspection.id), user_id=current_user.id)
     return inspection
+
+
+@router.get("/{inspection_id}/report/pdf")
+def download_inspection_report(
+    inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Generates and downloads a structural assessment PDF inspection report.
+    """
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    if not inspection:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Inspection not found"
+        )
+
+    pdf_bytes = generate_inspection_pdf(inspection)
+    filename = f"InfraScan_Inspection_{inspection_id}_Report.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+

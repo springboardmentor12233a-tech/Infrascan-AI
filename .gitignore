@@ -33,6 +33,8 @@ backend/infrascan.db
 # ── Uploaded images ───────────────────────────────────────────────────────────
 backend/uploads/*
 !backend/uploads/.gitkeep
+uploads/
+backend/ml/dataset/
 
 # ── IDE / OS ──────────────────────────────────────────────────────────────────
 .vscode/
