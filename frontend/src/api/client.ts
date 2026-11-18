@@ -4,7 +4,9 @@ const api = axios.create({
   baseURL: 'http://localhost:8000',
 });
 
-// Interceptor to attach JWT token to every outgoing request
+// Bearer JWT in localStorage. HttpOnly cookies are not used: the API
+// authenticates with Authorization headers across the Vite and API origins.
+// Do not log this header or the token value.
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {

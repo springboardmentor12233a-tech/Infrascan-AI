@@ -46,6 +46,8 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 def on_startup():
     Base.metadata.create_all(bind=engine)
     print(f"[OK] {settings.APP_NAME} started - DB tables ready")
+    if settings.SECRET_KEY == "changeme":
+        print("[WARN] SECRET_KEY is the development fallback. Set SECRET_KEY in backend/.env before any shared deployment.")
 
     from app.services.seed import seed_roles
     db = SessionLocal()

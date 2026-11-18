@@ -108,11 +108,12 @@ export const Login: React.FC = () => {
           </p>
         </div>
 
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
-          <p className="font-semibold text-gray-700">Demo Accounts (Password: Password123!):</p>
-          <p>• Admin: <code className="text-blue-600">admin@infrascan.com</code></p>
-          <p>• Manager: <code className="text-blue-600">manager@infrascan.com</code></p>
-          <p>• Inspector: <code className="text-blue-600">inspector@infrascan.com</code></p>
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1" data-testid="demo-accounts">
+          <p className="font-semibold text-gray-700">Seeded demo accounts</p>
+          <p>Inspector: <code className="text-blue-600">inspector@infrascan.com</code></p>
+          <p>Manager: <code className="text-blue-600">manager@infrascan.com</code></p>
+          <p>Admin: <code className="text-blue-600">admin@infrascan.com</code></p>
+          <p>The shared password is in the local demo guide and is not shown here.</p>
         </div>
       </div>
     </div>

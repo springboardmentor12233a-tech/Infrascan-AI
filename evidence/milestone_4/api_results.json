@@ -1,0 +1,987 @@
+{
+  "runner": "scripts/run_milestone4_api.py",
+  "runner_kind": "Python httpx acceptance run. Not the Postman desktop application.",
+  "base_url": "http://127.0.0.1:8000",
+  "total": 30,
+  "passed": 30,
+  "failed": 0,
+  "skipped": 0,
+  "newman": "Newman and the Postman CLI were not installed on this machine. This report is the Python httpx execution of the same requests as the Postman collection. Expired-token rejection is covered by pytest, not this live run, because signing an expired token requires the server secret and that secret is not stored in the collection.",
+  "checks": [
+    {
+      "name": "API health check",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "status, app, and version checked",
+      "body": {
+        "status": "ok",
+        "app": "InfraScan",
+        "version": "0.2.0",
+        "message": "InfraScan API is running"
+      }
+    },
+    {
+      "name": "Invalid login",
+      "passed": true,
+      "skipped": false,
+      "status": 401,
+      "detail": "unknown user rejected",
+      "body": {
+        "detail": "Incorrect email or password"
+      }
+    },
+    {
+      "name": "Login inspector@infrascan.com",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "role=Infrastructure Inspector",
+      "body": {
+        "access_token": "***masked***",
+        "token_type": "bearer",
+        "user": {
+          "email": "inspector@infrascan.com",
+          "full_name": "Sarah Connor (Inspector)",
+          "id": 4,
+          "role_id": 4,
+          "role": {
+            "id": 4,
+            "name": "Infrastructure Inspector"
+          },
+          "is_active": true,
+          "created_at": "2026-11-02T15:58:58"
+        }
+      }
+    },
+    {
+      "name": "Login manager@infrascan.com",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "role=Infrastructure Manager",
+      "body": {
+        "access_token": "***masked***",
+        "token_type": "bearer",
+        "user": {
+          "email": "manager@infrascan.com",
+          "full_name": "Elena Vance (Manager)",
+          "id": 2,
+          "role_id": 2,
+          "role": {
+            "id": 2,
+            "name": "Infrastructure Manager"
+          },
+          "is_active": true,
+          "created_at": "2026-11-02T15:58:58"
+        }
+      }
+    },
+    {
+      "name": "Authenticated profile GET /auth/me",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "inspector profile",
+      "body": {
+        "email": "inspector@infrascan.com",
+        "full_name": "Sarah Connor (Inspector)",
+        "id": 4,
+        "role_id": 4,
+        "role": {
+          "id": 4,
+          "name": "Infrastructure Inspector"
+        },
+        "is_active": true,
+        "created_at": "2026-11-02T15:58:58"
+      }
+    },
+    {
+      "name": "Missing token is rejected",
+      "passed": true,
+      "skipped": false,
+      "status": 401,
+      "detail": "no Authorization header",
+      "body": {
+        "detail": "Not authenticated"
+      }
+    },
+    {
+      "name": "Invalid token is rejected",
+      "passed": true,
+      "skipped": false,
+      "status": 401,
+      "detail": "bogus bearer token",
+      "body": {
+        "detail": "Could not validate credentials"
+      }
+    },
+    {
+      "name": "Inspector can list assets",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "total=4",
+      "body": {
+        "total": 4,
+        "page": 1,
+        "size": 10,
+        "items": [
+          {
+            "asset_code": "DEMO-RW-04",
+            "name": "Faculty Demo Retaining Wall",
+            "type": "Retaining Wall",
+            "location_text": "Campus demonstration site, north wall",
+            "latitude": null,
+            "longitude": null,
+            "construction_year": 1998,
+            "material_type": null,
+            "responsible_department": null,
+            "inspection_frequency_days": 180,
+            "maintenance_history": null,
+            "id": 4,
+            "created_at": "2026-11-02T16:51:05"
+          },
+          {
+            "asset_code": "DAM-003",
+            "name": "Pine Valley Reservoir Gravity Dam",
+            "type": "Dam",
+            "location_text": "Cascade River Canyon, Sector North",
+            "latitude": 45.5152,
+            "longitude": -122.6784,
+            "construction_year": 1974,
+            "material_type": "Mass Concrete",
+            "responsible_department": "Water Resources & Dam Safety Bureau",
+            "inspection_frequency_days": 365,
+            "maintenance_history": "***masked-jwt***",
+            "id": 3,
+            "created_at": "2026-11-02T15:58:58"
+          },
+          {
+            "asset_code": "TUN-002",
+            "name": "Metropolitan Metro East Transit Tunnel",
+            "type": "Tunnel",
+            "location_text": "Underground Sector 4, Central Urban Corridor",
+            "latitude": 40.7128,
+            "longitude": -74.006,
+            "construction_year": 2004,
+            "material_type": "Segmental Cast Concrete Lining",
+            "responsible_department": "Metropolitan Transit Authority - Structural Dept",
+            "inspection_frequency_days": 90,
+            "maintenance_history": "***masked-jwt***",
+            "id": 2,
+            "created_at": "2026-11-02T15:58:58"
+          },
+          {
+            "asset_code": "BRG-001",
+            "name": "Golden Gate Overpass Viaduct",
+            "type": "Bridge",
+            "location_text": "Interstate 80, Mile Marker 42, North Bay",
+            "latitude": 37.8199,
+            "longitude": -122.4783,
+            "construction_year": 1988,
+            "material_type": "Prestressed Reinforced Concrete",
+            "responsible_department": "Department of Transportation - Bridge Division",
+            "inspection_frequency_days": 180,
+            "maintenance_history": "***masked-jwt***",
+            "id": 1,
+            "created_at": "2026-11-02T15:58:58"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Inspector cannot create an asset",
+      "passed": true,
+      "skipped": false,
+      "status": 403,
+      "detail": "manager-only create",
+      "body": {
+        "detail": "Operation not permitted. Required roles: Administrator, Infrastructure Manager"
+      }
+    },
+    {
+      "name": "Inspector cannot list users",
+      "passed": true,
+      "skipped": false,
+      "status": 403,
+      "detail": "admin-only users",
+      "body": {
+        "detail": "Operation not permitted. Required roles: Administrator"
+      }
+    },
+    {
+      "name": "Manager cannot list users",
+      "passed": true,
+      "skipped": false,
+      "status": 403,
+      "detail": "admin-only users",
+      "body": {
+        "detail": "Operation not permitted. Required roles: Administrator"
+      }
+    },
+    {
+      "name": "Manager creates an asset",
+      "passed": true,
+      "skipped": false,
+      "status": 201,
+      "detail": "created Postman Milestone Asset",
+      "body": {
+        "asset_code": "PM-1794987851",
+        "name": "Postman Milestone Asset",
+        "type": "Bridge",
+        "location_text": "API test site",
+        "latitude": 12.97,
+        "longitude": 77.59,
+        "construction_year": 2001,
+        "material_type": null,
+        "responsible_department": null,
+        "inspection_frequency_days": null,
+        "maintenance_history": null,
+        "id": 5,
+        "created_at": "2026-11-18T07:44:11"
+      }
+    },
+    {
+      "name": "Manager retrieves the asset",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "GET asset",
+      "body": {
+        "asset_code": "PM-1794987851",
+        "name": "Postman Milestone Asset",
+        "type": "Bridge",
+        "location_text": "API test site",
+        "latitude": 12.97,
+        "longitude": 77.59,
+        "construction_year": 2001,
+        "material_type": null,
+        "responsible_department": null,
+        "inspection_frequency_days": null,
+        "maintenance_history": null,
+        "id": 5,
+        "created_at": "2026-11-18T07:44:11"
+      }
+    },
+    {
+      "name": "Manager updates the asset",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "location updated",
+      "body": {
+        "asset_code": "PM-1794987851",
+        "name": "Postman Milestone Asset",
+        "type": "Bridge",
+        "location_text": "API test site, updated",
+        "latitude": 12.97,
+        "longitude": 77.59,
+        "construction_year": 2001,
+        "material_type": null,
+        "responsible_department": null,
+        "inspection_frequency_days": null,
+        "maintenance_history": null,
+        "id": 5,
+        "created_at": "2026-11-18T07:44:11"
+      }
+    },
+    {
+      "name": "Database persistence re-read",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "inspector read matches the update",
+      "body": {
+        "asset_code": "PM-1794987851",
+        "name": "Postman Milestone Asset",
+        "type": "Bridge",
+        "location_text": "API test site, updated",
+        "latitude": 12.97,
+        "longitude": 77.59,
+        "construction_year": 2001,
+        "material_type": null,
+        "responsible_department": null,
+        "inspection_frequency_days": null,
+        "maintenance_history": null,
+        "id": 5,
+        "created_at": "2026-11-18T07:44:11"
+      }
+    },
+    {
+      "name": "Manager creates a disposable asset",
+      "passed": true,
+      "skipped": false,
+      "status": 201,
+      "detail": "asset to delete",
+      "body": {
+        "asset_code": "PM-DEL-PM-1794987851",
+        "name": "Disposable API Asset",
+        "type": "Road",
+        "location_text": null,
+        "latitude": null,
+        "longitude": null,
+        "construction_year": null,
+        "material_type": null,
+        "responsible_department": null,
+        "inspection_frequency_days": null,
+        "maintenance_history": null,
+        "id": 6,
+        "created_at": "2026-11-18T07:44:11"
+      }
+    },
+    {
+      "name": "Manager deletes the disposable asset",
+      "passed": true,
+      "skipped": false,
+      "status": 204,
+      "detail": "204 empty body",
+      "body": {
+        "body": "empty"
+      }
+    },
+    {
+      "name": "Deleted asset is gone",
+      "passed": true,
+      "skipped": false,
+      "status": 404,
+      "detail": "GET after delete",
+      "body": {
+        "detail": "Infrastructure asset not found"
+      }
+    },
+    {
+      "name": "Inspector creates an inspection",
+      "passed": true,
+      "skipped": false,
+      "status": 201,
+      "detail": "assigned to inspector",
+      "body": {
+        "asset_id": 5,
+        "inspector_id": 4,
+        "inspection_date": "2026-11-18",
+        "notes": "Milestone 4 API inspection",
+        "id": 4,
+        "status": "pending",
+        "created_at": "2026-11-18T07:44:11",
+        "inspector": {
+          "email": "inspector@infrascan.com",
+          "full_name": "Sarah Connor (Inspector)",
+          "id": 4,
+          "role_id": 4,
+          "role": {
+            "id": 4,
+            "name": "Infrastructure Inspector"
+          },
+          "is_active": true,
+          "created_at": "2026-11-02T15:58:58"
+        },
+        "asset": {
+          "asset_code": "PM-1794987851",
+          "name": "Postman Milestone Asset",
+          "type": "Bridge",
+          "location_text": "API test site, updated",
+          "latitude": 12.97,
+          "longitude": 77.59,
+          "construction_year": 2001,
+          "material_type": null,
+          "responsible_department": null,
+          "inspection_frequency_days": null,
+          "maintenance_history": null,
+          "id": 5,
+          "created_at": "2026-11-18T07:44:11"
+        }
+      }
+    },
+    {
+      "name": "Inspector cannot assign another user",
+      "passed": true,
+      "skipped": false,
+      "status": 403,
+      "detail": "self-assignment rule",
+      "body": {
+        "detail": "Inspectors can only create inspections assigned to themselves."
+      }
+    },
+    {
+      "name": "Retrieve the inspection",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "GET inspection",
+      "body": {
+        "asset_id": 5,
+        "inspector_id": 4,
+        "inspection_date": "2026-11-18",
+        "notes": "Milestone 4 API inspection",
+        "id": 4,
+        "status": "pending",
+        "created_at": "2026-11-18T07:44:11",
+        "inspector": {
+          "email": "inspector@infrascan.com",
+          "full_name": "Sarah Connor (Inspector)",
+          "id": 4,
+          "role_id": 4,
+          "role": {
+            "id": 4,
+            "name": "Infrastructure Inspector"
+          },
+          "is_active": true,
+          "created_at": "2026-11-02T15:58:58"
+        },
+        "asset": {
+          "asset_code": "PM-1794987851",
+          "name": "Postman Milestone Asset",
+          "type": "Bridge",
+          "location_text": "API test site, updated",
+          "latitude": 12.97,
+          "longitude": 77.59,
+          "construction_year": 2001,
+          "material_type": null,
+          "responsible_department": null,
+          "inspection_frequency_days": null,
+          "maintenance_history": null,
+          "id": 5,
+          "created_at": "2026-11-18T07:44:11"
+        }
+      }
+    },
+    {
+      "name": "Inspection history for the asset",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "history contains the new inspection",
+      "body": [
+        {
+          "asset_id": 5,
+          "inspector_id": 4,
+          "inspection_date": "2026-11-18",
+          "notes": "Milestone 4 API inspection",
+          "id": 4,
+          "status": "pending",
+          "created_at": "2026-11-18T07:44:11",
+          "inspector": {
+            "email": "inspector@infrascan.com",
+            "full_name": "Sarah Connor (Inspector)",
+            "id": 4,
+            "role_id": 4,
+            "role": {
+              "id": 4,
+              "name": "Infrastructure Inspector"
+            },
+            "is_active": true,
+            "created_at": "2026-11-02T15:58:58"
+          },
+          "asset": {
+            "asset_code": "PM-1794987851",
+            "name": "Postman Milestone Asset",
+            "type": "Bridge",
+            "location_text": "API test site, updated",
+            "latitude": 12.97,
+            "longitude": 77.59,
+            "construction_year": 2001,
+            "material_type": null,
+            "responsible_department": null,
+            "inspection_frequency_days": null,
+            "maintenance_history": null,
+            "id": 5,
+            "created_at": "2026-11-18T07:44:11"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload an inspection image",
+      "passed": [
+        {
+          "id": 6,
+          "inspection_id": 4,
+          "file_path": "fb1847191c6647738fd415e034e07fb9.jpg",
+          "original_filename": "11120.jpg",
+          "md5_hash": "88ddab2dd12d2de9b348683fff7b499d",
+          "width": 544,
+          "height": 384,
+          "file_size_kb": 61.39,
+          "blur_score": 2579.71,
+          "brightness": 153.3,
+          "quality_status": "ok",
+          "uploaded_at": "2026-11-18T07:44:11",
+          "url": "/uploads/fb1847191c6647738fd415e034e07fb9.jpg"
+        }
+      ],
+      "skipped": false,
+      "status": 201,
+      "detail": "11120.jpg",
+      "body": [
+        {
+          "id": 6,
+          "inspection_id": 4,
+          "file_path": "fb1847191c6647738fd415e034e07fb9.jpg",
+          "original_filename": "11120.jpg",
+          "md5_hash": "88ddab2dd12d2de9b348683fff7b499d",
+          "width": 544,
+          "height": 384,
+          "file_size_kb": 61.39,
+          "blur_score": 2579.71,
+          "brightness": 153.3,
+          "quality_status": "ok",
+          "uploaded_at": "2026-11-18T07:44:11",
+          "url": "/uploads/fb1847191c6647738fd415e034e07fb9.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Image list contains the upload",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "GET images",
+      "body": [
+        {
+          "id": 6,
+          "inspection_id": 4,
+          "file_path": "fb1847191c6647738fd415e034e07fb9.jpg",
+          "original_filename": "11120.jpg",
+          "md5_hash": "88ddab2dd12d2de9b348683fff7b499d",
+          "width": 544,
+          "height": 384,
+          "file_size_kb": 61.39,
+          "blur_score": 2579.71,
+          "brightness": 153.3,
+          "quality_status": "ok",
+          "uploaded_at": "2026-11-18T07:44:11",
+          "url": "/uploads/fb1847191c6647738fd415e034e07fb9.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Run image analysis",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "classification=completed:crack detection=completed segmentation=completed geometry=completed",
+      "body": {
+        "id": 6,
+        "image_id": 6,
+        "inspection_id": 4,
+        "quality": {
+          "valid": true,
+          "width": 544,
+          "height": 384,
+          "channels": 3,
+          "blur_score": 2579.71,
+          "brightness": 153.3,
+          "contrast": 33.69,
+          "status": "ok",
+          "flags": [],
+          "thresholds": {
+            "min_side": 64,
+            "blur": 100.0,
+            "brightness_low": 40.0,
+            "brightness_high": 230.0,
+            "contrast_low": 12.0
+          },
+          "notes": [
+            "***masked-jwt***",
+            "Brightness is the mean gray level from 0 to 255.",
+            "Contrast is the standard deviation of the gray image."
+          ]
+        },
+        "classification_status": "completed",
+        "classification_label": "crack",
+        "classification_confidence": 0.512,
+        "classification": {
+          "status": "completed",
+          "label": "crack",
+          "confidence": 0.512,
+          "crack_patch_fraction": 0.0625,
+          "max_crack_probability": 0.512,
+          "mean_crack_probability": 0.2146,
+          "model": "SmallCNN",
+          "detail": "The network was trained on 64x64 DeepCrack patches. This image was split into a 4x4 grid of 64x64 patches. The label is crack when at least one patch is predicted as crack.",
+          "training_metrics": {
+            "accuracy": 0.8194,
+            "precision": 0.7949,
+            "recall": 0.8611,
+            "f1": 0.8267,
+            "support": 144,
+            "confusion_matrix": {
+              "labels": [
+                "non_crack",
+                "crack"
+              ],
+              "matrix": [
+                [
+                  56,
+                  16
+                ],
+                [
+                  10,
+                  62
+                ]
+              ],
+              "tn": 56,
+              "fp": 16,
+              "fn": 10,
+              "tp": 62
+            }
+          }
+        },
+        "detection_status": "completed",
+        "detection": {
+          "status": "completed",
+          "model": "YOLOv8n",
+          "reliable": false,
+          "validation_map50": 0.0004,
+          "detections": [],
+          "candidate_count": 0,
+          "confidence_threshold": 0.25,
+          "detail": "Detection model requires further training and validation. No reliable bounding boxes generated. Validation mAP50 on the labeled Czech subset was 0.0004."
+        },
+        "segmentation_status": "completed",
+        "segmentation": {
+          "status": "completed",
+          "model": "UNet",
+          "input_size": 128,
+          "threshold": 0.5,
+          "detail": "***masked-jwt***",
+          "training_metrics": {
+            "dice": 0.4316,
+            "iou": 0.3449,
+            "images": 8
+          }
+        },
+        "geometry": {
+          "status": "completed",
+          "detail": "***masked-jwt***",
+          "measurements": {
+            "crack_pixel_area": 1419,
+            "crack_length_px": 348.0,
+            "crack_width_px_mean": 4.479,
+            "crack_width_px_median": 3.82,
+            "bbox_xmin": 39,
+            "bbox_ymin": 135,
+            "bbox_xmax": 505,
+            "bbox_ymax": 383,
+            "bbox_width_px": 467,
+            "bbox_height_px": 249,
+            "coverage_percent": 0.6793,
+            "image_width": 544,
+            "image_height": 384,
+            "unit": "pixels",
+            "physical_scale_note": "***masked-jwt***"
+          }
+        },
+        "overlay_url": "/images/6/analysis/overlay",
+        "mask_url": "/images/6/analysis/mask",
+        "error_message": null,
+        "created_at": "2026-11-18T07:44:18"
+      }
+    },
+    {
+      "name": "Read saved analysis",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "persisted analysis row",
+      "body": {
+        "id": 6,
+        "image_id": 6,
+        "inspection_id": 4,
+        "quality": {
+          "valid": true,
+          "width": 544,
+          "height": 384,
+          "channels": 3,
+          "blur_score": 2579.71,
+          "brightness": 153.3,
+          "contrast": 33.69,
+          "status": "ok",
+          "flags": [],
+          "thresholds": {
+            "min_side": 64,
+            "blur": 100.0,
+            "brightness_low": 40.0,
+            "brightness_high": 230.0,
+            "contrast_low": 12.0
+          },
+          "notes": [
+            "***masked-jwt***",
+            "Brightness is the mean gray level from 0 to 255.",
+            "Contrast is the standard deviation of the gray image."
+          ]
+        },
+        "classification_status": "completed",
+        "classification_label": "crack",
+        "classification_confidence": 0.512,
+        "classification": {
+          "status": "completed",
+          "label": "crack",
+          "confidence": 0.512,
+          "crack_patch_fraction": 0.0625,
+          "max_crack_probability": 0.512,
+          "mean_crack_probability": 0.2146,
+          "model": "SmallCNN",
+          "detail": "The network was trained on 64x64 DeepCrack patches. This image was split into a 4x4 grid of 64x64 patches. The label is crack when at least one patch is predicted as crack.",
+          "training_metrics": {
+            "accuracy": 0.8194,
+            "precision": 0.7949,
+            "recall": 0.8611,
+            "f1": 0.8267,
+            "support": 144,
+            "confusion_matrix": {
+              "labels": [
+                "non_crack",
+                "crack"
+              ],
+              "matrix": [
+                [
+                  56,
+                  16
+                ],
+                [
+                  10,
+                  62
+                ]
+              ],
+              "tn": 56,
+              "fp": 16,
+              "fn": 10,
+              "tp": 62
+            }
+          }
+        },
+        "detection_status": "completed",
+        "detection": {
+          "status": "completed",
+          "model": "YOLOv8n",
+          "reliable": false,
+          "validation_map50": 0.0004,
+          "detections": [],
+          "candidate_count": 0,
+          "confidence_threshold": 0.25,
+          "detail": "Detection model requires further training and validation. No reliable bounding boxes generated. Validation mAP50 on the labeled Czech subset was 0.0004."
+        },
+        "segmentation_status": "completed",
+        "segmentation": {
+          "status": "completed",
+          "model": "UNet",
+          "input_size": 128,
+          "threshold": 0.5,
+          "detail": "***masked-jwt***",
+          "training_metrics": {
+            "dice": 0.4316,
+            "iou": 0.3449,
+            "images": 8
+          }
+        },
+        "geometry": {
+          "status": "completed",
+          "detail": "***masked-jwt***",
+          "measurements": {
+            "crack_pixel_area": 1419,
+            "crack_length_px": 348.0,
+            "crack_width_px_mean": 4.479,
+            "crack_width_px_median": 3.82,
+            "bbox_xmin": 39,
+            "bbox_ymin": 135,
+            "bbox_xmax": 505,
+            "bbox_ymax": 383,
+            "bbox_width_px": 467,
+            "bbox_height_px": 249,
+            "coverage_percent": 0.6793,
+            "image_width": 544,
+            "image_height": 384,
+            "unit": "pixels",
+            "physical_scale_note": "***masked-jwt***"
+          }
+        },
+        "overlay_url": "/images/6/analysis/overlay",
+        "mask_url": "/images/6/analysis/mask",
+        "error_message": null,
+        "created_at": "2026-11-18T07:44:18"
+      }
+    },
+    {
+      "name": "Inspection analyses",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "analysis history",
+      "body": [
+        {
+          "id": 6,
+          "image_id": 6,
+          "inspection_id": 4,
+          "quality": {
+            "valid": true,
+            "width": 544,
+            "height": 384,
+            "channels": 3,
+            "blur_score": 2579.71,
+            "brightness": 153.3,
+            "contrast": 33.69,
+            "status": "ok",
+            "flags": [],
+            "thresholds": {
+              "min_side": 64,
+              "blur": 100.0,
+              "brightness_low": 40.0,
+              "brightness_high": 230.0,
+              "contrast_low": 12.0
+            },
+            "notes": [
+              "***masked-jwt***",
+              "Brightness is the mean gray level from 0 to 255.",
+              "Contrast is the standard deviation of the gray image."
+            ]
+          },
+          "classification_status": "completed",
+          "classification_label": "crack",
+          "classification_confidence": 0.512,
+          "classification": {
+            "status": "completed",
+            "label": "crack",
+            "confidence": 0.512,
+            "crack_patch_fraction": 0.0625,
+            "max_crack_probability": 0.512,
+            "mean_crack_probability": 0.2146,
+            "model": "SmallCNN",
+            "detail": "The network was trained on 64x64 DeepCrack patches. This image was split into a 4x4 grid of 64x64 patches. The label is crack when at least one patch is predicted as crack.",
+            "training_metrics": {
+              "accuracy": 0.8194,
+              "precision": 0.7949,
+              "recall": 0.8611,
+              "f1": 0.8267,
+              "support": 144,
+              "confusion_matrix": {
+                "labels": [
+                  "non_crack",
+                  "crack"
+                ],
+                "matrix": [
+                  [
+                    56,
+                    16
+                  ],
+                  [
+                    10,
+                    62
+                  ]
+                ],
+                "tn": 56,
+                "fp": 16,
+                "fn": 10,
+                "tp": 62
+              }
+            }
+          },
+          "detection_status": "completed",
+          "detection": {
+            "status": "completed",
+            "model": "YOLOv8n",
+            "reliable": false,
+            "validation_map50": 0.0004,
+            "detections": [],
+            "candidate_count": 0,
+            "confidence_threshold": 0.25,
+            "detail": "Detection model requires further training and validation. No reliable bounding boxes generated. Validation mAP50 on the labeled Czech subset was 0.0004."
+          },
+          "segmentation_status": "completed",
+          "segmentation": {
+            "status": "completed",
+            "model": "UNet",
+            "input_size": 128,
+            "threshold": 0.5,
+            "detail": "***masked-jwt***",
+            "training_metrics": {
+              "dice": 0.4316,
+              "iou": 0.3449,
+              "images": 8
+            }
+          },
+          "geometry": {
+            "status": "completed",
+            "detail": "***masked-jwt***",
+            "measurements": {
+              "crack_pixel_area": 1419,
+              "crack_length_px": 348.0,
+              "crack_width_px_mean": 4.479,
+              "crack_width_px_median": 3.82,
+              "bbox_xmin": 39,
+              "bbox_ymin": 135,
+              "bbox_xmax": 505,
+              "bbox_ymax": 383,
+              "bbox_width_px": 467,
+              "bbox_height_px": 249,
+              "coverage_percent": 0.6793,
+              "image_width": 544,
+              "image_height": 384,
+              "unit": "pixels",
+              "physical_scale_note": "***masked-jwt***"
+            }
+          },
+          "overlay_url": "/images/6/analysis/overlay",
+          "mask_url": "/images/6/analysis/mask",
+          "error_message": null,
+          "created_at": "2026-11-18T07:44:18"
+        }
+      ]
+    },
+    {
+      "name": "Model status",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "weights availability",
+      "body": {
+        "classifier": {
+          "name": "SmallCNN",
+          "task": "binary crack vs non-crack patch classification",
+          "weights": "D:\\Infrascan-AI\\models\\weights\\crack_cnn.pt",
+          "available": true,
+          "framework": "PyTorch"
+        },
+        "segmentation": {
+          "name": "UNet",
+          "task": "binary crack segmentation",
+          "weights": "D:\\Infrascan-AI\\models\\weights\\unet_deepcrack.pt",
+          "available": true,
+          "framework": "PyTorch"
+        },
+        "detection": {
+          "name": "YOLOv8n",
+          "task": "RDD2022 Czech bounding-box detection (D00, D10, D20, D40)",
+          "weights": "D:\\Infrascan-AI\\models\\weights\\yolo_rdd.pt",
+          "available": true,
+          "framework": "Ultralytics YOLOv8n fine-tune",
+          "note": "This file is a model trained by scripts/ml/train_yolo.py on the local Czech subset. It is not an off-the-shelf COCO detector."
+        }
+      }
+    },
+    {
+      "name": "Dashboard stats",
+      "passed": true,
+      "skipped": false,
+      "status": 200,
+      "detail": "live counts",
+      "body": {
+        "assets": 5,
+        "inspections": 4,
+        "images": 6,
+        "analyses": 6
+      }
+    },
+    {
+      "name": "Protected asset delete is blocked while inspections exist",
+      "passed": true,
+      "skipped": false,
+      "status": 409,
+      "detail": "409 conflict",
+      "body": {
+        "detail": "Cannot delete an asset that still has inspections."
+      }
+    }
+  ]
+}

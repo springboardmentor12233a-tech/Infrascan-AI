@@ -14,16 +14,30 @@ from app.schemas.user import (
     RoleOut,
 )
 from app.core.security import hash_password, verify_password, create_access_token
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, get_optional_user
 from app.services.audit import log_action
 
 router = APIRouter(tags=["Auth"])
 
+# Public registration can only take these roles. Administrator and
+# Infrastructure Manager are assigned from the admin user console.
+SELF_SERVICE_ROLES = {
+    "Civil Engineer",
+    "Infrastructure Inspector",
+    "Maintenance Engineer",
+}
+
 
 @router.get("/roles", response_model=list[RoleOut])
-def list_roles(db: Session = Depends(get_db)):
-    """List available system roles for registration/management."""
-    return db.query(Role).all()
+def list_roles(
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_user),
+):
+    """List roles. Administrators see every role. Everyone else sees self-service roles."""
+    roles = db.query(Role).order_by(Role.id).all()
+    if current_user and current_user.role and current_user.role.name == "Administrator":
+        return roles
+    return [role for role in roles if role.name in SELF_SERVICE_ROLES]
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -43,6 +57,11 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid role specified."
+            )
+        if role.name not in SELF_SERVICE_ROLES:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This role can only be assigned by an administrator."
             )
         role_id = role.id
     else:

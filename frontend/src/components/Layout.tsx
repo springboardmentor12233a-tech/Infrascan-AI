@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { tokenExpiryLabel, workspaceLabel } from '../tokenExpiry';
 import { 
   Building2, 
   ClipboardCheck, 
@@ -12,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const Layout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,7 +21,11 @@ export const Layout: React.FC = () => {
     navigate('/login');
   };
 
-  const isAdmin = user?.role?.name === 'Administrator';
+  const roleName = user?.role?.name || '';
+  const isAdmin = roleName === 'Administrator';
+  const canManageAssets = isAdmin || roleName === 'Infrastructure Manager';
+  const workspace = workspaceLabel(roleName);
+  const expiresAt = tokenExpiryLabel(token);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
@@ -50,8 +55,10 @@ export const Layout: React.FC = () => {
             <p className="text-sm font-semibold text-white truncate">{user?.full_name}</p>
             <p className="text-xs text-slate-400 truncate">{user?.email}</p>
             <div className="mt-2 inline-block px-2 py-0.5 text-[11px] font-medium bg-blue-900/60 text-blue-300 rounded border border-blue-700/50">
-              {user?.role?.name || 'User'}
+              {roleName || 'User'}
             </div>
+            <p className="mt-2 text-[11px] text-slate-300" data-testid="workspace-label">{workspace}</p>
+            <p className="text-[11px] text-slate-500">JWT session{expiresAt ? ` · expires ${expiresAt}` : ''}</p>
           </div>
 
           {/* Navigation */}
@@ -83,6 +90,22 @@ export const Layout: React.FC = () => {
               <Building2 className="w-4 h-4" />
               <span>Infrastructure Assets</span>
             </NavLink>
+
+            {canManageAssets && (
+              <NavLink
+                to="/assets/new"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`
+                }
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                <span>Register Asset</span>
+              </NavLink>
+            )}
 
             {isAdmin && (
               <NavLink

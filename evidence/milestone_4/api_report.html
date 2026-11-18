@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>InfraScan API acceptance report</title>
+  <style>
+    body { font-family: Segoe UI, sans-serif; margin: 32px; color: #122033; background: #f4f7fb; }
+    h1 { margin-bottom: 0; }
+    .banner { background: #10233f; color: white; padding: 20px 24px; border-radius: 12px; }
+    .banner p { margin: 8px 0 0; max-width: 860px; }
+    .summary { display: flex; gap: 16px; margin: 20px 0; }
+    .summary div { background: white; border-radius: 12px; padding: 16px 20px; min-width: 120px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .summary strong { display: block; font-size: 28px; }
+    section { background: white; border-radius: 12px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .pass h3 { color: #0f7b3a; }
+    .fail h3 { color: #a32020; }
+    .skipped h3 { color: #8a5a00; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px; overflow: auto; white-space: pre-wrap; }
+    code { font-family: Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <h1>InfraScan API acceptance report</h1>
+    <p>Produced by <code>scripts/run_milestone4_api.py</code> with Python httpx against http://127.0.0.1:8000. This is not a Postman desktop screenshot. The importable collection is <code>postman/InfraScan_API_Tests.postman_collection.json</code>.</p>
+    <p>Newman and the Postman CLI were not installed on this machine. This report is the Python httpx execution of the same requests as the Postman collection. Expired-token rejection is covered by pytest, not this live run, because signing an expired token requires the server secret and that secret is not stored in the collection.</p>
+  </div>
+  <div class="summary" id="summary">
+    <div><strong>30</strong>Total requests</div>
+    <div><strong>30</strong>Passed</div>
+    <div><strong>0</strong>Failed</div>
+    <div><strong>0</strong>Skipped</div>
+  </div>
+  <section id="collection"><h2>Postman collection contents</h2><h3>Health</h3><ul><li>API health check · GET {{base_url}}/health</li></ul><h3>Authentication</h3><ul><li>Inspector login and JWT · POST {{base_url}}/auth/login</li><li>Invalid login · POST {{base_url}}/auth/login</li><li>Manager login and JWT · POST {{base_url}}/auth/login</li><li>Authenticated profile · GET {{base_url}}/auth/me</li><li>Missing token is rejected · GET {{base_url}}/auth/me</li><li>Invalid token is rejected · GET {{base_url}}/auth/me</li></ul><h3>Authorization</h3><ul><li>Inspector can list assets · GET {{base_url}}/assets/?page=1&amp;size=10</li><li>Inspector cannot create an asset · POST {{base_url}}/assets/</li><li>Inspector cannot list users · GET {{base_url}}/users/</li><li>Manager cannot list users · GET {{base_url}}/users/</li></ul><h3>Assets</h3><ul><li>Manager creates an asset · POST {{base_url}}/assets/</li><li>Manager retrieves the asset · GET {{base_url}}/assets/{{asset_id}}</li><li>Manager updates the asset · PUT {{base_url}}/assets/{{asset_id}}</li><li>Persistence re-read · GET {{base_url}}/assets/{{asset_id}}</li><li>Manager creates a disposable asset · POST {{base_url}}/assets/</li><li>Manager deletes the disposable asset · DELETE {{base_url}}/assets/{{delete_asset_id}}</li><li>Deleted asset is gone · GET {{base_url}}/assets/{{delete_asset_id}}</li></ul><h3>Inspections and analysis</h3><ul><li>Inspector creates an inspection · POST {{base_url}}/inspections/</li><li>Inspector cannot assign another user · POST {{base_url}}/inspections/</li><li>Retrieve the inspection · GET {{base_url}}/inspections/{{inspection_id}}</li><li>Inspection history for the asset · GET {{base_url}}/inspections/?asset_id={{asset_id}}</li><li>Upload an inspection image · POST {{base_url}}/inspections/{{inspection_id}}/images</li><li>List inspection images · GET {{base_url}}/inspections/{{inspection_id}}/images</li><li>Run image analysis · POST {{base_url}}/images/{{image_id}}/analyze</li><li>Read saved analysis · GET {{base_url}}/images/{{image_id}}/analysis</li><li>Inspection analyses · GET {{base_url}}/inspections/{{inspection_id}}/analyses</li><li>Model status · GET {{base_url}}/models/status</li><li>Dashboard stats · GET {{base_url}}/stats</li><li>Protected asset delete is blocked while inspections exist · DELETE {{base_url}}/assets/{{asset_id}}</li></ul></section>
+  <section id="health"><h2>Health check</h2><article class='check pass'><h3>PASS · API health check</h3><p>HTTP 200. status, app, and version checked</p><pre>{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;app&quot;: &quot;InfraScan&quot;,
+  &quot;version&quot;: &quot;0.2.0&quot;,
+  &quot;message&quot;: &quot;InfraScan API is running&quot;
+}</pre></article></section>
+  <section id="login"><h2>Login and JWT (token masked)</h2><article class='check pass'><h3>PASS · Invalid login</h3><p>HTTP 401. unknown user rejected</p><pre>{
+  &quot;detail&quot;: &quot;Incorrect email or password&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Login inspector@infrascan.com</h3><p>HTTP 200. role=Infrastructure Inspector</p><pre>{
+  &quot;access_token&quot;: &quot;***masked***&quot;,
+  &quot;token_type&quot;: &quot;bearer&quot;,
+  &quot;user&quot;: {
+    &quot;email&quot;: &quot;inspector@infrascan.com&quot;,
+    &quot;full_name&quot;: &quot;Sarah Connor (Inspector)&quot;,
+    &quot;id&quot;: 4,
+    &quot;role_id&quot;: 4,
+    &quot;role&quot;: {
+      &quot;id&quot;: 4,
+      &quot;name&quot;: &quot;Infrastructure Inspector&quot;
+    },
+    &quot;is_active&quot;: true,
+    &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+  }
+}</pre></article>
+<article class='check pass'><h3>PASS · Login manager@infrascan.com</h3><p>HTTP 200. role=Infrastructure Manager</p><pre>{
+  &quot;access_token&quot;: &quot;***masked***&quot;,
+  &quot;token_type&quot;: &quot;bearer&quot;,
+  &quot;user&quot;: {
+    &quot;email&quot;: &quot;manager@infrascan.com&quot;,
+    &quot;full_name&quot;: &quot;Elena Vance (Manager)&quot;,
+    &quot;id&quot;: 2,
+    &quot;role_id&quot;: 2,
+    &quot;role&quot;: {
+      &quot;id&quot;: 2,
+      &quot;name&quot;: &quot;Infrastructure Manager&quot;
+    },
+    &quot;is_active&quot;: true,
+    &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+  }
+}</pre></article></section>
+  <section id="protected"><h2>Protected endpoint</h2><article class='check pass'><h3>PASS · Authenticated profile GET /auth/me</h3><p>HTTP 200. inspector profile</p><pre>{
+  &quot;email&quot;: &quot;inspector@infrascan.com&quot;,
+  &quot;full_name&quot;: &quot;Sarah Connor (Inspector)&quot;,
+  &quot;id&quot;: 4,
+  &quot;role_id&quot;: 4,
+  &quot;role&quot;: {
+    &quot;id&quot;: 4,
+    &quot;name&quot;: &quot;Infrastructure Inspector&quot;
+  },
+  &quot;is_active&quot;: true,
+  &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Protected asset delete is blocked while inspections exist</h3><p>HTTP 409. 409 conflict</p><pre>{
+  &quot;detail&quot;: &quot;Cannot delete an asset that still has inspections.&quot;
+}</pre></article></section>
+  <section id="invalid"><h2>Invalid and missing token</h2><article class='check pass'><h3>PASS · Missing token is rejected</h3><p>HTTP 401. no Authorization header</p><pre>{
+  &quot;detail&quot;: &quot;Not authenticated&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Invalid token is rejected</h3><p>HTTP 401. bogus bearer token</p><pre>{
+  &quot;detail&quot;: &quot;Could not validate credentials&quot;
+}</pre></article></section>
+  <section id="authorization"><h2>Role authorization</h2><article class='check pass'><h3>PASS · Inspector can list assets</h3><p>HTTP 200. total=4</p><pre>{
+  &quot;total&quot;: 4,
+  &quot;page&quot;: 1,
+  &quot;size&quot;: 10,
+  &quot;items&quot;: [
+    {
+      &quot;asset_code&quot;: &quot;DEMO-RW-04&quot;,
+      &quot;name&quot;: &quot;Faculty Demo Retaining Wall&quot;,
+      &quot;type&quot;: &quot;Retaining Wall&quot;,
+      &quot;location_text&quot;: &quot;Campus demonstration site, north wall&quot;,
+      &quot;latitude&quot;: null,
+      &quot;longitude&quot;: null,
+      &quot;construction_year&quot;: 1998,
+      &quot;material_type&quot;: null,
+      &quot;responsible_department&quot;: null,
+      &quot;inspection_frequency_days&quot;: 180,
+      &quot;maintenance_history&quot;: null,
+      &quot;id&quot;: 4,
+      &quot;created_at&quot;: &quot;2026-11-02T16:51:05&quot;
+    },
+    {
+      &quot;asset_code&quot;: &quot;DAM-003&quot;,
+      &quot;name&quot;: &quot;Pine Valley Reservoir Gravity Dam&quot;,
+      &quot;type&quot;: &quot;Dam&quot;,
+      &quot;location_text&quot;: &quot;Cascade River Canyon, Sector North&quot;,
+      &quot;latitude&quot;: 45.5152,
+      &quot;longitude&quot;: -122.6784,
+      &quot;construction_year&quot;: 1974,
+      &quot;material_type&quot;: &quot;Mass Concrete&quot;,
+      &quot;responsible_department&quot;: &quot;Water Resources &amp; Dam Safety Bureau&quot;,
+      &quot;inspection_frequency_days&quot;: 365,
+      &quot;maintenance_history&quot;: &quot;***masked-jwt***&quot;,
+      &quot;id&quot;: 3,
+      &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+    },
+    {
+      &quot;asset_code&quot;: &quot;TUN-002&quot;,
+      &quot;name&quot;: &quot;Metropolitan Metro East Transit Tunnel&quot;,
+      &quot;type&quot;: &quot;Tunnel&quot;,
+      &quot;location_text&quot;: &quot;Underground Sector 4, Central Urban Corridor&quot;,
+      &quot;latitude&quot;: 40.7128,
+      &quot;longitude&quot;: -74.006,
+      &quot;construction_year&quot;: 2004,
+      &quot;material_type&quot;: &quot;Segmental Cast Concrete Lining&quot;,
+      &quot;responsible_department&quot;: &quot;Metropolitan Transit Authority - Structural Dept&quot;,
+      &quot;inspection_frequency_days&quot;: 90,
+      &quot;maintenance_history&quot;: &quot;***masked-jwt***&quot;,
+      &quot;id&quot;: 2,
+      &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+    },
+    {
+      &quot;asset_code&quot;: &quot;BRG-001&quot;,
+      &quot;name&quot;: &quot;Golden Gate Overpass Viaduct&quot;,
+      &quot;type&quot;: &quot;Bridge&quot;,
+      &quot;location_text&quot;: &quot;Interstate 80, Mile Marker 42, North Bay&quot;,
+      &quot;latitude&quot;: 37.8199,
+      &quot;longitude&quot;: -122.4783,
+      &quot;construction_year&quot;: 1988,
+      &quot;material_type&quot;: &quot;Prestressed Reinforced Concrete&quot;,
+      &quot;responsible_department&quot;: &quot;Department of Transportation - Bridge Division&quot;,
+      &quot;inspection_frequency_days&quot;: 180,
+      &quot;maintenance_history&quot;: &quot;***masked-jwt***&quot;,
+      &quot;id&quot;: 1,
+      &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+    }
+  ]
+}</pre></article>
+<article class='check pass'><h3>PASS · Inspector cannot create an asset</h3><p>HTTP 403. manager-only create</p><pre>{
+  &quot;detail&quot;: &quot;Operation not permitted. Required roles: Administrator, Infrastructure Manager&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Inspector cannot list users</h3><p>HTTP 403. admin-only users</p><pre>{
+  &quot;detail&quot;: &quot;Operation not permitted. Required roles: Administrator&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Manager cannot list users</h3><p>HTTP 403. admin-only users</p><pre>{
+  &quot;detail&quot;: &quot;Operation not permitted. Required roles: Administrator&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Inspector cannot assign another user</h3><p>HTTP 403. self-assignment rule</p><pre>{
+  &quot;detail&quot;: &quot;Inspectors can only create inspections assigned to themselves.&quot;
+}</pre></article></section>
+  <section id="assets"><h2>Asset API</h2><article class='check pass'><h3>PASS · Manager creates an asset</h3><p>HTTP 201. created Postman Milestone Asset</p><pre>{
+  &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+  &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+  &quot;type&quot;: &quot;Bridge&quot;,
+  &quot;location_text&quot;: &quot;API test site&quot;,
+  &quot;latitude&quot;: 12.97,
+  &quot;longitude&quot;: 77.59,
+  &quot;construction_year&quot;: 2001,
+  &quot;material_type&quot;: null,
+  &quot;responsible_department&quot;: null,
+  &quot;inspection_frequency_days&quot;: null,
+  &quot;maintenance_history&quot;: null,
+  &quot;id&quot;: 5,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Manager retrieves the asset</h3><p>HTTP 200. GET asset</p><pre>{
+  &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+  &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+  &quot;type&quot;: &quot;Bridge&quot;,
+  &quot;location_text&quot;: &quot;API test site&quot;,
+  &quot;latitude&quot;: 12.97,
+  &quot;longitude&quot;: 77.59,
+  &quot;construction_year&quot;: 2001,
+  &quot;material_type&quot;: null,
+  &quot;responsible_department&quot;: null,
+  &quot;inspection_frequency_days&quot;: null,
+  &quot;maintenance_history&quot;: null,
+  &quot;id&quot;: 5,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Manager updates the asset</h3><p>HTTP 200. location updated</p><pre>{
+  &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+  &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+  &quot;type&quot;: &quot;Bridge&quot;,
+  &quot;location_text&quot;: &quot;API test site, updated&quot;,
+  &quot;latitude&quot;: 12.97,
+  &quot;longitude&quot;: 77.59,
+  &quot;construction_year&quot;: 2001,
+  &quot;material_type&quot;: null,
+  &quot;responsible_department&quot;: null,
+  &quot;inspection_frequency_days&quot;: null,
+  &quot;maintenance_history&quot;: null,
+  &quot;id&quot;: 5,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Database persistence re-read</h3><p>HTTP 200. inspector read matches the update</p><pre>{
+  &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+  &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+  &quot;type&quot;: &quot;Bridge&quot;,
+  &quot;location_text&quot;: &quot;API test site, updated&quot;,
+  &quot;latitude&quot;: 12.97,
+  &quot;longitude&quot;: 77.59,
+  &quot;construction_year&quot;: 2001,
+  &quot;material_type&quot;: null,
+  &quot;responsible_department&quot;: null,
+  &quot;inspection_frequency_days&quot;: null,
+  &quot;maintenance_history&quot;: null,
+  &quot;id&quot;: 5,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Manager creates a disposable asset</h3><p>HTTP 201. asset to delete</p><pre>{
+  &quot;asset_code&quot;: &quot;PM-DEL-PM-1794987851&quot;,
+  &quot;name&quot;: &quot;Disposable API Asset&quot;,
+  &quot;type&quot;: &quot;Road&quot;,
+  &quot;location_text&quot;: null,
+  &quot;latitude&quot;: null,
+  &quot;longitude&quot;: null,
+  &quot;construction_year&quot;: null,
+  &quot;material_type&quot;: null,
+  &quot;responsible_department&quot;: null,
+  &quot;inspection_frequency_days&quot;: null,
+  &quot;maintenance_history&quot;: null,
+  &quot;id&quot;: 6,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Manager deletes the disposable asset</h3><p>HTTP 204. 204 empty body</p><pre>{
+  &quot;body&quot;: &quot;empty&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Deleted asset is gone</h3><p>HTTP 404. GET after delete</p><pre>{
+  &quot;detail&quot;: &quot;Infrastructure asset not found&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Inspection history for the asset</h3><p>HTTP 200. history contains the new inspection</p><pre>[
+  {
+    &quot;asset_id&quot;: 5,
+    &quot;inspector_id&quot;: 4,
+    &quot;inspection_date&quot;: &quot;2026-11-18&quot;,
+    &quot;notes&quot;: &quot;Milestone 4 API inspection&quot;,
+    &quot;id&quot;: 4,
+    &quot;status&quot;: &quot;pending&quot;,
+    &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;,
+    &quot;inspector&quot;: {
+      &quot;email&quot;: &quot;inspector@infrascan.com&quot;,
+      &quot;full_name&quot;: &quot;Sarah Connor (Inspector)&quot;,
+      &quot;id&quot;: 4,
+      &quot;role_id&quot;: 4,
+      &quot;role&quot;: {
+        &quot;id&quot;: 4,
+        &quot;name&quot;: &quot;Infrastructure Inspector&quot;
+      },
+      &quot;is_active&quot;: true,
+      &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+    },
+    &quot;asset&quot;: {
+      &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+      &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+      &quot;type&quot;: &quot;Bridge&quot;,
+      &quot;location_text&quot;: &quot;API test site, updated&quot;,
+      &quot;latitude&quot;: 12.97,
+      &quot;longitude&quot;: 77.59,
+      &quot;construction_year&quot;: 2001,
+      &quot;material_type&quot;: null,
+      &quot;responsible_department&quot;: null,
+      &quot;inspection_frequency_days&quot;: null,
+      &quot;maintenance_history&quot;: null,
+      &quot;id&quot;: 5,
+      &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+    }
+  }
+]</pre></article></section>
+  <section id="inspections"><h2>Inspection API</h2><article class='check pass'><h3>PASS · Inspector creates an inspection</h3><p>HTTP 201. assigned to inspector</p><pre>{
+  &quot;asset_id&quot;: 5,
+  &quot;inspector_id&quot;: 4,
+  &quot;inspection_date&quot;: &quot;2026-11-18&quot;,
+  &quot;notes&quot;: &quot;Milestone 4 API inspection&quot;,
+  &quot;id&quot;: 4,
+  &quot;status&quot;: &quot;pending&quot;,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;,
+  &quot;inspector&quot;: {
+    &quot;email&quot;: &quot;inspector@infrascan.com&quot;,
+    &quot;full_name&quot;: &quot;Sarah Connor (Inspector)&quot;,
+    &quot;id&quot;: 4,
+    &quot;role_id&quot;: 4,
+    &quot;role&quot;: {
+      &quot;id&quot;: 4,
+      &quot;name&quot;: &quot;Infrastructure Inspector&quot;
+    },
+    &quot;is_active&quot;: true,
+    &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+  },
+  &quot;asset&quot;: {
+    &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+    &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+    &quot;type&quot;: &quot;Bridge&quot;,
+    &quot;location_text&quot;: &quot;API test site, updated&quot;,
+    &quot;latitude&quot;: 12.97,
+    &quot;longitude&quot;: 77.59,
+    &quot;construction_year&quot;: 2001,
+    &quot;material_type&quot;: null,
+    &quot;responsible_department&quot;: null,
+    &quot;inspection_frequency_days&quot;: null,
+    &quot;maintenance_history&quot;: null,
+    &quot;id&quot;: 5,
+    &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+  }
+}</pre></article>
+<article class='check pass'><h3>PASS · Retrieve the inspection</h3><p>HTTP 200. GET inspection</p><pre>{
+  &quot;asset_id&quot;: 5,
+  &quot;inspector_id&quot;: 4,
+  &quot;inspection_date&quot;: &quot;2026-11-18&quot;,
+  &quot;notes&quot;: &quot;Milestone 4 API inspection&quot;,
+  &quot;id&quot;: 4,
+  &quot;status&quot;: &quot;pending&quot;,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;,
+  &quot;inspector&quot;: {
+    &quot;email&quot;: &quot;inspector@infrascan.com&quot;,
+    &quot;full_name&quot;: &quot;Sarah Connor (Inspector)&quot;,
+    &quot;id&quot;: 4,
+    &quot;role_id&quot;: 4,
+    &quot;role&quot;: {
+      &quot;id&quot;: 4,
+      &quot;name&quot;: &quot;Infrastructure Inspector&quot;
+    },
+    &quot;is_active&quot;: true,
+    &quot;created_at&quot;: &quot;2026-11-02T15:58:58&quot;
+  },
+  &quot;asset&quot;: {
+    &quot;asset_code&quot;: &quot;PM-1794987851&quot;,
+    &quot;name&quot;: &quot;Postman Milestone Asset&quot;,
+    &quot;type&quot;: &quot;Bridge&quot;,
+    &quot;location_text&quot;: &quot;API test site, updated&quot;,
+    &quot;latitude&quot;: 12.97,
+    &quot;longitude&quot;: 77.59,
+    &quot;construction_year&quot;: 2001,
+    &quot;material_type&quot;: null,
+    &quot;responsible_department&quot;: null,
+    &quot;inspection_frequency_days&quot;: null,
+    &quot;maintenance_history&quot;: null,
+    &quot;id&quot;: 5,
+    &quot;created_at&quot;: &quot;2026-11-18T07:44:11&quot;
+  }
+}</pre></article>
+<article class='check pass'><h3>PASS · Upload an inspection image</h3><p>HTTP 201. 11120.jpg</p><pre>[
+  {
+    &quot;id&quot;: 6,
+    &quot;inspection_id&quot;: 4,
+    &quot;file_path&quot;: &quot;fb1847191c6647738fd415e034e07fb9.jpg&quot;,
+    &quot;original_filename&quot;: &quot;11120.jpg&quot;,
+    &quot;md5_hash&quot;: &quot;88ddab2dd12d2de9b348683fff7b499d&quot;,
+    &quot;width&quot;: 544,
+    &quot;height&quot;: 384,
+    &quot;file_size_kb&quot;: 61.39,
+    &quot;blur_score&quot;: 2579.71,
+    &quot;brightness&quot;: 153.3,
+    &quot;quality_status&quot;: &quot;ok&quot;,
+    &quot;uploaded_at&quot;: &quot;2026-11-18T07:44:11&quot;,
+    &quot;url&quot;: &quot;/uploads/fb1847191c6647738fd415e034e07fb9.jpg&quot;
+  }
+]</pre></article>
+<article class='check pass'><h3>PASS · Inspection analyses</h3><p>HTTP 200. analysis history</p><pre>[
+  {
+    &quot;id&quot;: 6,
+    &quot;image_id&quot;: 6,
+    &quot;inspection_id&quot;: 4,
+    &quot;quality&quot;: {
+      &quot;valid&quot;: true,
+      &quot;width&quot;: 544,
+      &quot;height&quot;: 384,
+      &quot;channels&quot;: 3,
+      &quot;blur_score&quot;: 2579.71,
+      &quot;brightness&quot;: 153.3,
+      &quot;contrast&quot;: 33.69,
+      &quot;status&quot;: &quot;ok&quot;,
+      &quot;flags&quot;: [],
+      &quot;thresholds&quot;: {
+        &quot;min_side&quot;: 64,
+        &quot;blur&quot;: 100.0,
+        &quot;brightness_low&quot;: 40.0,
+        &quot;brightness_high&quot;: 230.0,
+        &quot;contrast_low&quot;: 12.0
+      },
+      &quot;notes&quot;: [
+        &quot;***masked-jwt***&quot;,
+        &quot;Brightness is the mean gray level from 0 to 255.&quot;,
+        &quot;Contrast is the standard deviation of the gray image.&quot;
+      ]
+    },
+    &quot;classification_status&quot;: &quot;completed&quot;,
+    &quot;classification_label&quot;: &quot;crack&quot;,
+    &quot;classification_confidence&quot;: 0.512,
+    &quot;classification&quot;: {
+      &quot;status&quot;: &quot;completed&quot;,
+      &quot;label&quot;: &quot;crack&quot;,
+      &quot;confidence&quot;: 0.512,
+      &quot;crack_patch_fraction&quot;: 0.0625,
+      &quot;max_crack_probability&quot;: 0.512,
+      &quot;mean_crack_probability&quot;: 0.2146,
+      &quot;model&quot;: &quot;SmallCNN&quot;,
+      &quot;detail&quot;: &quot;The network was trained on 64x64 DeepCrack patches. This image was split into a 4x4 grid of 64x64 patches. The label is crack when at least one patch is predicted as crack.&quot;,
+      &quot;training_metrics&quot;: {
+        &quot;accuracy&quot;: 0.8194,
+        &quot;precision&quot;: 0.7949,
+        &quot;recall&quot;: 0.8611,
+        &quot;f1&quot;: 0.8267,
+        &quot;support&quot;: 144,
+        &quot;confusion_matrix&quot;: {
+          &quot;labels&quot;: [
+            &quot;non_crack&quot;,
+            &quot;crack&quot;
+          ],
+          &quot;matrix&quot;: [
+            [
+              56,
+              16
+            ],
+            [
+              10,
+              62
+            ]
+          ],
+          &quot;tn&quot;: 56,
+          &quot;fp&quot;: 16,
+          &quot;fn&quot;: 10,
+          &quot;tp&quot;: 62
+        }
+      }
+    },
+    &quot;detection_status&quot;: &quot;completed&quot;,
+    &quot;detection&quot;: {
+      &quot;status&quot;: &quot;completed&quot;,
+      &quot;model&quot;: &quot;YOLOv8n&quot;,
+      &quot;reliable&quot;: false,
+      &quot;validation_map50&quot;: 0.0004,
+      &quot;detections&quot;: [],
+      &quot;candidate_count&quot;: 0,
+      &quot;confidence_threshold&quot;: 0.25,
+      &quot;detail&quot;: &quot;Detection model requires further training and validation. No reliable bounding boxes generated. Validation mAP50 on the labeled Czech subset was 0.0004.&quot;
+    },
+    &quot;segmentation_status&quot;: &quot;completed&quot;,
+    &quot;segmentation&quot;: {
+      &quot;status&quot;: &quot;completed&quot;,
+      &quot;model&quot;: &quot;UNet&quot;,
+      &quot;input_size&quot;: 128,
+      &quot;threshold&quot;: 0.5,
+      &quot;detail&quot;: &quot;***masked-jwt***&quot;,
+      &quot;training_metrics&quot;: {
+        &quot;dice&quot;: 0.4316,
+        &quot;iou&quot;: 0.3449,
+        &quot;images&quot;: 8
+      }
+    },
+    &quot;geometry&quot;: {
+      &quot;status&quot;: &quot;completed&quot;,
+      &quot;detail&quot;: &quot;***masked-jwt***&quot;,
+      &quot;measurements&quot;: {
+        &quot;crack_pixel_area&quot;: 1419,
+        &quot;crack_length_px&quot;: 348.0,
+        &quot;crack_width_px_mean&quot;: 4.479,
+        &quot;crack_width_px_median&quot;: 3.82,
+        &quot;bbox_xmin&quot;: 39,
+        &quot;bbox_ymin&quot;: 135,
+        &quot;bbox_xmax&quot;: 505,
+        &quot;bbox_ymax&quot;: 383,
+        &quot;bbox_width_px&quot;: 467,
+        &quot;bbox_height_px&quot;: 249,
+        &quot;coverage_percent&quot;: 0.6793,
+        &quot;image_width&quot;: 544,
+        &quot;image_height&quot;: 384,
+        &quot;unit&quot;: &quot;pixels&quot;,
+        &quot;physical_scale_note&quot;: &quot;***masked-jwt***&quot;
+      }
+    },
+    &quot;overlay_url&quot;: &quot;/images/6/analysis/overlay&quot;,
+    &quot;mask_url&quot;: &quot;/images/6/analysis/mask&quot;,
+    &quot;error_message&quot;: null,
+    &quot;created_at&quot;: &quot;2026-11-18T07:44:18&quot;
+  }
+]</pre></article></section>
+  <section id="upload"><h2>Image upload</h2><article class='check pass'><h3>PASS · Image list contains the upload</h3><p>HTTP 200. GET images</p><pre>[
+  {
+    &quot;id&quot;: 6,
+    &quot;inspection_id&quot;: 4,
+    &quot;file_path&quot;: &quot;fb1847191c6647738fd415e034e07fb9.jpg&quot;,
+    &quot;original_filename&quot;: &quot;11120.jpg&quot;,
+    &quot;md5_hash&quot;: &quot;88ddab2dd12d2de9b348683fff7b499d&quot;,
+    &quot;width&quot;: 544,
+    &quot;height&quot;: 384,
+    &quot;file_size_kb&quot;: 61.39,
+    &quot;blur_score&quot;: 2579.71,
+    &quot;brightness&quot;: 153.3,
+    &quot;quality_status&quot;: &quot;ok&quot;,
+    &quot;uploaded_at&quot;: &quot;2026-11-18T07:44:11&quot;,
+    &quot;url&quot;: &quot;/uploads/fb1847191c6647738fd415e034e07fb9.jpg&quot;
+  }
+]</pre></article></section>
+  <section id="analysis"><h2>Image analysis</h2><article class='check pass'><h3>PASS · Run image analysis</h3><p>HTTP 200. classification=completed:crack detection=completed segmentation=completed geometry=completed</p><pre>{
+  &quot;id&quot;: 6,
+  &quot;image_id&quot;: 6,
+  &quot;inspection_id&quot;: 4,
+  &quot;quality&quot;: {
+    &quot;valid&quot;: true,
+    &quot;width&quot;: 544,
+    &quot;height&quot;: 384,
+    &quot;channels&quot;: 3,
+    &quot;blur_score&quot;: 2579.71,
+    &quot;brightness&quot;: 153.3,
+    &quot;contrast&quot;: 33.69,
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;flags&quot;: [],
+    &quot;thresholds&quot;: {
+      &quot;min_side&quot;: 64,
+      &quot;blur&quot;: 100.0,
+      &quot;brightness_low&quot;: 40.0,
+      &quot;brightness_high&quot;: 230.0,
+      &quot;contrast_low&quot;: 12.0
+    },
+    &quot;notes&quot;: [
+      &quot;***masked-jwt***&quot;,
+      &quot;Brightness is the mean gray level from 0 to 255.&quot;,
+      &quot;Contrast is the standard deviation of the gray image.&quot;
+    ]
+  },
+  &quot;classification_status&quot;: &quot;completed&quot;,
+  &quot;classification_label&quot;: &quot;crack&quot;,
+  &quot;classification_confidence&quot;: 0.512,
+  &quot;classification&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;label&quot;: &quot;crack&quot;,
+    &quot;confidence&quot;: 0.512,
+    &quot;crack_patch_fraction&quot;: 0.0625,
+    &quot;max_crack_probability&quot;: 0.512,
+    &quot;mean_crack_probability&quot;: 0.2146,
+    &quot;model&quot;: &quot;SmallCNN&quot;,
+    &quot;detail&quot;: &quot;The network was trained on 64x64 DeepCrack patches. This image was split into a 4x4 grid of 64x64 patches. The label is crack when at least one patch is predicted as crack.&quot;,
+    &quot;training_metrics&quot;: {
+      &quot;accuracy&quot;: 0.8194,
+      &quot;precision&quot;: 0.7949,
+      &quot;recall&quot;: 0.8611,
+      &quot;f1&quot;: 0.8267,
+      &quot;support&quot;: 144,
+      &quot;confusion_matrix&quot;: {
+        &quot;labels&quot;: [
+          &quot;non_crack&quot;,
+          &quot;crack&quot;
+        ],
+        &quot;matrix&quot;: [
+          [
+            56,
+            16
+          ],
+          [
+            10,
+            62
+          ]
+        ],
+        &quot;tn&quot;: 56,
+        &quot;fp&quot;: 16,
+        &quot;fn&quot;: 10,
+        &quot;tp&quot;: 62
+      }
+    }
+  },
+  &quot;detection_status&quot;: &quot;completed&quot;,
+  &quot;detection&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;model&quot;: &quot;YOLOv8n&quot;,
+    &quot;reliable&quot;: false,
+    &quot;validation_map50&quot;: 0.0004,
+    &quot;detections&quot;: [],
+    &quot;candidate_count&quot;: 0,
+    &quot;confidence_threshold&quot;: 0.25,
+    &quot;detail&quot;: &quot;Detection model requires further training and validation. No reliable bounding boxes generated. Validation mAP50 on the labeled Czech subset was 0.0004.&quot;
+  },
+  &quot;segmentation_status&quot;: &quot;completed&quot;,
+  &quot;segmentation&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;model&quot;: &quot;UNet&quot;,
+    &quot;input_size&quot;: 128,
+    &quot;threshold&quot;: 0.5,
+    &quot;detail&quot;: &quot;***masked-jwt***&quot;,
+    &quot;training_metrics&quot;: {
+      &quot;dice&quot;: 0.4316,
+      &quot;iou&quot;: 0.3449,
+      &quot;images&quot;: 8
+    }
+  },
+  &quot;geometry&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;detail&quot;: &quot;***masked-jwt***&quot;,
+    &quot;measurements&quot;: {
+      &quot;crack_pixel_area&quot;: 1419,
+      &quot;crack_length_px&quot;: 348.0,
+      &quot;crack_width_px_mean&quot;: 4.479,
+      &quot;crack_width_px_median&quot;: 3.82,
+      &quot;bbox_xmin&quot;: 39,
+      &quot;bbox_ymin&quot;: 135,
+      &quot;bbox_xmax&quot;: 505,
+      &quot;bbox_ymax&quot;: 383,
+      &quot;bbox_width_px&quot;: 467,
+      &quot;bbox_height_px&quot;: 249,
+      &quot;coverage_percent&quot;: 0.6793,
+      &quot;image_width&quot;: 544,
+      &quot;image_height&quot;: 384,
+      &quot;unit&quot;: &quot;pixels&quot;,
+      &quot;physical_scale_note&quot;: &quot;***masked-jwt***&quot;
+    }
+  },
+  &quot;overlay_url&quot;: &quot;/images/6/analysis/overlay&quot;,
+  &quot;mask_url&quot;: &quot;/images/6/analysis/mask&quot;,
+  &quot;error_message&quot;: null,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:18&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Read saved analysis</h3><p>HTTP 200. persisted analysis row</p><pre>{
+  &quot;id&quot;: 6,
+  &quot;image_id&quot;: 6,
+  &quot;inspection_id&quot;: 4,
+  &quot;quality&quot;: {
+    &quot;valid&quot;: true,
+    &quot;width&quot;: 544,
+    &quot;height&quot;: 384,
+    &quot;channels&quot;: 3,
+    &quot;blur_score&quot;: 2579.71,
+    &quot;brightness&quot;: 153.3,
+    &quot;contrast&quot;: 33.69,
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;flags&quot;: [],
+    &quot;thresholds&quot;: {
+      &quot;min_side&quot;: 64,
+      &quot;blur&quot;: 100.0,
+      &quot;brightness_low&quot;: 40.0,
+      &quot;brightness_high&quot;: 230.0,
+      &quot;contrast_low&quot;: 12.0
+    },
+    &quot;notes&quot;: [
+      &quot;***masked-jwt***&quot;,
+      &quot;Brightness is the mean gray level from 0 to 255.&quot;,
+      &quot;Contrast is the standard deviation of the gray image.&quot;
+    ]
+  },
+  &quot;classification_status&quot;: &quot;completed&quot;,
+  &quot;classification_label&quot;: &quot;crack&quot;,
+  &quot;classification_confidence&quot;: 0.512,
+  &quot;classification&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;label&quot;: &quot;crack&quot;,
+    &quot;confidence&quot;: 0.512,
+    &quot;crack_patch_fraction&quot;: 0.0625,
+    &quot;max_crack_probability&quot;: 0.512,
+    &quot;mean_crack_probability&quot;: 0.2146,
+    &quot;model&quot;: &quot;SmallCNN&quot;,
+    &quot;detail&quot;: &quot;The network was trained on 64x64 DeepCrack patches. This image was split into a 4x4 grid of 64x64 patches. The label is crack when at least one patch is predicted as crack.&quot;,
+    &quot;training_metrics&quot;: {
+      &quot;accuracy&quot;: 0.8194,
+      &quot;precision&quot;: 0.7949,
+      &quot;recall&quot;: 0.8611,
+      &quot;f1&quot;: 0.8267,
+      &quot;support&quot;: 144,
+      &quot;confusion_matrix&quot;: {
+        &quot;labels&quot;: [
+          &quot;non_crack&quot;,
+          &quot;crack&quot;
+        ],
+        &quot;matrix&quot;: [
+          [
+            56,
+            16
+          ],
+          [
+            10,
+            62
+          ]
+        ],
+        &quot;tn&quot;: 56,
+        &quot;fp&quot;: 16,
+        &quot;fn&quot;: 10,
+        &quot;tp&quot;: 62
+      }
+    }
+  },
+  &quot;detection_status&quot;: &quot;completed&quot;,
+  &quot;detection&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;model&quot;: &quot;YOLOv8n&quot;,
+    &quot;reliable&quot;: false,
+    &quot;validation_map50&quot;: 0.0004,
+    &quot;detections&quot;: [],
+    &quot;candidate_count&quot;: 0,
+    &quot;confidence_threshold&quot;: 0.25,
+    &quot;detail&quot;: &quot;Detection model requires further training and validation. No reliable bounding boxes generated. Validation mAP50 on the labeled Czech subset was 0.0004.&quot;
+  },
+  &quot;segmentation_status&quot;: &quot;completed&quot;,
+  &quot;segmentation&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;model&quot;: &quot;UNet&quot;,
+    &quot;input_size&quot;: 128,
+    &quot;threshold&quot;: 0.5,
+    &quot;detail&quot;: &quot;***masked-jwt***&quot;,
+    &quot;training_metrics&quot;: {
+      &quot;dice&quot;: 0.4316,
+      &quot;iou&quot;: 0.3449,
+      &quot;images&quot;: 8
+    }
+  },
+  &quot;geometry&quot;: {
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;detail&quot;: &quot;***masked-jwt***&quot;,
+    &quot;measurements&quot;: {
+      &quot;crack_pixel_area&quot;: 1419,
+      &quot;crack_length_px&quot;: 348.0,
+      &quot;crack_width_px_mean&quot;: 4.479,
+      &quot;crack_width_px_median&quot;: 3.82,
+      &quot;bbox_xmin&quot;: 39,
+      &quot;bbox_ymin&quot;: 135,
+      &quot;bbox_xmax&quot;: 505,
+      &quot;bbox_ymax&quot;: 383,
+      &quot;bbox_width_px&quot;: 467,
+      &quot;bbox_height_px&quot;: 249,
+      &quot;coverage_percent&quot;: 0.6793,
+      &quot;image_width&quot;: 544,
+      &quot;image_height&quot;: 384,
+      &quot;unit&quot;: &quot;pixels&quot;,
+      &quot;physical_scale_note&quot;: &quot;***masked-jwt***&quot;
+    }
+  },
+  &quot;overlay_url&quot;: &quot;/images/6/analysis/overlay&quot;,
+  &quot;mask_url&quot;: &quot;/images/6/analysis/mask&quot;,
+  &quot;error_message&quot;: null,
+  &quot;created_at&quot;: &quot;2026-11-18T07:44:18&quot;
+}</pre></article>
+<article class='check pass'><h3>PASS · Model status</h3><p>HTTP 200. weights availability</p><pre>{
+  &quot;classifier&quot;: {
+    &quot;name&quot;: &quot;SmallCNN&quot;,
+    &quot;task&quot;: &quot;binary crack vs non-crack patch classification&quot;,
+    &quot;weights&quot;: &quot;D:\\Infrascan-AI\\models\\weights\\crack_cnn.pt&quot;,
+    &quot;available&quot;: true,
+    &quot;framework&quot;: &quot;PyTorch&quot;
+  },
+  &quot;segmentation&quot;: {
+    &quot;name&quot;: &quot;UNet&quot;,
+    &quot;task&quot;: &quot;binary crack segmentation&quot;,
+    &quot;weights&quot;: &quot;D:\\Infrascan-AI\\models\\weights\\unet_deepcrack.pt&quot;,
+    &quot;available&quot;: true,
+    &quot;framework&quot;: &quot;PyTorch&quot;
+  },
+  &quot;detection&quot;: {
+    &quot;name&quot;: &quot;YOLOv8n&quot;,
+    &quot;task&quot;: &quot;RDD2022 Czech bounding-box detection (D00, D10, D20, D40)&quot;,
+    &quot;weights&quot;: &quot;D:\\Infrascan-AI\\models\\weights\\yolo_rdd.pt&quot;,
+    &quot;available&quot;: true,
+    &quot;framework&quot;: &quot;Ultralytics YOLOv8n fine-tune&quot;,
+    &quot;note&quot;: &quot;This file is a model trained by scripts/ml/train_yolo.py on the local Czech subset. It is not an off-the-shelf COCO detector.&quot;
+  }
+}</pre></article>
+<article class='check pass'><h3>PASS · Dashboard stats</h3><p>HTTP 200. live counts</p><pre>{
+  &quot;assets&quot;: 5,
+  &quot;inspections&quot;: 4,
+  &quot;images&quot;: 6,
+  &quot;analyses&quot;: 6
+}</pre></article></section>
+</body>
+</html>

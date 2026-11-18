@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from jose import JWTError, jwt
+from jose.exceptions import ExpiredSignatureError
 from passlib.context import CryptContext
 
 from app.config import settings
@@ -66,7 +67,10 @@ def decode_access_token(token: str) -> dict[str, Any]:
     Returns:
         The payload dict (e.g. {"sub": "3", "role": "Administrator", "exp": ...})
     """
-    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    if not payload.get("sub") or "exp" not in payload:
+        raise JWTError("Token is missing required claims")
+    return payload
 
 
 # Re-export JWTError so callers only need to import from this module
@@ -76,4 +80,5 @@ __all__ = [
     "create_access_token",
     "decode_access_token",
     "JWTError",
+    "ExpiredSignatureError",
 ]

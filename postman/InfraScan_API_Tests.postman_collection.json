@@ -1,0 +1,1224 @@
+{
+  "info": {
+    "name": "InfraScan API Tests",
+    "description": "Milestone 4 API checks for the running InfraScan FastAPI app. Set demo_password and sample_image in the environment before running. Do not commit real passwords or access tokens. Bearer tokens are used because the API authenticates with OAuth2PasswordBearer. Expired-token signing is covered by backend/tests/test_milestone3.py, because a Postman request cannot sign a token without the server secret. Detection may return status completed with reliable=false and an empty detections list. That is the honest YOLO result and is a passing assertion.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "inspector_email",
+      "value": "inspector@infrascan.com"
+    },
+    {
+      "key": "manager_email",
+      "value": "manager@infrascan.com"
+    },
+    {
+      "key": "demo_password",
+      "value": ""
+    },
+    {
+      "key": "sample_image",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "inspector_token",
+      "value": ""
+    },
+    {
+      "key": "manager_token",
+      "value": ""
+    },
+    {
+      "key": "inspector_user_id",
+      "value": ""
+    },
+    {
+      "key": "manager_user_id",
+      "value": ""
+    },
+    {
+      "key": "asset_code",
+      "value": ""
+    },
+    {
+      "key": "asset_id",
+      "value": ""
+    },
+    {
+      "key": "delete_asset_id",
+      "value": ""
+    },
+    {
+      "key": "inspection_id",
+      "value": ""
+    },
+    {
+      "key": "image_id",
+      "value": ""
+    },
+    {
+      "key": "existing_asset_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "API health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health",
+            "description": "Public liveness check."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"health payload\", function () {",
+                  "  pm.expect(body.status).to.eql(\"ok\");",
+                  "  pm.expect(body.app).to.eql(\"InfraScan\");",
+                  "  pm.expect(body.version).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Inspector login and JWT",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/auth/login",
+            "description": "OAuth2 password form. Saves the inspector token into collection variables.",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{inspector_email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"inspector login returns 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"JWT access token is present and not logged\", function () {",
+                  "  pm.expect(body.token_type).to.eql(\"bearer\");",
+                  "  pm.expect(body.access_token).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.user.role.name).to.eql(\"Infrastructure Inspector\");",
+                  "  pm.expect(body.user).to.not.have.property(\"password\");",
+                  "  pm.expect(body.user).to.not.have.property(\"password_hash\");",
+                  "});",
+                  "function saveVar(key, value) {",
+                  "  pm.collectionVariables.set(key, value);",
+                  "  try { pm.environment.set(key, value); } catch (error) {}",
+                  "}",
+                  "saveVar(\"inspector_token\", body.access_token);",
+                  "saveVar(\"access_token\", body.access_token);",
+                  "saveVar(\"inspector_user_id\", String(body.user.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/auth/login",
+            "description": "Unknown account. Uses a fake password, not a real one.",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "nobody@infrascan.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "wrong-password",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"login error is a message, not a token\", function () {",
+                  "  pm.expect(pm.response.json().detail).to.be.a(\"string\");",
+                  "  pm.expect(pm.response.json()).to.not.have.property(\"access_token\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager login and JWT",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/auth/login",
+            "description": "",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{manager_email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"manager login returns 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"manager JWT contains the manager role\", function () {",
+                  "  pm.expect(body.token_type).to.eql(\"bearer\");",
+                  "  pm.expect(body.access_token).to.be.a(\"string\").and.not.empty;",
+                  "  pm.expect(body.user.role.name).to.eql(\"Infrastructure Manager\");",
+                  "});",
+                  "function saveVar(key, value) {",
+                  "  pm.collectionVariables.set(key, value);",
+                  "  try { pm.environment.set(key, value); } catch (error) {}",
+                  "}",
+                  "saveVar(\"manager_token\", body.access_token);",
+                  "saveVar(\"manager_user_id\", String(body.user.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authenticated profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/auth/me",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"profile matches the inspector\", function () {",
+                  "  pm.expect(body.email).to.eql(pm.collectionVariables.get(\"inspector_email\") || pm.environment.get(\"inspector_email\"));",
+                  "  pm.expect(body.role.name).to.eql(\"Infrastructure Inspector\");",
+                  "  pm.expect(body.is_active).to.eql(true);",
+                  "  pm.expect(body).to.not.have.property(\"password_hash\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing token is rejected",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/auth/me",
+            "description": "No Authorization header."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid token is rejected",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer not-a-valid-token"
+              }
+            ],
+            "url": "{{base_url}}/auth/me",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"invalid token detail\", function () {",
+                  "  pm.expect(pm.response.json().detail).to.eql(\"Could not validate credentials\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authorization",
+      "item": [
+        {
+          "name": "Inspector can list assets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/assets/?page=1&size=10",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"asset list shape\", function () {",
+                  "  pm.expect(body.total).to.be.a(\"number\");",
+                  "  pm.expect(body.items).to.be.an(\"array\");",
+                  "});",
+                  "const existing = body.items.find((row) => row.asset_code === \"BRG-001\");",
+                  "if (existing) {",
+                  "  pm.collectionVariables.set(\"existing_asset_id\", String(existing.id));",
+                  "  try { pm.environment.set(\"existing_asset_id\", String(existing.id)); } catch (error) {}",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspector cannot create an asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/assets/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"asset_code\":\"PM-DENY\",\"name\":\"Denied\",\"type\":\"Road\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspector cannot list users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/users/",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager cannot list users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              }
+            ],
+            "url": "{{base_url}}/users/",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Assets",
+      "item": [
+        {
+          "name": "Manager creates an asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/assets/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"asset_code\": \"{{asset_code}}\", \"name\": \"Postman Milestone Asset\", \"type\": \"Bridge\", \"location_text\": \"API test site\", \"latitude\": 12.97, \"longitude\": 77.59, \"construction_year\": 2001}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const code = \"PM-\" + Date.now();",
+                  "pm.collectionVariables.set(\"asset_code\", code);",
+                  "try { pm.environment.set(\"asset_code\", code); } catch (error) {}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"asset created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"asset payload has id and code\", function () {",
+                  "  pm.expect(body.id).to.be.a(\"number\");",
+                  "  pm.expect(body.asset_code).to.eql(pm.collectionVariables.get(\"asset_code\"));",
+                  "  pm.expect(body.name).to.eql(\"Postman Milestone Asset\");",
+                  "  pm.expect(body).to.not.have.property(\"password\");",
+                  "});",
+                  "function saveVar(key, value) {",
+                  "  pm.collectionVariables.set(key, value);",
+                  "  try { pm.environment.set(key, value); } catch (error) {}",
+                  "}",
+                  "saveVar(\"asset_id\", String(body.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager retrieves the asset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              }
+            ],
+            "url": "{{base_url}}/assets/{{asset_id}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"retrieved asset matches\", function () {",
+                  "  pm.expect(pm.response.json().asset_code).to.eql(pm.collectionVariables.get(\"asset_code\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager updates the asset",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/assets/{{asset_id}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"location_text\":\"API test site, updated\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"location updated\", function () {",
+                  "  pm.expect(pm.response.json().location_text).to.eql(\"API test site, updated\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Persistence re-read",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/assets/{{asset_id}}",
+            "description": "A later read still returns the updated location."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"updated location persisted\", function () {",
+                  "  pm.expect(pm.response.json().location_text).to.eql(\"API test site, updated\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager creates a disposable asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/assets/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"asset_code\":\"PM-DEL-{{asset_code}}\",\"name\":\"Disposable API Asset\",\"type\":\"Road\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"delete_asset_id\", String(pm.response.json().id));",
+                  "try { pm.environment.set(\"delete_asset_id\", String(pm.response.json().id)); } catch (error) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Manager deletes the disposable asset",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              }
+            ],
+            "url": "{{base_url}}/assets/{{delete_asset_id}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 204\", function () {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deleted asset is gone",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              }
+            ],
+            "url": "{{base_url}}/assets/{{delete_asset_id}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 404\", function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Inspections and analysis",
+      "item": [
+        {
+          "name": "Inspector creates an inspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/inspections/",
+            "description": "Uses the asset created above. The inspector must assign it to themselves.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_id\": {{asset_id}},\n  \"inspector_id\": {{inspector_user_id}},\n  \"inspection_date\": \"2026-11-18\",\n  \"notes\": \"Milestone 4 API inspection\",\n  \"status\": \"pending\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"inspection created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"inspection is pending and assigned to the inspector\", function () {",
+                  "  pm.expect(body.id).to.be.a(\"number\");",
+                  "  pm.expect(body.status).to.eql(\"pending\");",
+                  "  pm.expect(String(body.inspector_id)).to.eql(String(pm.collectionVariables.get(\"inspector_user_id\")));",
+                  "  pm.expect(body.notes).to.eql(\"Milestone 4 API inspection\");",
+                  "});",
+                  "function saveVar(key, value) {",
+                  "  pm.collectionVariables.set(key, value);",
+                  "  try { pm.environment.set(key, value); } catch (error) {}",
+                  "}",
+                  "saveVar(\"inspection_id\", String(body.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspector cannot assign another user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/inspections/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_id\": {{asset_id}},\n  \"inspector_id\": {{manager_user_id}},\n  \"inspection_date\": \"2026-11-18\",\n  \"notes\": \"Should be rejected\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retrieve the inspection",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/inspections/{{inspection_id}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"inspection id matches\", function () {",
+                  "  pm.expect(String(pm.response.json().id)).to.eql(String(pm.collectionVariables.get(\"inspection_id\")));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspection history for the asset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/inspections/?asset_id={{asset_id}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"history includes the new inspection\", function () {",
+                  "  const rows = pm.response.json();",
+                  "  pm.expect(rows).to.be.an(\"array\");",
+                  "  const found = rows.some((row) => String(row.id) === String(pm.collectionVariables.get(\"inspection_id\")));",
+                  "  pm.expect(found).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload an inspection image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/inspections/{{inspection_id}}/images",
+            "description": "Set sample_image to an absolute path of a local JPEG before running.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "{{sample_image}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"image upload returns 201\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"uploaded image has an id and file metadata\", function () {",
+                  "  pm.expect(body).to.be.an(\"array\").that.is.not.empty;",
+                  "  pm.expect(body[0].id).to.be.a(\"number\");",
+                  "  pm.expect(body[0].width).to.be.above(0);",
+                  "  pm.expect(body[0].height).to.be.above(0);",
+                  "  pm.expect(body[0].original_filename).to.be.a(\"string\");",
+                  "});",
+                  "function saveVar(key, value) {",
+                  "  pm.collectionVariables.set(key, value);",
+                  "  try { pm.environment.set(key, value); } catch (error) {}",
+                  "}",
+                  "saveVar(\"image_id\", String(body[0].id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List inspection images",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/inspections/{{inspection_id}}/images",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"image list contains the upload\", function () {",
+                  "  const rows = pm.response.json();",
+                  "  pm.expect(rows.some((row) => String(row.id) === String(pm.collectionVariables.get(\"image_id\")))).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run image analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/images/{{image_id}}/analyze",
+            "description": "Validates honest model status. Does not require YOLO boxes."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"analysis returns 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"classification, detection, segmentation, and geometry are present\", function () {",
+                  "  pm.expect([\"completed\", \"unavailable\", \"failed\"]).to.include(body.classification_status);",
+                  "  pm.expect([\"completed\", \"unavailable\", \"failed\"]).to.include(body.detection_status);",
+                  "  pm.expect([\"completed\", \"unavailable\", \"failed\"]).to.include(body.segmentation_status);",
+                  "  pm.expect(body.classification).to.be.an(\"object\");",
+                  "  pm.expect(body.detection).to.be.an(\"object\");",
+                  "  pm.expect(body.segmentation).to.be.an(\"object\");",
+                  "  pm.expect(body.geometry).to.be.an(\"object\");",
+                  "  pm.expect(body.quality.valid).to.eql(true);",
+                  "});",
+                  "pm.test(\"unreliable detection does not invent boxes\", function () {",
+                  "  if (body.detection_status === \"completed\") {",
+                  "    pm.expect(body.detection.reliable).to.eql(false);",
+                  "    pm.expect(body.detection.detections).to.eql([]);",
+                  "    pm.expect(body.detection.detail).to.include(\"No reliable bounding boxes generated.\");",
+                  "  }",
+                  "});",
+                  "pm.test(\"geometry stays in pixels when a mask exists\", function () {",
+                  "  if (body.geometry.status === \"completed\") {",
+                  "    pm.expect(body.geometry.measurements.unit).to.eql(\"pixels\");",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read saved analysis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/images/{{image_id}}/analysis",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"analysis returns 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"classification, detection, segmentation, and geometry are present\", function () {",
+                  "  pm.expect([\"completed\", \"unavailable\", \"failed\"]).to.include(body.classification_status);",
+                  "  pm.expect([\"completed\", \"unavailable\", \"failed\"]).to.include(body.detection_status);",
+                  "  pm.expect([\"completed\", \"unavailable\", \"failed\"]).to.include(body.segmentation_status);",
+                  "  pm.expect(body.classification).to.be.an(\"object\");",
+                  "  pm.expect(body.detection).to.be.an(\"object\");",
+                  "  pm.expect(body.segmentation).to.be.an(\"object\");",
+                  "  pm.expect(body.geometry).to.be.an(\"object\");",
+                  "  pm.expect(body.quality.valid).to.eql(true);",
+                  "});",
+                  "pm.test(\"unreliable detection does not invent boxes\", function () {",
+                  "  if (body.detection_status === \"completed\") {",
+                  "    pm.expect(body.detection.reliable).to.eql(false);",
+                  "    pm.expect(body.detection.detections).to.eql([]);",
+                  "    pm.expect(body.detection.detail).to.include(\"No reliable bounding boxes generated.\");",
+                  "  }",
+                  "});",
+                  "pm.test(\"geometry stays in pixels when a mask exists\", function () {",
+                  "  if (body.geometry.status === \"completed\") {",
+                  "    pm.expect(body.geometry.measurements.unit).to.eql(\"pixels\");",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspection analyses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/inspections/{{inspection_id}}/analyses",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"analysis history is an array\", function () {",
+                  "  pm.expect(pm.response.json()).to.be.an(\"array\").that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Model status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/models/status",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"model status names availability\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.classifier).to.have.property(\"available\");",
+                  "  pm.expect(body.detection).to.have.property(\"available\");",
+                  "  pm.expect(body.segmentation).to.have.property(\"available\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{inspector_token}}"
+              }
+            ],
+            "url": "{{base_url}}/stats",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"stats are numeric\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.assets).to.be.a(\"number\");",
+                  "  pm.expect(body.inspections).to.be.a(\"number\");",
+                  "  pm.expect(body.images).to.be.a(\"number\");",
+                  "  pm.expect(body.analyses).to.be.a(\"number\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protected asset delete is blocked while inspections exist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{manager_token}}"
+              }
+            ],
+            "url": "{{base_url}}/assets/{{asset_id}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", function () {",
+                  "  pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

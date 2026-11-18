@@ -3,10 +3,15 @@ import { Link } from 'react-router-dom';
 import api from '../api/client';
 import { Building2, ClipboardList, Camera, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { tokenExpiryLabel, workspaceLabel } from '../tokenExpiry';
 import { DashboardStats, ModelStatus } from '../types';
 
 export const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const roleName = user?.role?.name || '';
+  const workspace = workspaceLabel(roleName);
+  const expiresAt = tokenExpiryLabel(token);
+  const canManageAssets = roleName === 'Administrator' || roleName === 'Infrastructure Manager';
   const [stats, setStats] = useState<DashboardStats>({
     assets: 0,
     inspections: 0,
@@ -25,8 +30,8 @@ export const Dashboard: React.FC = () => {
         ]);
         setStats(statsRes.data);
         setModels(modelRes.data);
-      } catch (err) {
-        console.error('Failed to fetch dashboard stats', err);
+      } catch {
+        setModels(null);
       } finally {
         setLoading(false);
       }
@@ -40,11 +45,14 @@ export const Dashboard: React.FC = () => {
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-700" data-testid="workspace-label">
+            {workspace}
+          </p>
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome back, {user?.full_name} 👋
+            Welcome back, {user?.full_name}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Logged in as <span className="font-semibold text-blue-600">{user?.role?.name}</span> • Infrastructure Health Monitoring System
+            Logged in as <span className="font-semibold text-blue-600">{roleName}</span> • Infrastructure Health Monitoring System
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -52,6 +60,39 @@ export const Dashboard: React.FC = () => {
             <Building2 className="w-4 h-4" />
             <span>View All Assets</span>
           </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-testid="jwt-session">
+        <div className="card space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">JWT session</p>
+          <p className="text-sm text-gray-800">Authenticated with a bearer access token. The token value is not shown.</p>
+          <p className="text-sm text-gray-600">Scheme: Bearer JWT (HS256)</p>
+          <p className="text-sm text-gray-600">Expires: {expiresAt || 'unknown'}</p>
+          <p className="text-sm text-gray-600">Sent on each API call as an Authorization header. A 401 clears the session and returns to login.</p>
+        </div>
+        <div className="card space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Role permissions</p>
+          {canManageAssets ? (
+            <ul className="text-sm text-gray-700 space-y-1 list-disc pl-5">
+              <li>View, register, edit, and delete infrastructure assets.</li>
+              <li>Review inspections, uploads, and analysis results.</li>
+              <li>User administration stays with the administrator.</li>
+            </ul>
+          ) : roleName === 'Infrastructure Inspector' ? (
+            <ul className="text-sm text-gray-700 space-y-1 list-disc pl-5">
+              <li>View infrastructure assets.</li>
+              <li>Create inspections assigned to you.</li>
+              <li>Upload images and view analysis results.</li>
+              <li>Asset registration and editing stay with managers.</li>
+            </ul>
+          ) : (
+            <ul className="text-sm text-gray-700 space-y-1 list-disc pl-5">
+              <li>View assets, inspections, and analysis results.</li>
+              <li>Asset registration stays with managers.</li>
+              <li>Running analysis depends on the signed-in role.</li>
+            </ul>
+          )}
         </div>
       </div>
 

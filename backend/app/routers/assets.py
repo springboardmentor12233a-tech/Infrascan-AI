@@ -5,6 +5,7 @@ from typing import Optional
 
 from app.database import get_db
 from app.models.infrastructure_asset import InfrastructureAsset, AssetType
+from app.models.inspection import Inspection
 from app.models.user import User
 from app.schemas.asset_inspection import AssetCreate, AssetUpdate, AssetOut, AssetListResponse
 from app.core.deps import get_current_user, require_roles
@@ -129,6 +130,13 @@ def delete_asset(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Infrastructure asset not found"
+        )
+
+    linked = db.query(Inspection).filter(Inspection.asset_id == asset_id).count()
+    if linked:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete an asset that still has inspections."
         )
 
     db.delete(asset)

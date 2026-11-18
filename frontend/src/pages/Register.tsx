@@ -18,10 +18,12 @@ export const Register: React.FC = () => {
   useEffect(() => {
     api.get<Role[]>('/auth/roles')
       .then((res) => {
-        setRoles(res.data);
-        if (res.data.length > 0) {
-          // Default to Civil Engineer or Inspector
-          const def = res.data.find((r) => r.name === 'Civil Engineer') || res.data[0];
+        const selfService = res.data.filter((role) =>
+          ['Civil Engineer', 'Infrastructure Inspector', 'Maintenance Engineer'].includes(role.name)
+        );
+        setRoles(selfService);
+        if (selfService.length > 0) {
+          const def = selfService.find((r) => r.name === 'Civil Engineer') || selfService[0];
           setRoleId(def.id);
         }
       })
@@ -149,6 +151,9 @@ export const Register: React.FC = () => {
                 ))}
               </select>
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Administrator and Infrastructure Manager accounts are assigned by an administrator.
+            </p>
           </div>
 
           <button
