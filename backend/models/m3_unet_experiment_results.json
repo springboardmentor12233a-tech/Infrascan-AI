@@ -1,0 +1,18 @@
+[
+    {
+        "dataset": "label2_only",
+        "training_images": 94,
+        "validation_images": 24,
+        "best_validation_iou": 0.3683,
+        "best_validation_dice": 0.5383,
+        "checkpoint": "C:\\Users\\TANISHKA\\Downloads\\InfraScanproject\\backend\\models\\m3_unet_label2_only.pth"
+    },
+    {
+        "dataset": "label2_plus4",
+        "training_images": 94,
+        "validation_images": 24,
+        "best_validation_iou": 0.3462,
+        "best_validation_dice": 0.5143,
+        "checkpoint": "C:\\Users\\TANISHKA\\Downloads\\InfraScanproject\\backend\\models\\m3_unet_label2_plus4.pth"
+    }
+]
