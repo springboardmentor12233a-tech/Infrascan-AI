@@ -1,0 +1,21 @@
+{
+    "model": "Lightweight Vision Transformer",
+    "pretrained": false,
+    "image_size": 64,
+    "patch_size": 8,
+    "epochs": 15,
+    "best_validation_accuracy": 0.561037,
+    "test_accuracy": 0.591211,
+    "test_precision_macro": 0.597436,
+    "test_recall_macro": 0.591211,
+    "test_f1_macro": 0.590037,
+    "classes": [
+        "D_CD",
+        "D_UD",
+        "P_CP",
+        "P_UP",
+        "W_CW",
+        "W_UW"
+    ],
+    "test_images": 1206
+}

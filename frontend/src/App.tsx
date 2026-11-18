@@ -1,41 +1,35 @@
+
 import { useState } from 'react'
-import Login from './pages/Login'
+import Login from './Login'
 import Dashboard from './pages/Dashboard'
-import Assets from './pages/Assets'
+import Assets from './Assets'
 import Results from './pages/Results'
 import './App.css'
 
-type InspectionResult = {
-  filename: string
-  size_bytes: number
-  count: number
-  detections: {
-    class_id: number
-    class_name: string
-    confidence: number
-    box_xyxy: number[]
-  }[]
+type Asset = {
+  id: number
+  name: string
+  type: string
+  location: string
 }
 
-type PredictionResult = {
-  prediction: string
-  confidence_percent: number
-  classes: string[]
-  note: string
-}
+const API_URL = 'http://127.0.0.1:8000'
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedAssetId, setSelectedAssetId] = useState('')
+  const [selectedModel, setSelectedModel] = useState('cnn')
+  const [assets, setAssets] = useState<Asset[]>([])
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [preview, setPreview] = useState('')
+  const [segmentationMask, setSegmentationMask] = useState('')
+  const [crackPixelPercentage, setCrackPixelPercentage] = useState<number | null>(null)
   const [showLogin, setShowLogin] = useState(true)
   const [showDashboard, setShowDashboard] = useState(false)
   const [showAssets, setShowAssets] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [assessmentResult, setAssessmentResult] = useState('')
-  const [inspection, setInspection] = useState<InspectionResult | null>(null)
-  const [prediction, setPrediction] = useState<PredictionResult | null>(null)
 
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -45,141 +39,106 @@ function App() {
       return
     }
 
+    if (!selectedAssetId) {
+      setMessage('Please select an infrastructure asset.')
+      return
+    }
+
+    const token = localStorage.getItem('infrascan_token')
+
+    if (!token) {
+      setMessage('Please log in again.')
+      return
+    }
+
     setLoading(true)
-    setMessage('Uploading image...')
-    setInspection(null)
-    setPrediction(null)
+    setMessage('')
     setAssessmentResult('')
+    setSegmentationMask('')
+    setCrackPixelPercentage(null)
 
     try {
-      // Step 1: Upload and save the image on the backend.
       const formData = new FormData()
       formData.append('file', selectedFile)
 
-      const uploadResponse = await fetch(
-        'http://127.0.0.1:8000/upload-image',
-        {
-          method: 'POST',
-          body: formData,
-        }
-      )
+      let endpoint = 'predict-m3'
+      let url = ''
 
-      const uploadData = await uploadResponse.json()
-
-      if (!uploadResponse.ok) {
-        throw new Error(uploadData.detail || 'Image upload failed.')
+      if (selectedModel === 'vit') {
+        endpoint = 'predict-vit'
+        url = `${API_URL}/${endpoint}?asset_id=${selectedAssetId}`
+      } else if (selectedModel === 'unet') {
+        endpoint = 'predict-unet'
+        url = `${API_URL}/${endpoint}`
+      } else {
+        url = `${API_URL}/${endpoint}?asset_id=${selectedAssetId}`
       }
 
-      setMessage(`Image uploaded successfully: ${uploadData.filename}`)
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      })
 
-      // Step 2: Run the existing AI classification endpoint.
-      const token = localStorage.getItem('infrascan_token')
+      const data = await response.json()
 
-      if (!token) {
-        throw new Error('Please log in again.')
+      if (!response.ok) {
+        throw new Error(data.detail || 'AI prediction failed.')
       }
 
-      const predictionData = new FormData()
-      predictionData.append('file', selectedFile)
-
-      const predictionResponse = await fetch(
-        'http://127.0.0.1:8000/predict-crack',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: predictionData,
-        }
-      )
-
-      const predictionResult = await predictionResponse.json()
-
-      if (!predictionResponse.ok) {
-        throw new Error(
-          predictionResult.detail || 'AI prediction failed.'
+      if (selectedModel === 'unet') {
+        setSegmentationMask(
+          `data:image/png;base64,${data.mask_base64}`
         )
-      }
 
-      setPrediction(predictionResult)
+        setCrackPixelPercentage(data.crack_pixel_percentage)
 
-      // Step 3: Run YOLO crack detection.
-      const detectionData = new FormData()
-      detectionData.append('file', selectedFile)
-
-      const detectionResponse = await fetch(
-        'http://127.0.0.1:8000/detect-yolo',
-        {
-          method: 'POST',
-          body: detectionData,
-        }
-      )
-
-      const detection = await detectionResponse.json()
-
-      if (!detectionResponse.ok) {
-        throw new Error(
-          detection.detail || 'YOLO detection failed.'
+        setMessage(
+          `U-Net segmentation completed. Crack pixels: ${data.crack_pixels}`
         )
+
+        return
       }
 
-      const result: InspectionResult = {
-        filename: uploadData.filename,
-        size_bytes: uploadData.size_bytes,
-        count: detection.count,
-        detections: detection.detections,
-      }
+      const confidence =
+        data.confidence_percent ?? data.confidence ?? 0
 
-      setInspection(result)
+      const resultText =
+        `AI Prediction: ${data.prediction} | ` +
+        `Confidence: ${confidence}% | ` +
+        `Note: ${data.note ?? 'AI assessment completed.'}`
 
-      const detectionSummary = result.detections.length
-        ? result.detections
-            .map(
-              (item, index) =>
-                `Crack ${index + 1}: ${item.class_name}, ` +
-                `${(item.confidence * 100).toFixed(2)}% confidence, ` +
-                `box [${item.box_xyxy.join(', ')}]`
-            )
-            .join('\n')
-        : 'No cracks detected in this image.'
-
-      const predictionSummary = predictionResult
-        ? `AI prediction: ${predictionResult.prediction} ` +
-          `(${predictionResult.confidence_percent}% confidence).`
-        : 'AI prediction is unavailable.'
-
-      setAssessmentResult(
-        `YOLO detections: ${result.count}\n` +
-        `${detectionSummary}\n\n${predictionSummary}`
-      )
-
-      setMessage('Upload successful! YOLO detection completed.')
+      setMessage(resultText)
+      setAssessmentResult(resultText)
     } catch (error) {
       setMessage(
-        error instanceof Error
-          ? `Processing failed: ${error.message}`
-          : 'Could not connect to the backend.'
+        error instanceof TypeError
+          ? 'Could not connect to backend. Please start FastAPI server.'
+          : error instanceof Error
+            ? error.message
+            : 'Prediction failed.'
       )
     } finally {
       setLoading(false)
     }
   }
 
-  function handleFileChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null
+
+    setSelectedFile(file)
+    setMessage('')
+    setAssessmentResult('')
+    setSegmentationMask('')
+    setCrackPixelPercentage(null)
 
     if (preview) {
       URL.revokeObjectURL(preview)
     }
 
-    setSelectedFile(file)
     setPreview(file ? URL.createObjectURL(file) : '')
-    setMessage('')
-    setAssessmentResult('')
-    setPrediction(null)
-    setInspection(null)
   }
 
   function handleLogin() {
@@ -190,17 +149,53 @@ function App() {
   }
 
   function handleLogout() {
+    localStorage.removeItem('infrascan_token')
     setShowLogin(true)
     setShowDashboard(false)
     setShowAssets(false)
     setShowResults(false)
   }
 
-  function handleNewInspection() {
+  async function handleNewInspection() {
     setShowLogin(false)
     setShowDashboard(false)
     setShowAssets(false)
     setShowResults(false)
+    setMessage('')
+    setAssessmentResult('')
+    setSegmentationMask('')
+    setCrackPixelPercentage(null)
+
+    try {
+      const token = localStorage.getItem('infrascan_token')
+
+      if (!token) {
+        throw new Error('Please log in again.')
+      }
+
+      const response = await fetch(`${API_URL}/assets`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Could not load assets.')
+      }
+
+      setAssets(data)
+      setSelectedAssetId(data.length > 0 ? String(data[0].id) : '')
+
+      if (data.length === 0) {
+        setMessage('Please register an infrastructure asset first.')
+      }
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : 'Unable to load assets.'
+      )
+    }
   }
 
   function handleOpenAssets() {
@@ -259,6 +254,7 @@ function App() {
               Logout
             </button>
           </header>
+
           <Assets />
         </>
       ) : showResults ? (
@@ -273,6 +269,7 @@ function App() {
               Logout
             </button>
           </header>
+
           <Results
             result={assessmentResult}
             onBack={handleBackToDashboard}
@@ -299,18 +296,44 @@ function App() {
             <h1>Detect Cracks. Protect Infrastructure.</h1>
 
             <p className="description">
-              Upload infrastructure images for image processing
+              Upload infrastructure images for AI-powered crack
               and damage assessment.
             </p>
 
             <section className="upload-card">
               <h2>Start a New Inspection</h2>
-              <p>
-                Select a JPG, PNG or WEBP image of concrete or
-                infrastructure (maximum 10 MB).
-              </p>
+              <p>Select an asset and upload a JPG, PNG or WEBP image.</p>
 
               <form onSubmit={handleUpload}>
+                <label>Select Infrastructure Asset</label>
+
+                <select
+                  value={selectedAssetId}
+                  onChange={(event) => setSelectedAssetId(event.target.value)}
+                  required
+                >
+                  <option value="">Choose an asset</option>
+                  {assets.map((asset) => (
+                    <option key={asset.id} value={asset.id}>
+                      {asset.name} - {asset.type}
+                    </option>
+                  ))}
+                </select>
+
+                <label>Select AI Model</label>
+
+                <select
+                  value={selectedModel}
+                  onChange={(event) => setSelectedModel(event.target.value)}
+                  required
+                >
+                  <option value="cnn">Six-Class CNN</option>
+                  <option value="vit">Vision Transformer (ViT)</option>
+                  <option value="unet">U-Net Segmentation</option>
+                </select>
+
+                <label>Upload Inspection Image</label>
+
                 <input
                   type="file"
                   accept=".jpg,.jpeg,.png,.webp"
@@ -326,74 +349,47 @@ function App() {
                   />
                 )}
 
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Processing...' : 'Upload Image'}
+                <button
+                  type="submit"
+                  disabled={loading || assets.length === 0}
+                >
+                  {loading ? 'Analyzing...' : 'Analyze Image'}
                 </button>
               </form>
 
               {message && (
-                <p className="status-message" role="status">
-                  {message}
-                </p>
+                <p className="status-message">{message}</p>
               )}
 
-              {inspection && (
-                <section className="inspection-result">
-                  <h2>YOLO Detection Result</h2>
+              {segmentationMask && (
+                <div className="segmentation-result">
+                  <h3>U-Net Segmentation Mask</h3>
+
+                  <img
+                    src={segmentationMask}
+                    alt="U-Net crack segmentation mask"
+                    className="image-preview"
+                  />
 
                   <p>
-                    <strong>Saved filename:</strong>{' '}
-                    {inspection.filename}
+                    Crack Pixel Percentage:{' '}
+                    <strong>{crackPixelPercentage}%</strong>
                   </p>
 
                   <p>
-                    <strong>File size:</strong>{' '}
-                    {(inspection.size_bytes / 1024).toFixed(1)} KB
+                    White pixels represent the regions detected by
+                    the segmentation model.
                   </p>
 
                   <p>
-                    <strong>Cracks detected:</strong>{' '}
-                    {inspection.count}
+                    <strong>Note:</strong> Experimental segmentation;
+                    not validated for real-world safety decisions.
                   </p>
-
-                  {inspection.detections.length > 0 ? (
-                    <ul>
-                      {inspection.detections.map((item, index) => (
-                        <li key={`${item.class_id}-${index}`}>
-                          <strong>{item.class_name}</strong>
-                          {' — '}
-                          {(item.confidence * 100).toFixed(2)}%
-                          {' confidence — Box: ['}
-                          {item.box_xyxy.join(', ')}
-                          {']'}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No cracks detected in this image.</p>
-                  )}
-
-                  {prediction && (
-                    <p>
-                      <strong>AI prediction:</strong>{' '}
-                      {prediction.prediction}
-                      {' ('}
-                      {prediction.confidence_percent}% confidence)
-                    </p>
-                  )}
-
-                  <p>
-                    YOLO results are model predictions, not a safety
-                    assessment. Human engineering review is required.
-                  </p>
-                </section>
+                </div>
               )}
 
               {assessmentResult && (
-                <button
-                  type="button"
-                  onClick={handleOpenResults}
-                >
+                <button type="button" onClick={handleOpenResults}>
                   View Assessment Results
                 </button>
               )}
