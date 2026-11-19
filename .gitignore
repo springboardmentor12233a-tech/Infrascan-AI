@@ -1,0 +1,38 @@
+
+# Python virtual environments
+venv/
+.venv/
+backend/venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# AI model files
+backend/openvino_model/
+backend/models/
+
+# Datasets
+backend/all_test_images/
+backend/all_test_labels/
+backend/test_images/
+backend/test_labels/
+backend/*.zip
+
+# Generated files
+backend/predicted_crack_mask.png
+
+# Editor files
+.vscode/
+.idea/

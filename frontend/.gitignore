@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# InfraScan generated files
+backend/openvino_model/
+backend/main_cpu_backup.py
+
+# Python generated files
+backend/predicted_crack_mask.png
+
