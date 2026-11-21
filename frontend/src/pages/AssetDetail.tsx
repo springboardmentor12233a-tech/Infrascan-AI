@@ -36,8 +36,8 @@ export const AssetDetail: React.FC = () => {
     user?.role?.name || ''
   );
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     try {
       const [assetRes, inspRes, inspListRes] = await Promise.all([
         api.get<InfrastructureAsset>(`/assets/${id}`),
@@ -56,12 +56,12 @@ export const AssetDetail: React.FC = () => {
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to load asset details');
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
   }, [id]);
 
   const handleCreateInspection = async (e: React.FormEvent) => {
@@ -79,7 +79,7 @@ export const AssetDetail: React.FC = () => {
       });
       setShowModal(false);
       setNotes('');
-      fetchData();
+      fetchData(false);
     } catch (err: any) {
       alert(err.response?.data?.detail || 'Failed to schedule inspection');
     } finally {

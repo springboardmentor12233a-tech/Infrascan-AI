@@ -44,6 +44,24 @@ export const InspectionView: React.FC = () => {
   const [analyzingId, setAnalyzingId] = useState<number | null>(null);
   const [openAnalysis, setOpenAnalysis] = useState<ImageAnalysis | null>(null);
 
+  const roleName = user?.role?.name || '';
+  const assignedInspector =
+    roleName === 'Infrastructure Inspector' && inspection?.inspector_id === user?.id;
+  const canUpload =
+    roleName === 'Administrator' ||
+    roleName === 'Infrastructure Manager' ||
+    assignedInspector;
+  const canAnalyze =
+    roleName === 'Administrator' ||
+    roleName === 'Infrastructure Manager' ||
+    roleName === 'Civil Engineer' ||
+    roleName === 'Infrastructure Inspector';
+  const canUpdateStatus =
+    roleName === 'Administrator' ||
+    roleName === 'Infrastructure Manager' ||
+    roleName === 'Civil Engineer' ||
+    assignedInspector;
+
   const fetchInspectionData = async () => {
     setLoading(true);
     try {
@@ -214,7 +232,7 @@ export const InspectionView: React.FC = () => {
           <span className="text-xs font-semibold uppercase text-gray-500">Status:</span>
           <select
             value={status}
-            disabled={updatingStatus}
+            disabled={updatingStatus || !canUpdateStatus}
             onChange={(e) => handleStatusChange(e.target.value)}
             className="input-field py-1 text-xs font-semibold bg-white rounded-md"
           >
@@ -266,7 +284,8 @@ export const InspectionView: React.FC = () => {
         </div>
       )}
 
-      {/* Drag & Drop Upload Zone */}
+      {/* Drag & Drop Upload Zone. Hidden when the API would reject the upload. */}
+      {canUpload && (
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -311,6 +330,7 @@ export const InspectionView: React.FC = () => {
           )}
         </div>
       </div>
+      )}
 
       {/* Uploaded Images Gallery */}
       <div className="space-y-4">
@@ -325,7 +345,11 @@ export const InspectionView: React.FC = () => {
           <div className="card p-12 text-center text-gray-400">
             <Camera className="w-10 h-10 mx-auto mb-2 text-gray-300" />
             <p className="text-sm">No images uploaded for this inspection yet.</p>
-            <p className="text-xs text-gray-400 mt-1">Upload images to test blur assessment and CLAHE preprocessing.</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {canUpload
+                ? 'Upload images to test blur assessment and CLAHE preprocessing.'
+                : 'This role can review images after an authorized user uploads them.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -367,19 +391,27 @@ export const InspectionView: React.FC = () => {
                   <span>{img.width}x{img.height} px</span>
                   <span>{img.file_size_kb} KB</span>
                 </div>
-                <button
-                  onClick={() => (analyses[img.id] ? setOpenAnalysis(analyses[img.id]) : runAnalysis(img.id))}
-                  disabled={analyzingId === img.id}
-                  className="btn-primary mt-2 w-full text-xs flex items-center justify-center gap-1.5"
-                >
-                  <ScanSearch className="w-3.5 h-3.5" />
-                  {analyzingId === img.id
-                    ? 'Running models...'
-                    : analyses[img.id]
-                      ? 'View analysis'
-                      : 'Run AI analysis'}
-                </button>
-                {analyses[img.id] && analyzingId !== img.id && (
+                {(canAnalyze || analyses[img.id]) && (
+                  <button
+                    onClick={() => {
+                      if (analyses[img.id]) {
+                        setOpenAnalysis(analyses[img.id]);
+                        return;
+                      }
+                      if (canAnalyze) runAnalysis(img.id);
+                    }}
+                    disabled={analyzingId === img.id}
+                    className="btn-primary mt-2 w-full text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <ScanSearch className="w-3.5 h-3.5" />
+                    {analyzingId === img.id
+                      ? 'Running models...'
+                      : analyses[img.id]
+                        ? 'View analysis'
+                        : 'Run AI analysis'}
+                  </button>
+                )}
+                {canAnalyze && analyses[img.id] && analyzingId !== img.id && (
                   <button
                     onClick={() => runAnalysis(img.id)}
                     className="mt-1 w-full text-[11px] text-blue-600 hover:underline"

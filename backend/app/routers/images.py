@@ -56,87 +56,98 @@ async def upload_inspection_images(
             )
 
     uploaded_records: List[InspectionImage] = []
+    saved_names: List[str] = []
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
 
-    for file in files:
-        # 1. Extension validation
-        ext = os.path.splitext(file.filename or "")[1].lower()
-        if ext not in ALLOWED_EXTENSIONS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid file type '{ext}'. Allowed: .jpg, .jpeg, .png"
+    try:
+        for file in files:
+            # 1. Extension validation
+            ext = os.path.splitext(file.filename or "")[1].lower()
+            if ext not in ALLOWED_EXTENSIONS:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid file type '{ext}'. Allowed: .jpg, .jpeg, .png"
+                )
+
+            content = await file.read()
+            file_size_kb = round(len(content) / 1024.0, 2)
+
+            # 2. File size validation
+            if len(content) > max_bytes:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"File '{file.filename}' exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB."
+                )
+
+            # 3. MD5 calculation and duplicate check within this inspection
+            md5 = hashlib.md5(content).hexdigest()
+            duplicate = db.query(InspectionImage).filter(
+                InspectionImage.inspection_id == inspection_id,
+                InspectionImage.md5_hash == md5
+            ).first()
+            if duplicate:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Duplicate image detected: '{file.filename}' was already uploaded to this inspection."
+                )
+
+            # 4. Image readability and resolution validation
+            try:
+                with PILImage.open(io.BytesIO(content)) as pil_img:
+                    width, height = pil_img.size
+            except Exception:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Corrupt or unreadable image: '{file.filename}'"
+                )
+
+            if width < settings.MIN_IMAGE_WIDTH or height < settings.MIN_IMAGE_HEIGHT:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Image resolution {width}x{height} too small. Minimum required: {settings.MIN_IMAGE_WIDTH}x{settings.MIN_IMAGE_HEIGHT}."
+                )
+
+            # 5. Quality assessment. A decode failure is a rejected upload.
+            try:
+                blur_score, brightness, quality_status_str = assess_quality(
+                    content,
+                    blur_threshold=settings.BLUR_THRESHOLD,
+                    brightness_threshold=settings.BRIGHTNESS_THRESHOLD
+                )
+                q_status = QualityStatus(quality_status_str)
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Could not assess image quality for '{file.filename}': {exc}"
+                ) from exc
+
+            # 6. Save with a randomized filename only after this file validates.
+            safe_filename = f"{uuid.uuid4().hex}{ext}"
+            storage.save_file(safe_filename, io.BytesIO(content))
+            saved_names.append(safe_filename)
+
+            image_record = InspectionImage(
+                inspection_id=inspection_id,
+                file_path=safe_filename,
+                original_filename=file.filename or safe_filename,
+                md5_hash=md5,
+                width=width,
+                height=height,
+                file_size_kb=file_size_kb,
+                blur_score=blur_score,
+                brightness=brightness,
+                quality_status=q_status
             )
+            db.add(image_record)
+            uploaded_records.append(image_record)
 
-        # Read content
-        content = await file.read()
-        file_size_kb = round(len(content) / 1024.0, 2)
+        db.commit()
+    except Exception:
+        db.rollback()
+        for name in saved_names:
+            storage.delete_file(name)
+        raise
 
-        # 2. File size validation
-        if len(content) > max_bytes:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"File '{file.filename}' exceeds maximum allowed size of {settings.MAX_UPLOAD_SIZE_MB}MB."
-            )
-
-        # 3. MD5 calculation & Duplicate check within same inspection
-        md5 = hashlib.md5(content).hexdigest()
-        duplicate = db.query(InspectionImage).filter(
-            InspectionImage.inspection_id == inspection_id,
-            InspectionImage.md5_hash == md5
-        ).first()
-        if duplicate:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Duplicate image detected: '{file.filename}' was already uploaded to this inspection."
-            )
-
-        # 4. Image readability and resolution validation
-        try:
-            with PILImage.open(io.BytesIO(content)) as pil_img:
-                width, height = pil_img.size
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Corrupt or unreadable image: '{file.filename}'"
-            )
-
-        if width < settings.MIN_IMAGE_WIDTH or height < settings.MIN_IMAGE_HEIGHT:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Image resolution {width}x{height} too small. Minimum required: {settings.MIN_IMAGE_WIDTH}x{settings.MIN_IMAGE_HEIGHT}."
-            )
-
-        # 5. Quality assessment (blur & brightness)
-        try:
-            blur_score, brightness, quality_status_str = assess_quality(
-                content,
-                blur_threshold=settings.BLUR_THRESHOLD,
-                brightness_threshold=settings.BRIGHTNESS_THRESHOLD
-            )
-            q_status = QualityStatus(quality_status_str)
-        except Exception as e:
-            blur_score, brightness, q_status = None, None, QualityStatus.OK
-
-        # 6. Save with secure randomized filename
-        safe_filename = f"{uuid.uuid4().hex}{ext}"
-        storage.save_file(safe_filename, io.BytesIO(content))
-
-        image_record = InspectionImage(
-            inspection_id=inspection_id,
-            file_path=safe_filename,
-            original_filename=file.filename or safe_filename,
-            md5_hash=md5,
-            width=width,
-            height=height,
-            file_size_kb=file_size_kb,
-            blur_score=blur_score,
-            brightness=brightness,
-            quality_status=q_status
-        )
-        db.add(image_record)
-        uploaded_records.append(image_record)
-
-    db.commit()
     for rec in uploaded_records:
         db.refresh(rec)
 

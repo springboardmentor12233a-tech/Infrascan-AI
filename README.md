@@ -40,6 +40,9 @@ python -m venv venv
 # Install backend dependencies
 pip install -r requirements.txt
 
+# Local settings. backend/.env is gitignored.
+copy .env.example .env
+
 # Seed roles, demo accounts, and 3 sample civil assets
 python seed_data.py
 
@@ -95,16 +98,22 @@ All accounts are created with password: `Password123!`
 
 ## Testing & Quality Assurance
 
-Run the automated Pytest test suite covering:
-- Authentication & JWT issuance
-- Role-based denial (`403 Forbidden`)
-- Full Asset CRUD lifecycle
-- Image validation (rejecting non-images, images < 64x64, exact MD5 duplicate rejection, blur score assessment)
+Pytest covers authentication, JWT expiry, role denial, asset CRUD, inspection rules, and image validation (non-images, images under 64x64, exact MD5 duplicates, blur assessment, and a rejected multi-file upload that must not leave a file on disk).
 
 ```powershell
 cd backend
 .\venv\Scripts\pytest.exe tests/ -v
 ```
+
+The Milestone 4 API checks are `scripts/run_milestone4_api.py`. That script uses HTTPX against a running API. It is the executable form of `postman/InfraScan_API_Tests.postman_collection.json`. It is not a Postman or Newman run. The recorded evidence from the earlier run is in `evidence/milestone_4/`. A new run overwrites that folder unless `INFRASCAN_EVIDENCE_DIR` points somewhere else. The script also creates demo assets, inspections, and an upload in the database the server is using.
+
+```powershell
+$env:INFRASCAN_DEMO_PASSWORD = "<seeded password shown above>"
+$env:INFRASCAN_EVIDENCE_DIR = "$env:TEMP\infrascan-api-rerun"
+python scripts/run_milestone4_api.py
+```
+
+The frontend production check is `npm run build` in `frontend`.
 
 ---
 
@@ -116,7 +125,11 @@ Milestone 2 adds CPU baselines and connects them to `POST /images/{id}/analyze`:
 
 - SmallCNN crack / non-crack patches. Validation F1 **0.8267** on 144 DeepCrack patches.
 - Compact U-Net. Validation Dice **0.4316**, IoU **0.3449** on 8 images.
-- YOLOv8n fine-tune on 60 RDD2022 Czech images. Validation mAP50 **0.0004**. The pipeline runs. The detector is not accurate enough to rely on.
+- YOLOv8n fine-tune on 60 RDD2022 Czech images. Validation mAP50 **0.0004**. The pipeline runs. The detector is not accurate enough to rely on. When validation mAP50 is below the reliability cutoff, the detection result sets `reliable` to false and returns an empty detection list.
+
+Milestone 3 adds JWT login, five roles, and a role-aware React UI. Public registration cannot claim Administrator or Infrastructure Manager. An inspector can create inspections only for themselves and can upload only on assigned inspections. Civil engineers can review status. Maintenance engineers are read-only. The dashboard reads live asset, inspection, image, and analysis counts.
+
+Milestone 4 connects the same inspection flow to classification, detection, segmentation, and pixel geometry, plus `GET /models/status` and `GET /stats`. Geometry is in pixels. There is no millimetre calibration. Google sign-in remains HTTP 501.
 
 Start both apps with `.\scripts\start_infrascan.ps1`. The click path, sample image, and the sentences to say out loud are in [`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md).
 

@@ -77,7 +77,11 @@ def capture_ui(page) -> None:
     page.get_by_role("button", name="Schedule New Inspection").click()
     page.get_by_placeholder("Focus areas:").fill("Milestone 3 evidence inspection")
     page.get_by_role("button", name="Create Inspection").click()
-    page.get_by_text("Milestone 3 evidence inspection").wait_for()
+    # The notes field already contains this sentence, so waiting on the text
+    # alone can photograph the loading state. Wait until the schedule dialog
+    # is gone and the inspection card is on the page.
+    page.get_by_role("heading", name="Schedule Site Inspection").wait_for(state="hidden")
+    page.locator("div.card", has_text="Milestone 3 evidence inspection").wait_for()
     shot(page, UI / "06_inspection_created.png")
 
     page.locator("div.card", has_text="Milestone 3 evidence inspection").get_by_role(

@@ -10,6 +10,9 @@ Required environment variable:
 Optional:
   INFRASCAN_BASE_URL       default http://127.0.0.1:8000
   INFRASCAN_SAMPLE_IMAGE   default docs/eda_outputs/samples/deepcrack/11120.jpg
+  INFRASCAN_EVIDENCE_DIR   default evidence/milestone_4
+                           Set this to another folder when a re-run must not
+                           overwrite the recorded Milestone 4 evidence.
 """
 
 from __future__ import annotations
@@ -24,7 +27,7 @@ from pathlib import Path
 import httpx
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE = ROOT / "evidence" / "milestone_4"
+EVIDENCE = Path(os.environ.get("INFRASCAN_EVIDENCE_DIR", str(ROOT / "evidence" / "milestone_4")))
 BASE = os.environ.get("INFRASCAN_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 SAMPLE = Path(
     os.environ.get(
@@ -35,6 +38,16 @@ SAMPLE = Path(
 PASSWORD = os.environ.get("INFRASCAN_DEMO_PASSWORD", "")
 
 CHECKS: list[dict] = []
+
+
+_JWT_ALPHABET = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
+
+
+def _looks_like_jwt(value: str) -> bool:
+    parts = value.split(".")
+    if len(parts) != 3:
+        return False
+    return all(len(part) >= 8 and set(part) <= _JWT_ALPHABET for part in parts)
 
 
 def mask(value):
@@ -49,7 +62,7 @@ def mask(value):
         return masked
     if isinstance(value, list):
         return [mask(item) for item in value]
-    if isinstance(value, str) and value.count(".") == 2 and len(value) > 40:
+    if isinstance(value, str) and _looks_like_jwt(value):
         return "***masked-jwt***"
     return value
 
@@ -421,7 +434,11 @@ def main() -> int:
                     files={"files": (SAMPLE.name, SAMPLE.read_bytes(), "image/jpeg")},
                 )
                 upload_body = _safe_json(upload)
-                uploaded_ok = upload.status_code == 201 and isinstance(upload_body, list) and upload_body
+                uploaded_ok = (
+                    upload.status_code == 201
+                    and isinstance(upload_body, list)
+                    and len(upload_body) > 0
+                )
                 record("Upload an inspection image", uploaded_ok, upload.status_code, SAMPLE.name, upload_body)
                 if not uploaded_ok:
                     write_reports(newman_note)

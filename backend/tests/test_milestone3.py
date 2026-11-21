@@ -5,6 +5,7 @@ These tests use the real login endpoint. They do not print tokens.
 
 import io
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 from jose import jwt
@@ -292,3 +293,73 @@ def test_manager_permissions_and_delete_guard(client: TestClient, db_session):
     assert deleted.status_code == 204
     missing = client.get(f"/assets/{disposable_id}", headers=manager_headers)
     assert missing.status_code == 404
+
+
+def _jpeg_bytes() -> bytes:
+    image = Image.new("RGB", (96, 96), color=(40, 40, 40))
+    image.putpixel((10, 10), (255, 255, 255))
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG")
+    return buffer.getvalue()
+
+
+def _inspection_for_upload(client: TestClient, db_session, prefix: str) -> tuple[dict[str, str], int]:
+    token = get_user_token(client, db_session, "Administrator", prefix)
+    headers = _auth(token)
+    created = client.post("/assets/", json={
+        "asset_code": f"{prefix}-ASSET",
+        "name": "Upload Cleanup Asset",
+        "type": "Road",
+    }, headers=headers)
+    assert created.status_code == 201
+    admin_id = client.get("/auth/me", headers=headers).json()["id"]
+    inspection = client.post("/inspections/", json={
+        "asset_id": created.json()["id"],
+        "inspector_id": admin_id,
+        "inspection_date": "2026-11-21",
+    }, headers=headers)
+    assert inspection.status_code == 201
+    return headers, inspection.json()["id"]
+
+
+def test_rejected_multi_file_upload_leaves_no_orphan(client: TestClient, db_session):
+    from app.services.storage import storage
+
+    headers, inspection_id = _inspection_for_upload(client, db_session, "m3orphan")
+    before = set(Path(storage.base_dir).glob("*"))
+    rejected = client.post(
+        f"/inspections/{inspection_id}/images",
+        headers=headers,
+        files=[
+            ("files", ("good.jpg", _jpeg_bytes(), "image/jpeg")),
+            ("files", ("notes.txt", b"not an image", "text/plain")),
+        ],
+    )
+    assert rejected.status_code == 400
+    assert "Invalid file type" in rejected.json()["detail"]
+    listed = client.get(f"/inspections/{inspection_id}/images", headers=headers)
+    assert listed.status_code == 200
+    assert listed.json() == []
+    assert set(Path(storage.base_dir).glob("*")) == before
+
+
+def test_quality_decode_failure_is_rejected(client: TestClient, db_session, monkeypatch):
+    from app.services.storage import storage
+
+    def fail_quality(*_args, **_kwargs):
+        raise ValueError("Could not decode image")
+
+    monkeypatch.setattr("app.routers.images.assess_quality", fail_quality)
+    headers, inspection_id = _inspection_for_upload(client, db_session, "m3quality")
+    before = set(Path(storage.base_dir).glob("*"))
+    rejected = client.post(
+        f"/inspections/{inspection_id}/images",
+        headers=headers,
+        files={"files": ("unreadable.jpg", _jpeg_bytes(), "image/jpeg")},
+    )
+    assert rejected.status_code == 400
+    assert "Could not assess image quality" in rejected.json()["detail"]
+    listed = client.get(f"/inspections/{inspection_id}/images", headers=headers)
+    assert listed.status_code == 200
+    assert listed.json() == []
+    assert set(Path(storage.base_dir).glob("*")) == before
