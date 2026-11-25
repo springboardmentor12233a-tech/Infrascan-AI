@@ -1,0 +1,109 @@
+{
+  "rules_version": "1.0.0",
+  "status": "engineer-defined placeholders, not validated against an engineering standard",
+  "description": "Transparent, editable rules for advisory damage severity scoring. Severity is advisory for engineer review and NOT a structural safety verdict.",
+  "bands": [
+    {"min_score": 0.0, "max_score": 10.0, "severity": "none"},
+    {"min_score": 10.0, "max_score": 30.0, "severity": "minor"},
+    {"min_score": 30.0, "max_score": 55.0, "severity": "moderate"},
+    {"min_score": 55.0, "max_score": 80.0, "severity": "severe"},
+    {"min_score": 80.0, "max_score": 100.0, "severity": "critical"}
+  ],
+  "factors": {
+    "crack_density_percent": {
+      "thresholds": [
+        {"max": 0.5, "points": 0.0},
+        {"min": 0.5, "max": 2.0, "points": 10.0},
+        {"min": 2.0, "max": 5.0, "points": 20.0},
+        {"min": 5.0, "max": 10.0, "points": 30.0},
+        {"min": 10.0, "points": 40.0}
+      ]
+    },
+    "relative_length": {
+      "thresholds": [
+        {"max": 0.1, "points": 0.0},
+        {"min": 0.1, "max": 0.3, "points": 5.0},
+        {"min": 0.3, "max": 0.6, "points": 10.0},
+        {"min": 0.6, "max": 1.0, "points": 15.0},
+        {"min": 1.0, "points": 20.0}
+      ]
+    },
+    "branching": {
+      "rate_thresholds": [
+        {"max": 2.0, "points": 0.0},
+        {"min": 2.0, "max": 5.0, "points": 3.0},
+        {"min": 5.0, "points": 6.0}
+      ],
+      "multi_component_threshold": 3,
+      "multi_component_points": 2.0,
+      "max_points": 8.0
+    },
+    "damage_type": {
+      "confidence_threshold": 0.25,
+      "weights": {
+        "D00": 10.0,
+        "D10": 10.0,
+        "D20": 25.0,
+        "D40": 30.0,
+        "crack": 10.0,
+        "spallation": 30.0,
+        "exposed_bars": 40.0,
+        "efflorescence": 10.0,
+        "corrosion_stain": 15.0
+      },
+      "default_unknown_points": 10.0
+    },
+    "damage_area_share": {
+      "non_crack_classes": ["D40", "spallation", "exposed_bars", "efflorescence", "corrosion_stain", "pothole"],
+      "thresholds": [
+        {"max": 0.02, "points": 0.0},
+        {"min": 0.02, "max": 0.10, "points": 5.0},
+        {"min": 0.10, "max": 0.25, "points": 10.0},
+        {"min": 0.25, "points": 15.0}
+      ],
+      "max_points": 15.0
+    },
+    "width_mm": {
+      "is_placeholder": true,
+      "note": "Engineer-defined placeholder values to be replaced with values from the applicable engineering standard.",
+      "thresholds": [
+        {"max": 0.3, "points": 0.0},
+        {"min": 0.3, "max": 1.0, "points": 5.0},
+        {"min": 1.0, "max": 3.0, "points": 10.0},
+        {"min": 3.0, "max": 5.0, "points": 15.0},
+        {"min": 5.0, "points": 20.0}
+      ]
+    }
+  },
+  "forced_minimums": [
+    {
+      "condition": "exposed_bars",
+      "damage_classes": ["exposed_bars"],
+      "min_confidence": 0.5,
+      "minimum_severity": "severe",
+      "reason": "Exposed reinforcement bars indicate severe structural degradation"
+    },
+    {
+      "condition": "large_spallation_or_pothole",
+      "damage_classes": ["spallation", "pothole", "D40"],
+      "min_area_share": 0.10,
+      "minimum_severity": "severe",
+      "reason": "Substantial surface area loss (spallation or pothole >= 10%)"
+    }
+  ],
+  "priority_mapping": {
+    "none": "routine_monitoring",
+    "minor": "low",
+    "moderate": "medium",
+    "severe": "high",
+    "critical": "urgent_engineering_review"
+  },
+  "importance_level_elevation": {
+    "routine_monitoring": "low",
+    "low": "medium",
+    "medium": "high",
+    "high": "urgent_engineering_review",
+    "urgent_engineering_review": "urgent_engineering_review"
+  }
+}
+

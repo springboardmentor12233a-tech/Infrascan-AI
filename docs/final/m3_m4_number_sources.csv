@@ -1,0 +1,38 @@
+pdf,page,claim_or_number,source_file,source_line_or_key,label_type
+Milestone3_Documentation.pdf,1,"Milestone 3 status: 51 implemented, 1 partly, 6 not implemented, 1 could not verify",docs/final/m3_m4_facts.json,summary dictionary,verified run
+Milestone3_Documentation.pdf,2,"YOLOv8s mAP@50=0.4554, mAP@50:95=0.2220",docs/11_milestone2_results.md,Section 4.1 RDD2022 Results Table,VALIDATION
+Milestone3_Documentation.pdf,2,"YOLOv8s Precision=0.5211, Recall=0.4528",docs/11_milestone2_results.md,Section 4.1 RDD2022 Results Table,VALIDATION
+Milestone3_Documentation.pdf,2,"YOLO11s mAP@50=0.4437, mAP@50:95=0.2151",docs/11_milestone2_results.md,Section 4.1 RDD2022 Results Table,VALIDATION
+Milestone3_Documentation.pdf,2,"RDD2022 subset size: 8,000 images",docs/11_milestone2_results.md,Section 4.1 Dataset Setup,VALIDATION
+Milestone3_Documentation.pdf,2,"CODEBRIM dataset: 1,022 processed images, 8,274 annotations, 5 defect classes",docs/13_codebrim_preparation.md,Section 2 Dataset Summary,VALIDATION
+Milestone3_Documentation.pdf,2,"RT-DETR-L on CODEBRIM: mAP@50=0.4120, mAP@50:95=0.2480",docs/12_model_evaluation_report.md,Section 5.2 Defect Detection,VALIDATION
+Milestone3_Documentation.pdf,2,"CODEBRIM class counts: crack=3,412, spallation=1,845, efflorescence=1,215, corrosion=1,390, exposed_bars=412",docs/13_codebrim_preparation.md,Table 1 Class Distribution,VALIDATION
+Milestone3_Documentation.pdf,3,"U-Net++ Crack500: Mean Dice=0.6899 [0.6801, 0.7001], Mean IoU=0.5481 [0.5382, 0.5586]",docs/11_milestone2_results.md,Section 3.1 Table 2 Crack500 Test Metrics,TEST
+Milestone3_Documentation.pdf,3,"U-Net++ Crack500: Pixel Dice=0.7309, Boundary F1 (3px)=0.4523, N=1,087",docs/11_milestone2_results.md,Section 3.1 Table 2 Crack500 Test Metrics,TEST
+Milestone3_Documentation.pdf,3,"Standard U-Net Crack500: Mean Dice=0.6712, Mean IoU=0.5284",docs/11_milestone2_results.md,Section 3.1 Table 2 Crack500 Test Metrics,TEST
+Milestone3_Documentation.pdf,3,"U-Net++ CFD Zero-Shot: Mean Dice=0.4533, Mean IoU=0.3109, N=118",docs/11_milestone2_results.md,Section 3.2 CFD Zero-Shot Evaluation,TEST
+Milestone3_Documentation.pdf,3,Crack geometry uncertainty: +/-4.7 pixels (+/-7 mm at 1.5 mm/px),infrascan/backend/app/services/crack_geometry.py,calculate_geometry uncertainty bound,verified run
+Milestone3_Documentation.pdf,4,"Severity rule stability: exact agreement 77.09%, within 1 level 99.08%, Kappa=0.7542 (N=1,087)",docs/14_severity_rules.md,Section 4 Stability Assessment,TEST
+Milestone3_Documentation.pdf,4,"ORB+RANSAC registration: min inliers=15, max reprojection error=3.0",infrascan/backend/app/services/historical_comparison.py,"MIN_INLIER_COUNT, MAX_REPROJ_ERROR",verified run
+Milestone3_Documentation.pdf,5,"XAI Adebayo test: Grad-CAM r=0.1069, Grad-CAM++ r=-0.1685 (N=50)",docs/15_explainable_ai.md,Table 4 Parameter Randomization,VALIDATION
+Milestone3_Documentation.pdf,5,XAI pixel deletion: Top 10% mask Delta Dice=0.0656 vs Random 0.0252 (2.61x impairment ratio),docs/15_explainable_ai.md,Table 5 Feature Deletion Sanity Check,VALIDATION
+Milestone3_Documentation.pdf,5,"CCIC test Macro F1=0.9997 (N=5,760), unique images N=4,829 F1=0.9995, near-duplicates=931 (16.16%)",docs/11_milestone2_results.md,Section 2.1 CCIC Classification & Perceptual Hash Audit,TEST
+Milestone3_Documentation.pdf,5,"SDNET2018 test Macro F1=0.6421, Precision=0.3247, Recall=0.9100, 2,429 false positives (N=8,802)",docs/11_milestone2_results.md,Section 2.2 SDNET2018 Test Results,TEST
+Milestone4_Documentation.pdf,1,"5 distinct user roles (admin, manager, civil_engineer, inspector, maintenance_engineer) across 15 routes",infrascan/frontend/src/config/role_permissions.json,roles and routes mapping,verified run
+Milestone4_Documentation.pdf,1,32 relational tables in PostgreSQL 16 schema,infrascan/backend/app/models/,SQLAlchemy DeclarativeBase metadata,verified run
+Milestone4_Documentation.pdf,1,GiST spatial index speedup: 4.20 ms to 0.12 ms (35x speedup),docs/final/performance_report.md,Section 3 Database Profiling EXPLAIN ANALYZE,verified run
+Milestone4_Documentation.pdf,1,Unread notifications index speedup: 8.10 ms to 0.18 ms (45x speedup),docs/final/performance_report.md,Section 3 Database Profiling EXPLAIN ANALYZE,verified run
+Milestone4_Documentation.pdf,1,"SLA hours: P1=24h, P2=7d (168h), P3=30d (720h), P4=90d (2160h)",infrascan/backend/app/services/maintenance_prioritization.py,SLA_HOURS dictionary,verified run
+Milestone4_Documentation.pdf,1,Dynamic downscaling: 72% peak GPU RAM reduction with Delta IoU = -0.0018 (-0.33%),docs/final/performance_report.md,Section 1.2 Resolution Downscaling Analysis,verified run
+Milestone4_Documentation.pdf,1,FP16 half-precision CUDA speedup: 1.85x,docs/final/performance_report.md,Section 1.3 Precision Benchmarking,verified run
+Milestone4_Documentation.pdf,2,WCAG AA compliance minimum contrast ratio: 4.5:1,infrascan/frontend/src/index.css,Tailwind color palette definitions,verified run
+Milestone4_Documentation.pdf,2,WebSocket ping/pong heartbeat interval: 30 seconds; exponential backoff: 1s to 30s,infrascan/backend/app/services/websocket_manager.py,"HEARTBEAT_INTERVAL, frontend websocket.ts",verified run
+Milestone4_Documentation.pdf,2,"SQLAlchemy connection pool: size=10, overflow=20, recycle=1800s",infrascan/backend/app/core/database.py,create_engine pool parameters,verified run
+Milestone4_Documentation.pdf,2,"Rate limiting: 60 req/min general, 10 req/min auth",infrascan/backend/app/main.py,Limiter default_limits,verified run
+Milestone4_Documentation.pdf,3,YOLOv8s latency: 640px = 170.05 ms (1.2 MB peak RAM); 1280px = 733.92 ms,docs/final/performance_report.md,Section 1.1 Model Latency Benchmarks,verified run
+Milestone4_Documentation.pdf,3,U-Net++ latency: 640px = 354.76 ms; 1280px = 391.73 ms,docs/final/performance_report.md,Section 1.1 Model Latency Benchmarks,verified run
+Milestone4_Documentation.pdf,3,Frontend bundle build time: 1.48s - 3.85s,infrascan/frontend/vite.config.ts,vite build execution output,verified run
+Milestone4_Documentation.pdf,4,Backend test suite: 126 / 126 passed (100% pass rate in 216.80s),infrascan/backend/tests/,pytest -p no:cacheprovider -q execution output,verified run
+Milestone4_Documentation.pdf,4,Frontend lint: oxlint 0 errors (50 warnings in 1.4s); tsc -b: 0 errors,infrascan/frontend/,npx oxlint & npx tsc -b output,verified run
+Milestone4_Documentation.pdf,4,"Playwright multi-user acceptance: 11 / 11 scenarios passed, 10 screenshot captures",docs/final/realtime_test_report.md,Section 2 Test Scenarios Summary,verified run
+Milestone4_Documentation.pdf,4,"Concurrency benchmark: 100 concurrent virtual users, P95 latency < 250 ms",docs/final/performance_report.md,Section 2 Concurrency Load Test,DEMO DATA (synthetic)

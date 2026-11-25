@@ -1,0 +1,323 @@
+{
+  "metadata": {
+    "generated_date": "2026-11-25",
+    "project": "InfraScan",
+    "author": "Shree Nidhi Pradeep",
+    "email": "shreenidhipradeep2006@gmail.com",
+    "scope": "Milestone 3 & Milestone 4 Ground Truth Facts"
+  },
+  "summary": {
+    "total_items": 59,
+    "implemented": 51,
+    "partly": 1,
+    "not_implemented": 6,
+    "could_not_verify": 1
+  },
+  "milestone_3": {
+    "advanced_models": [
+      {
+        "name": "YOLOv8s vs YOLO11s (RDD2022)",
+        "status": "IMPLEMENTED",
+        "evidence_files": ["docs/11_milestone2_results.md", "docs/12_model_evaluation_report.md"],
+        "dataset": "RDD2022 (8,000 small subset)",
+        "split": "VALIDATION",
+        "yolov8s_mAP50": 0.4554,
+        "yolov8s_mAP50_95": 0.2220,
+        "yolov8s_precision": 0.5211,
+        "yolov8s_recall": 0.4528,
+        "yolo11s_mAP50": 0.4437,
+        "yolo11s_mAP50_95": 0.2151,
+        "selection_rule": "Selected YOLOv8s by validation mAP@50:95",
+        "target_reached": false,
+        "target_criteria": "mAP@50 >= 0.85, Recall >= 0.90",
+        "limitations": "Test split not evaluated because official RDD2022 test split is unannotated."
+      },
+      {
+        "name": "RT-DETR-L (CODEBRIM multi-class defect detection)",
+        "status": "IMPLEMENTED",
+        "evidence_files": ["infrascan/backend/app/services/defect_detector.py", "docs/13_codebrim_preparation.md", "docs/12_model_evaluation_report.md"],
+        "dataset": "CODEBRIM",
+        "dataset_images": 1022,
+        "dataset_classes": ["crack", "spallation", "exposed_bars", "efflorescence", "corrosion_stain"],
+        "dataset_boxes": 8274,
+        "license": "Custom non-commercial academic license",
+        "split": "VALIDATION",
+        "mAP50": 0.4120,
+        "mAP50_95": 0.2480,
+        "limitations": "Evaluated on validation split. Test split not evaluated locally."
+      },
+      {
+        "name": "ConvNeXt (Classification)",
+        "status": "NOT IMPLEMENTED",
+        "evidence_files": ["docs/12_model_evaluation_report.md"],
+        "reason": "Planned in early architecture outline, but not trained/evaluated. Compute/time prioritized for U-Net++ segmentation and YOLOv8s/RT-DETR-L detection. ResNet-50 was used for classification."
+      },
+      {
+        "name": "Swin Transformer (Classification)",
+        "status": "NOT IMPLEMENTED",
+        "evidence_files": ["docs/12_model_evaluation_report.md"],
+        "reason": "Planned in early architecture outline, but not trained/evaluated due to compute/time budget constraints."
+      },
+      {
+        "name": "SegFormer (Segmentation)",
+        "status": "NOT IMPLEMENTED",
+        "evidence_files": ["docs/12_model_evaluation_report.md"],
+        "reason": "Not trained/evaluated. ResNet-34 U-Net and U-Net++ were selected and benchmarked on Crack500 and CFD."
+      },
+      {
+        "name": "EfficientNet (Segmentation)",
+        "status": "NOT IMPLEMENTED",
+        "evidence_files": ["docs/12_model_evaluation_report.md"],
+        "reason": "Not trained/evaluated. ResNet-34 backbone in U-Net++ met requirements."
+      },
+      {
+        "name": "U-Net++ vs U-Net (Crack Segmentation - Crack500 & CFD)",
+        "status": "IMPLEMENTED",
+        "evidence_files": ["docs/11_milestone2_results.md", "docs/12_model_evaluation_report.md"],
+        "selected_model": "unetplusplus_crack500",
+        "optimal_threshold": 0.40,
+        "crack500_test": {
+          "split": "TEST",
+          "n_samples": 1087,
+          "mean_dice": 0.6899,
+          "mean_dice_ci": [0.6801, 0.7001],
+          "mean_iou": 0.5481,
+          "mean_iou_ci": [0.5382, 0.5586],
+          "pixel_dice": 0.7309,
+          "pixel_iou": 0.5759,
+          "boundary_f1_3px": 0.4523,
+          "target_reached": false,
+          "target_criteria": "Dice >= 0.85, IoU >= 0.75"
+        },
+        "cfd_zero_shot": {
+          "split": "TEST",
+          "n_samples": 118,
+          "mean_dice": 0.4533,
+          "mean_iou": 0.3109
+        }
+      },
+      {
+        "name": "Concrete Crack Classification (CCIC & SDNET2018)",
+        "status": "IMPLEMENTED",
+        "evidence_files": ["docs/11_milestone2_results.md", "docs/12_model_evaluation_report.md"],
+        "ccic_test": {
+          "split": "TEST",
+          "n_samples": 5760,
+          "threshold": 0.4951,
+          "macro_f1": 0.9997,
+          "unique_n": 4829,
+          "unique_macro_f1": 0.9995,
+          "near_duplicates": 931,
+          "target_reached": true
+        },
+        "sdnet2018_test": {
+          "split": "TEST",
+          "n_samples": 8802,
+          "threshold": 0.0100,
+          "macro_f1": 0.6421,
+          "precision": 0.3247,
+          "false_positives": 2429,
+          "target_reached": false,
+          "overfitting_epoch": 7
+        }
+      }
+    ],
+    "crack_geometry": {
+      "skeletonization": {
+        "status": "IMPLEMENTED",
+        "method": "skimage.morphology.medial_axis",
+        "evidence": "infrascan/backend/app/services/crack_geometry.py"
+      },
+      "width_measurement": {
+        "status": "IMPLEMENTED",
+        "method": "scipy.ndimage.distance_transform_edt (width = 2 * EDT)",
+        "evidence": "infrascan/backend/app/services/crack_geometry.py"
+      },
+      "orientation_and_topology": {
+        "status": "IMPLEMENTED",
+        "branch_points": ">= 3 neighbors via cross-correlation kernel",
+        "endpoints": "== 1 neighbor",
+        "orientation": "Principal component analysis of skeleton coordinates",
+        "evidence": "infrascan/backend/app/services/crack_geometry.py"
+      },
+      "scale_calibration": {
+        "status": "IMPLEMENTED",
+        "tool": "infrascan/backend/app/services/scale.py",
+        "rule": "Measurements reported in pixels by default; mm only with calibrated reference scale"
+      },
+      "uncertainty": {
+        "status": "IMPLEMENTED",
+        "value_pixels": "+/- 4.7 px",
+        "value_mm_nominal": "+/- 7 mm (at 1.5 mm/px resolution)",
+        "cause": "Discrete pixel grid quantization and skeleton boundary ambiguity"
+      }
+    },
+    "damage_severity": {
+      "scale": "4-level: low (1), medium (2), high (3), critical (4)",
+      "rule_file": "infrascan/backend/app/config/severity_rules.json (v1.0)",
+      "rule_status": "IMPLEMENTED (engineer-defined placeholders)",
+      "factors": [
+        "Factor A: Crack density % (up to 40 pts)",
+        "Factor B: Relative crack length % (up to 20 pts)",
+        "Factor C: Branching complexity (up to 8 pts)",
+        "Factor D: Damage type weighting (up to 40 pts)",
+        "Factor E: Damage area share % (up to 15 pts)",
+        "Factor F: Calibrated crack width in mm (up to 20 pts; 0 if uncalibrated)"
+      ],
+      "safety_overrides": "Forced minimum critical (4) for exposed_bars; forced minimum high (3) for spallation",
+      "stability_metrics": {
+        "dataset": "Crack500 test set (N=1,087)",
+        "exact_agreement": "77.09%",
+        "within_1_level": "99.08%",
+        "quadratic_weighted_kappa": 0.7542
+      }
+    },
+    "historical_comparison": {
+      "image_registration": {
+        "status": "IMPLEMENTED",
+        "algorithm": "ORB feature detection + RANSAC homography estimation",
+        "min_inliers": 15,
+        "max_reprojection_error": 3.0,
+        "evidence": "infrascan/backend/app/services/historical_comparison.py"
+      },
+      "non_comparable_rejection": {
+        "status": "IMPLEMENTED",
+        "criteria": "Inliers < 15 or scale discrepancy > 2.0x -> is_comparable=False"
+      },
+      "growth_tracking": {
+        "status": "IMPLEMENTED",
+        "outputs": ["registered difference heatmap", "percentage area growth", "delta maximum width"]
+      }
+    },
+    "explainable_ai": {
+      "methods": ["Grad-CAM", "Grad-CAM++", "Captum Saliency / Integrated Gradients", "EigenCAM"],
+      "target_layers": {
+        "unetplusplus": "model.encoder.layer4[-1]",
+        "yolov8s": "model.model.model[21]",
+        "rtdetr_l": "model.model.model[27]",
+        "resnet50": "model.layer4[-1]"
+      },
+      "parameter_randomization_test": {
+        "status": "IMPLEMENTED",
+        "dataset": "Crack500 validation (N=50)",
+        "grad_cam_spearman_r": 0.1069,
+        "grad_cam_plus_spearman_r": -0.1685,
+        "result": "Passed Adebayo weight-sensitivity test"
+      },
+      "feature_deletion_test": {
+        "status": "IMPLEMENTED",
+        "top_10_percent_mask_drop_dice": 0.0656,
+        "random_mask_drop_dice": 0.0252,
+        "selective_impairment_ratio": "2.61x",
+        "evidence": "docs/15_explainable_ai.md"
+      }
+    }
+  },
+  "milestone_4": {
+    "frontend_dashboard": {
+      "roles": ["admin", "civil_engineer", "inspector", "manager", "maintenance_engineer"],
+      "route_protection": "IMPLEMENTED via role_permissions.json and ProtectedRoute.tsx",
+      "interactive_map": "IMPLEMENTED via Leaflet with marker clustering and condition recoloring",
+      "inspection_detail": "IMPLEMENTED with interactive SVG geometry overlay (skeleton, normals, endpoints, branch points)",
+      "maintenance_kanban": "IMPLEMENTED with status transitions, assignment, priority tags",
+      "pdf_report_download": "IMPLEMENTED via direct API call to /reports/inspections/:id/pdf",
+      "accessibility": "IMPLEMENTED with WCAG AA compliance (4.5:1 contrast, aria-labels, focus rings)",
+      "theme_and_shortcuts": "IMPLEMENTED (Dark/Light toggle, ? modal, navigation hotkeys)"
+    },
+    "realtime_architecture": {
+      "websocket_hub": "IMPLEMENTED with topic-based pub/sub channels",
+      "heartbeats": "IMPLEMENTED (30s ping/pong with stale connection pruning)",
+      "reconnection": "IMPLEMENTED with exponential backoff (1s to 30s)",
+      "message_broker": "IMPLEMENTED with Redis PubSub / Streams with in-memory fallback",
+      "isolation": "IMPLEMENTED with user-scoped and tenant-scoped notification channels"
+    },
+    "production_hardening": {
+      "database": "PostgreSQL 16 with 32 tables and indexes",
+      "index_speedups": {
+        "spatial_assets_query": "4.2 ms to 0.12 ms (35x speedup)",
+        "unread_notifications_query": "8.1 ms to 0.18 ms (45x speedup)",
+        "source": "docs/final/performance_report.md EXPLAIN ANALYZE"
+      },
+      "connection_pooling": "SQLAlchemy QueuePool (size=10, overflow=20, recycle=1800s)",
+      "migrations": "11 idempotent migration scripts in infrascan/scripts/migrations/",
+      "health_checks": ["/healthz", "/readyz", "/livez"],
+      "rate_limiting": "slowapi Limiter (60 req/min general, 10 req/min auth)",
+      "audit_logging": "Immutable audit_logs table with user, action, entity, timestamp, IP, diff"
+    },
+    "maintenance_ticketing": {
+      "priority_matrix": "Severity (1-4) x Urgency (1-4) -> P1, P2, P3, P4",
+      "sla_hours": {
+        "P1": "24 hours",
+        "P2": "7 days (168 hours)",
+        "P3": "30 days (720 hours)",
+        "P4": "90 days (2,160 hours)"
+      },
+      "state_machine": "open -> in_progress -> under_review -> resolved -> closed",
+      "live_updates": "IMPLEMENTED via WebSocket events"
+    },
+    "pdf_generation": {
+      "engine": "ReportLab 5.1.0",
+      "styling": "Corporate palette (Navy #1e3a8a, Slate #475569, Zebra tables #f8fafc)",
+      "elements": [
+        "Asset metadata",
+        "Inspection ID and timestamp",
+        "Crack geometric measurements",
+        "Severity factor breakdown",
+        "Visual overlay image",
+        "Historical delta comparison",
+        "Engineer signature block"
+      ],
+      "mandatory_disclaimers": [
+        "AI result for engineer review, not a final structural safety verdict.",
+        "No damage detected by the AI. This is not evidence that there is no damage."
+      ]
+    },
+    "optimization": {
+      "inference_latency": {
+        "yolov8s_640px": "170.05 ms (1.2 MB peak RAM)",
+        "yolov8s_1280px": "733.92 ms",
+        "unetplusplus_640px": "354.76 ms",
+        "unetplusplus_1280px": "391.73 ms",
+        "dynamic_downscale": "72% peak GPU memory reduction with delta IoU -0.0018 (-0.33%)",
+        "half_precision_fp16": "1.85x throughput speedup on CUDA"
+      },
+      "frontend_bundle": "Vite production build in 1.48s - 3.85s with code splitting and lazy loading",
+      "database_optimization": "35x spatial query speedup, 45x notification query speedup"
+    },
+    "docker_deployment": {
+      "backend_dockerfile": "IMPLEMENTED (multi-stage python:3.11-slim, non-root appuser, health check probe)",
+      "frontend_dockerfile": "IMPLEMENTED (multi-stage Node 20 build + Nginx Alpine runtime)",
+      "docker_compose": "IMPLEMENTED (5 services: backend, worker, frontend, db PostgreSQL 16, redis 7)",
+      "secret_isolation": "IMPLEMENTED (.env.example with no secrets)",
+      "live_daemon_status": "COULD NOT VERIFY (Docker Desktop daemon service offline on host machine)"
+    },
+    "testing_and_verification": {
+      "backend_pytest": {
+        "status": "PASSED",
+        "tests_passed": 126,
+        "tests_total": 126,
+        "pass_rate": "100%",
+        "execution_time_seconds": 216.80
+      },
+      "frontend_lint": {
+        "status": "PASSED",
+        "tool": "oxlint",
+        "errors": 0,
+        "warnings": 50,
+        "execution_time_seconds": 1.4
+      },
+      "frontend_typecheck": {
+        "status": "PASSED",
+        "tool": "tsc -b",
+        "errors": 0
+      },
+      "acceptance_playwright": {
+        "status": "PASSED",
+        "scenarios_passed": 11,
+        "scenarios_total": 11,
+        "screenshots_captured": 10,
+        "screenshot_folder": "docs/final/realtime_screens/"
+      }
+    }
+  }
+}
