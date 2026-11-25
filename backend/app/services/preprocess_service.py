@@ -16,6 +16,7 @@ from app.ai.preprocessing import PreprocessConfig, preprocess, save_enhanced
 from app.config import BASE_DIR, settings
 from app.database import SessionLocal
 from app.models.image import Image as ImageModel
+from app.services.event_service import publish
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +112,19 @@ def process_image_preprocessing(
         image.preprocess_steps = ", ".join(result.steps_applied)
         image.preprocessed_at = datetime.now(timezone.utc)
 
+        publish(
+            db=db,
+            event_type="image.preprocessed",
+            entity_type="image",
+            entity_id=image.image_id,
+            audience={"all": True},
+            payload={
+                "image_id": image.image_id,
+                "inspection_id": image.inspection_id,
+                "status": "done",
+                "steps": image.preprocess_steps,
+            },
+        )
         db.commit()
         db.refresh(image)
         logger.info(f"Image {image_id} preprocessed successfully. Steps: {image.preprocess_steps}")
@@ -137,3 +151,4 @@ def run_preprocess_background(image_id: int) -> None:
         logger.exception(f"Background task preprocessing exception for image {image_id}: {exc}")
     finally:
         db.close()
+

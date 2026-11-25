@@ -13,3 +13,4 @@ class AuditLog(Base):
     entity_id = Column(String(50), nullable=True)
     ip_address = Column(String(45), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+

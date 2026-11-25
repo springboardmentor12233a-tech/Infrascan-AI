@@ -8,12 +8,19 @@ db_url = settings.DATABASE_URL
 if db_url.startswith("postgresql://"):
     db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
-# Create SQLAlchemy engine (lazy connection - does not connect until first query)
-engine = create_engine(
-    db_url,
-    echo=False,
-    pool_pre_ping=True,
-)
+# Engine keyword arguments with connection pool tuning for production scalability
+engine_kwargs = {
+    "echo": False,
+    "pool_pre_ping": True,
+}
+if "sqlite" not in db_url:
+    engine_kwargs.update({
+        "pool_size": 10,
+        "max_overflow": 20,
+        "pool_recycle": 3600,
+    })
+
+engine = create_engine(db_url, **engine_kwargs)
 
 # SessionLocal class for instantiating database sessions
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -29,3 +36,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

@@ -225,3 +225,4 @@ export const AssetDetailPage: React.FC = () => {
     </div>
   )
 }
+

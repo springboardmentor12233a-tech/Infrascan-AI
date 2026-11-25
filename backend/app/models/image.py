@@ -49,3 +49,5 @@ class Image(Base):
     # Relationships
     inspection = relationship("Inspection", back_populates="images")
     uploader = relationship("User", foreign_keys=[uploaded_by])
+    scales = relationship("ImageScale", back_populates="image", cascade="all, delete-orphan")
+

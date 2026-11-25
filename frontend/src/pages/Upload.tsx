@@ -467,16 +467,32 @@ export const Upload: React.FC = () => {
             {/* Results Table (Screen 4: accepted, warning, rejected per file) */}
             {results && (
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold text-slate-800">
-                    Upload & Quality Analysis Results
-                  </h2>
-                  <Link
-                    to={`/assets/${selectedAssetId}`}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                  >
-                    View Asset & Inspections &rarr;
-                  </Link>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h2 className="text-base font-bold text-slate-800">
+                      Upload & Quality Analysis Results
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      AI detection and crack segmentation models run automatically in the background.
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    {selectedInspectionId > 0 && (
+                      <Link
+                        to={`/inspections/${selectedInspectionId}`}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-xs flex items-center space-x-1.5 transition-colors"
+                      >
+                        <span>⚡</span>
+                        <span>View Crack Detections & Masks on Inspection #{selectedInspectionId} &rarr;</span>
+                      </Link>
+                    )}
+                    <Link
+                      to={`/assets/${selectedAssetId}`}
+                      className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                    >
+                      View Asset &rarr;
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -542,6 +558,26 @@ export const Upload: React.FC = () => {
                     adjust angle/resolution and retake the photo.
                   </div>
                 )}
+
+                {selectedInspectionId > 0 && results.some((r) => r.status === 'accepted' || r.status === 'warning') && (
+                  <div className="mt-5 p-4 bg-indigo-50 border border-indigo-200 rounded-xl flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-bold text-indigo-950 flex items-center space-x-1.5">
+                        <span>⚡</span>
+                        <span>AI Deep Learning Analysis Pipeline Active</span>
+                      </div>
+                      <div className="text-[11px] text-indigo-800 mt-0.5">
+                        Multi-class damage detection (YOLOv8s), crack segmentation (U-Net++), sub-pixel geometry (EDT), and Grad-CAM explainability are running.
+                      </div>
+                    </div>
+                    <Link
+                      to={`/inspections/${selectedInspectionId}`}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm whitespace-nowrap transition-colors"
+                    >
+                      Open Inspection #{selectedInspectionId} & View Crack Results &rarr;
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -550,3 +586,4 @@ export const Upload: React.FC = () => {
     </div>
   )
 }
+

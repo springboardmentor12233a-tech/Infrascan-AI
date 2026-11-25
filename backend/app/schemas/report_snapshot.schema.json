@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InfraScanInspectionReportSnapshot",
+  "description": "Schema for immutable inspection report snapshot JSON in InfraScan",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "report_id",
+    "inspection_id",
+    "version",
+    "status",
+    "generated_at",
+    "generated_by",
+    "asset",
+    "inspection",
+    "summary",
+    "images",
+    "disclaimers"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"]
+    },
+    "report_id": {
+      "type": "integer"
+    },
+    "inspection_id": {
+      "type": "integer"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "final"]
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generated_by": {
+      "type": "object",
+      "required": ["user_id", "name", "email", "role"],
+      "properties": {
+        "user_id": { "type": "integer" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "required": ["asset_id", "name", "asset_type", "material_type"],
+      "properties": {
+        "asset_id": { "type": "integer" },
+        "name": { "type": "string" },
+        "asset_type": { "type": "string" },
+        "material_type": { "type": "string" },
+        "address": { "type": ["string", "null"] },
+        "latitude": { "type": ["number", "null"] },
+        "longitude": { "type": ["number", "null"] },
+        "construction_year": { "type": ["integer", "null"] },
+        "responsible_department": { "type": ["string", "null"] },
+        "importance_level": { "type": ["string", "null"] },
+        "district": { "type": ["string", "null"] }
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "required": ["inspection_id", "inspection_date", "status"],
+      "properties": {
+        "inspection_id": { "type": "integer" },
+        "inspection_date": { "type": "string" },
+        "status": { "type": "string" },
+        "inspector": {
+          "type": ["object", "null"],
+          "properties": {
+            "user_id": { "type": "integer" },
+            "name": { "type": "string" },
+            "email": { "type": "string" }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_images", "worst_severity", "worst_score", "is_fully_reviewed"],
+      "properties": {
+        "total_images": { "type": "integer" },
+        "analyzed_images": { "type": "integer" },
+        "total_detections": { "type": "integer" },
+        "worst_severity": { "type": "string" },
+        "worst_score": { "type": "number" },
+        "priority": { "type": "string" },
+        "is_fully_reviewed": { "type": "boolean" },
+        "pending_reviews": { "type": "integer" }
+      }
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["image_id", "filename", "status"],
+        "properties": {
+          "image_id": { "type": "integer" },
+          "filename": { "type": "string" },
+          "status": { "type": "string" },
+          "width_px": { "type": ["integer", "null"] },
+          "height_px": { "type": ["integer", "null"] },
+          "blur_score": { "type": ["number", "null"] },
+          "brightness_score": { "type": ["number", "null"] },
+          "detections": { "type": "array" },
+          "measurements": { "type": ["object", "null"] },
+          "severity": { "type": ["object", "null"] },
+          "scale": { "type": ["object", "null"] },
+          "explanations": { "type": "array" }
+        }
+      }
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["model_id", "model_name"],
+        "properties": {
+          "model_id": { "type": "string" },
+          "model_name": { "type": "string" },
+          "task": { "type": "string" },
+          "version": { "type": "string" },
+          "metrics": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "disclaimers": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

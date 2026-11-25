@@ -70,3 +70,4 @@ export const AuthenticatedImage: React.FC<AuthenticatedImageProps> = ({
 
   return <img src={blobUrl} alt={alt} className={className} />
 }
+

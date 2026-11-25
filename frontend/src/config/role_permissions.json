@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "roles": [
+    "admin",
+    "manager",
+    "civil_engineer",
+    "inspector",
+    "maintenance_engineer"
+  ],
+  "routes": {
+    "/dashboard": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Dashboard",
+      "icon": "LayoutDashboard"
+    },
+    "/assets": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Assets",
+      "icon": "Building2"
+    },
+    "/map": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Map",
+      "icon": "MapPin"
+    },
+    "/inspections": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Inspections",
+      "icon": "ClipboardCheck"
+    },
+    "/upload": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector"],
+      "label": "Upload",
+      "icon": "UploadCloud"
+    },
+    "/maintenance": {
+      "roles": ["admin", "manager", "civil_engineer", "maintenance_engineer"],
+      "label": "Maintenance",
+      "icon": "Wrench"
+    },
+    "/comparisons": {
+      "roles": ["admin", "manager", "civil_engineer"],
+      "label": "Comparisons",
+      "icon": "GitCompare"
+    },
+    "/reports": {
+      "roles": ["admin", "manager", "civil_engineer"],
+      "label": "Reports",
+      "icon": "FileText"
+    },
+    "/models": {
+      "roles": ["admin"],
+      "label": "AI Models",
+      "icon": "Cpu"
+    },
+    "/jobs": {
+      "roles": ["admin"],
+      "label": "Jobs",
+      "icon": "Activity"
+    },
+    "/users": {
+      "roles": ["admin"],
+      "label": "Users",
+      "icon": "Users"
+    },
+    "/audit-logs": {
+      "roles": ["admin"],
+      "label": "Audit Logs",
+      "icon": "ShieldAlert"
+    },
+    "/notifications": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Notifications",
+      "icon": "Bell"
+    },
+    "/profile": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Profile",
+      "icon": "User"
+    },
+    "/about": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "About",
+      "icon": "Info"
+    },
+    "/help": {
+      "roles": ["admin", "manager", "civil_engineer", "inspector", "maintenance_engineer"],
+      "label": "Help",
+      "icon": "HelpCircle"
+    }
+  }
+}

@@ -63,3 +63,8 @@ datasets/
 *.tar
 *.tar.gz
 *.rar
+
+*.db
+*.sqlite
+*.sqlite3
+*.local.txt

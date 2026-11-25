@@ -169,7 +169,9 @@ def test_admin_allowed_get_users(client: TestClient, db_session):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert users_resp.status_code == 200
-    users_list = users_resp.json()
+    res_data = users_resp.json()
+    users_list = res_data["items"] if isinstance(res_data, dict) and "items" in res_data else res_data
     assert isinstance(users_list, list)
     assert len(users_list) == 1
     assert users_list[0]["email"] == "admin@example.com"
+

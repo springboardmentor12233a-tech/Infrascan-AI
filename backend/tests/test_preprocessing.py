@@ -313,3 +313,4 @@ def test_preprocess_endpoint(tmp_path, monkeypatch):
     finally:
         app.dependency_overrides.clear()
         db.close()
+

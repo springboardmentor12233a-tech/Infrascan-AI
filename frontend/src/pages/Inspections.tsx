@@ -148,14 +148,23 @@ export const Inspections: React.FC = () => {
                 : 'Schedule, track, and review infrastructure inspection workflows.'}
             </p>
           </div>
-          {canCreateInspection && (
-            <button
-              onClick={openNewInspectionModal}
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+          <div className="flex items-center space-x-3">
+            <Link
+              to="/upload"
+              className="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg shadow-sm transition-colors space-x-1.5"
             >
-              + New Inspection
-            </button>
-          )}
+              <span>⬆️</span>
+              <span>Upload Photos & Analyze</span>
+            </Link>
+            {canCreateInspection && (
+              <button
+                onClick={openNewInspectionModal}
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+              >
+                + New Inspection
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Feedback alerts */}
@@ -437,3 +446,4 @@ export const Inspections: React.FC = () => {
     </div>
   )
 }
+

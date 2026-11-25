@@ -27,7 +27,9 @@ def get_current_user(
         email: str | None = payload.get("sub")
         if email is None:
             raise credentials_exception
-    except jwt.PyJWTError:
+    except HTTPException:
+        raise
+    except Exception:
         raise credentials_exception
 
     user = db.query(User).filter(User.email == email).first()
@@ -54,3 +56,4 @@ def require_roles(*allowed_roles: str) -> Callable:
         return current_user
 
     return role_checker
+

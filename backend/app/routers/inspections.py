@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
@@ -6,6 +7,7 @@ from app.database import get_db
 from app.deps import get_current_user, require_roles
 from app.models.asset import InfrastructureAsset
 from app.models.inspection import Inspection
+from app.models.severity import InspectionSeverity
 from app.models.user import User
 from app.schemas.inspection import (
     InspectionCreate,
@@ -13,6 +15,8 @@ from app.schemas.inspection import (
     InspectionStatusUpdate,
 )
 from app.services.audit import create_audit_log
+from app.services.event_service import publish
+from app.services.notification_service import create_notification
 
 router = APIRouter(prefix="/inspections", tags=["Inspections"])
 
@@ -65,6 +69,51 @@ def create_inspection(
         status=inspection_data.status,
     )
     db.add(new_inspection)
+    publish(
+        db=db,
+        event_type="inspection.created",
+        entity_type="inspection",
+        entity_id=new_inspection.inspection_id,
+        audience={
+            "roles": ["admin", "manager", "civil_engineer", "inspector"],
+            "inspector_id": new_inspection.inspector_id,
+        },
+        payload={
+            "inspection_id": new_inspection.inspection_id,
+            "asset_id": new_inspection.asset_id,
+            "asset_name": asset.name if asset else None,
+            "inspector_id": new_inspection.inspector_id,
+            "status": new_inspection.status,
+            "inspection_date": new_inspection.inspection_date.isoformat() if new_inspection.inspection_date else None,
+        },
+    )
+    publish(
+        db=db,
+        event_type="inspection.assigned",
+        entity_type="inspection",
+        entity_id=new_inspection.inspection_id,
+        audience={
+            "roles": ["admin", "manager"],
+            "user_ids": [new_inspection.inspector_id],
+            "inspector_id": new_inspection.inspector_id,
+        },
+        payload={
+            "inspection_id": new_inspection.inspection_id,
+            "asset_id": new_inspection.asset_id,
+            "inspector_id": new_inspection.inspector_id,
+        },
+    )
+    if new_inspection.inspector_id:
+        create_notification(
+            db=db,
+            user_id=new_inspection.inspector_id,
+            type="inspection_assigned",
+            title="New Inspection Assigned",
+            body=f"You have been assigned to inspection #{new_inspection.inspection_id} for asset '{asset.name}'.",
+            entity_type="inspection",
+            entity_id=str(new_inspection.inspection_id),
+            severity="medium",
+        )
     db.commit()
     db.refresh(new_inspection)
 
@@ -168,6 +217,62 @@ def update_inspection_status(
         )
 
     inspection.status = new_status
+    publish(
+        db=db,
+        event_type="inspection.status_changed",
+        entity_type="inspection",
+        entity_id=inspection.inspection_id,
+        audience={
+            "roles": ["admin", "manager", "civil_engineer", "inspector"],
+            "inspector_id": inspection.inspector_id,
+        },
+        payload={
+            "inspection_id": inspection.inspection_id,
+            "status": new_status,
+            "inspector_id": inspection.inspector_id,
+        },
+    )
+    if new_status == "completed":
+        publish(
+            db=db,
+            event_type="inspection.completed",
+            entity_type="inspection",
+            entity_id=inspection.inspection_id,
+            audience={
+                "roles": ["admin", "manager", "civil_engineer"],
+            },
+            payload={
+                "inspection_id": inspection.inspection_id,
+                "inspector_id": inspection.inspector_id,
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        # Notify civil engineers for required engineering review
+        insp_sev = db.query(InspectionSeverity).filter(InspectionSeverity.inspection_id == inspection.inspection_id).first()
+        worst_level = insp_sev.worst_severity.lower() if insp_sev and insp_sev.worst_severity else "none"
+        is_severe = worst_level in ("severe", "critical")
+
+        civil_engineers = db.query(User).filter(User.role == "civil_engineer", User.is_active == True).all()
+        for ce in civil_engineers:
+            if is_severe:
+                notif_title = "Severe Damage Identified"
+                notif_body = f"Inspection #{inspection.inspection_id} completed. Severe damage identified - qualified engineering review required. AI result for engineer review, not a final structural safety verdict."
+                notif_sev = "critical"
+            else:
+                notif_title = "Engineering Review Required"
+                notif_body = f"Inspection #{inspection.inspection_id} completed and awaits engineering review. AI result for engineer review, not a final structural safety verdict."
+                notif_sev = "medium"
+
+            create_notification(
+                db=db,
+                user_id=ce.user_id,
+                type="engineering_review_required",
+                title=notif_title,
+                body=notif_body,
+                entity_type="inspection",
+                entity_id=str(inspection.inspection_id),
+                severity=notif_sev,
+            )
     db.commit()
     db.refresh(inspection)
 
@@ -183,3 +288,4 @@ def update_inspection_status(
     )
 
     return format_inspection_response(inspection)
+

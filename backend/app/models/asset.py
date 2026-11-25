@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -44,9 +44,13 @@ class InfrastructureAsset(Base):
     responsible_department = Column(String(100), nullable=False)
     inspection_frequency_days = Column(Integer, nullable=False)
     importance_level = Column(String(20), nullable=False)
+    district = Column(String(100), nullable=True, index=True)
+    risk_factors_json = Column(Text, nullable=True)
+    next_inspection_due = Column(Date, nullable=True)
     created_by = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     creator = relationship("User", foreign_keys=[created_by])
     inspections = relationship("Inspection", back_populates="asset", cascade="all, delete-orphan")
+

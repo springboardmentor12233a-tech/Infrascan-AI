@@ -53,6 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (email: string, password: string) => {
     const tokenData = await authApi.login(email, password)
     localStorage.setItem('token', tokenData.access_token)
+    if (tokenData.refresh_token) {
+      localStorage.setItem('refresh_token', tokenData.refresh_token)
+    }
     localStorage.setItem('role', tokenData.role)
     setToken(tokenData.access_token)
     setRole(tokenData.role)
@@ -76,7 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Clear auth state and local storage
   const logout = () => {
+    authApi.logout().catch(() => {})
     localStorage.removeItem('token')
+    localStorage.removeItem('refresh_token')
     localStorage.removeItem('role')
     localStorage.removeItem('user')
     setToken(null)

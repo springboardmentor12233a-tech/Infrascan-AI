@@ -26,3 +26,4 @@ class Inspection(Base):
     asset = relationship("InfrastructureAsset", back_populates="inspections")
     inspector = relationship("User", foreign_keys=[inspector_id])
     images = relationship("Image", back_populates="inspection", cascade="all, delete-orphan")
+

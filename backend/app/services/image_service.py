@@ -219,3 +219,4 @@ def process_single_image(
         message=result_message,
         image=ImageResponse.model_validate(db_image),
     )
+

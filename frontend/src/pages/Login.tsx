@@ -18,7 +18,9 @@ export const Login: React.FC = () => {
 
     try {
       await login(email, password)
-      navigate('/dashboard')
+      const params = new URLSearchParams(window.location.search)
+      const redirect = params.get('redirect')
+      navigate(redirect || '/dashboard')
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.detail) {
         setError(err.response.data.detail)
@@ -67,9 +69,17 @@ export const Login: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Password
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-sm font-medium text-slate-700">
+                Password
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               required
@@ -103,3 +113,4 @@ export const Login: React.FC = () => {
     </div>
   )
 }
+

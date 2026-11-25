@@ -46,3 +46,4 @@ class UploadBatchResponse(BaseModel):
     warning_count: int
     rejected_count: int
     results: List[UploadResultItem]
+

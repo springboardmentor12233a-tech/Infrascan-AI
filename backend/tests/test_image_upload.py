@@ -274,3 +274,4 @@ def test_inspector_cannot_upload_to_someone_elses_inspection(client: TestClient,
     )
     assert resp.status_code == 403
     assert "own assigned inspections" in resp.json()["detail"]
+

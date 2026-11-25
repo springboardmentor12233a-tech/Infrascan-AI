@@ -14,3 +14,12 @@ pillow
 opencv-python-headless
 numpy
 matplotlib
+grad-cam
+captum
+scipy
+reportlab
+openpyxl
+authlib
+pytest-cov
+playwright
+

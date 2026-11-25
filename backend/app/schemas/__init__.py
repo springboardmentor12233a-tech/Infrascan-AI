@@ -30,6 +30,30 @@ from app.schemas.image import (
     UploadResultItem,
     UploadBatchResponse,
 )
+from app.schemas.analysis import (
+    DetectionResponse,
+    CrackMeasurementResponse,
+    ModelVersionResponse,
+    AnalysisRunResponse,
+    AnalyzeImageRequest,
+    AnalyzeBatchResponse,
+    SetScaleRequest,
+    ImageScaleResponse,
+)
+from app.schemas.severity import (
+    FactorDetail,
+    SeverityAssessmentResponse,
+    ReviewActionRequest,
+    InspectionSeverityResponse,
+    InspectionSeverityDetailResponse,
+    SeverityRulesResponse,
+)
+from app.schemas.explanation import (
+    ExplainRequest,
+    ExplanationResponse,
+    CompareMapsRequest,
+    CompareMapsResponse,
+)
 
 __all__ = [
     "UserRegisterRequest",
@@ -56,4 +80,18 @@ __all__ = [
     "ImageResponse",
     "UploadResultItem",
     "UploadBatchResponse",
+    "DetectionResponse",
+    "CrackMeasurementResponse",
+    "ModelVersionResponse",
+    "AnalysisRunResponse",
+    "AnalyzeImageRequest",
+    "AnalyzeBatchResponse",
+    "SetScaleRequest",
+    "ImageScaleResponse",
+    "FactorDetail",
+    "SeverityAssessmentResponse",
+    "ReviewActionRequest",
+    "InspectionSeverityResponse",
+    "InspectionSeverityDetailResponse",
+    "SeverityRulesResponse",
 ]

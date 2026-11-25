@@ -302,3 +302,4 @@ def test_deleting_asset_with_inspections_refused(client: TestClient, db_session)
     del_resp = client.delete(f"/assets/{asset_id}", headers=admin_header)
     assert del_resp.status_code == 400
     assert "inspection record(s) exist" in del_resp.json()["detail"]
+

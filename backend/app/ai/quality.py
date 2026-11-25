@@ -70,3 +70,4 @@ def assess_image_quality(
         quality_notes = "Quality check passed"
 
     return blur_score, brightness_score, quality_status, quality_notes
+

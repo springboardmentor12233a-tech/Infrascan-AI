@@ -30,10 +30,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // If role is restricted and user does not have permission, redirect to dashboard
+  // If role is restricted and user does not have permission, redirect to 403 Forbidden page
   if (allowedRoles && role && !allowedRoles.includes(role)) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/403" state={{ allowedRoles }} replace />
   }
 
   return <>{children}</>
 }
+

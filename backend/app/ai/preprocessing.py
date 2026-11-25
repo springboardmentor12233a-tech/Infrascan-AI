@@ -262,3 +262,4 @@ def save_enhanced(path: Union[str, Path], image: np.ndarray) -> bool:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     return bool(cv2.imwrite(str(target), image, [int(cv2.IMWRITE_JPEG_QUALITY), 95]))
+

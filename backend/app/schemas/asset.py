@@ -22,6 +22,9 @@ class AssetBase(BaseModel):
     responsible_department: str = Field(..., min_length=1, max_length=100, description="Responsible department")
     inspection_frequency_days: int = Field(..., ge=1, le=3650, description="Inspection frequency in days")
     importance_level: str = Field(..., description="low, medium, or high")
+    district: str | None = Field(None, max_length=100, description="District or region name")
+    risk_factors_json: str | None = Field(None, description="JSON string of engineer-defined risk factors")
+    next_inspection_due: date | None = Field(None, description="Due date for next inspection")
 
     @field_validator("name")
     @classmethod
@@ -109,3 +112,4 @@ class GeoJSONFeature(BaseModel):
 class GeoJSONFeatureCollection(BaseModel):
     type: str = "FeatureCollection"
     features: List[GeoJSONFeature]
+

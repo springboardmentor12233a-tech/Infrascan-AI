@@ -22,6 +22,7 @@ SAMPLE_ASSETS = [
         "responsible_department": "Highways & Bridges Department",
         "inspection_frequency_days": 90,
         "importance_level": "high",
+        "district": "Central",
     },
     {
         "name": "Road NH-48",
@@ -34,6 +35,7 @@ SAMPLE_ASSETS = [
         "responsible_department": "National Highways Authority",
         "inspection_frequency_days": 60,
         "importance_level": "high",
+        "district": "West",
     },
     {
         "name": "Tunnel T-3",
@@ -46,6 +48,7 @@ SAMPLE_ASSETS = [
         "responsible_department": "Metro Rail Infrastructure",
         "inspection_frequency_days": 30,
         "importance_level": "high",
+        "district": "Central",
     },
     {
         "name": "Building A",
@@ -58,6 +61,7 @@ SAMPLE_ASSETS = [
         "responsible_department": "Public Works Department",
         "inspection_frequency_days": 180,
         "importance_level": "medium",
+        "district": "South",
     },
     {
         "name": "Dam D-1",
@@ -70,6 +74,7 @@ SAMPLE_ASSETS = [
         "responsible_department": "Water Resources Department",
         "inspection_frequency_days": 90,
         "importance_level": "high",
+        "district": "West",
     },
     {
         "name": "Wall W-7",
@@ -82,6 +87,7 @@ SAMPLE_ASSETS = [
         "responsible_department": "Coastal Management Division",
         "inspection_frequency_days": 120,
         "importance_level": "medium",
+        "district": "North",
     },
 ]
 
@@ -132,3 +138,4 @@ def seed_assets():
 
 if __name__ == "__main__":
     seed_assets()
+

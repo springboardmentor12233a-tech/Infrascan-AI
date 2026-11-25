@@ -1,0 +1,54 @@
+{
+  "rules_version": "1.0",
+  "deduplication_window_seconds": 3600,
+  "events": {
+    "inspection_assigned": {
+      "name": "Inspection Assigned",
+      "target_roles": ["inspector"],
+      "default_channels": ["in_app", "email"],
+      "priority": "normal",
+      "title_template": "Inspection Assigned: #{entity_id}",
+      "body_template": "You have been assigned to conduct an inspection for asset '{asset_name}'."
+    },
+    "inspection_completed": {
+      "name": "Inspection Fieldwork Completed",
+      "target_roles": ["civil_engineer", "manager"],
+      "default_channels": ["in_app", "email"],
+      "priority": "normal",
+      "title_template": "Inspection Completed: #{entity_id}",
+      "body_template": "Inspection #{entity_id} for asset '{asset_name}' has been completed and is ready for engineering review."
+    },
+    "damage_detected": {
+      "name": "Structural Damage Detected",
+      "target_roles": ["civil_engineer"],
+      "default_channels": ["in_app", "email"],
+      "priority": "high",
+      "title_template": "Damage Detected: Inspection #{entity_id}",
+      "body_template": "AI model detected potential damage on asset '{asset_name}' during inspection #{entity_id}. AI result for engineer review, not a final structural safety verdict."
+    },
+    "critical_alert": {
+      "name": "Critical Severity Alert",
+      "target_roles": ["civil_engineer", "admin", "manager"],
+      "default_channels": ["in_app", "email"],
+      "priority": "urgent",
+      "title_template": "URGENT: Critical Defect Flagged on {asset_name}",
+      "body_template": "CRITICAL condition assessed during inspection #{entity_id}. Qualified engineering review required immediately. AI result for engineer review, not a final structural safety verdict."
+    },
+    "maintenance_deadline_approaching": {
+      "name": "Maintenance Deadline Reminder",
+      "target_roles": ["maintenance_engineer", "civil_engineer"],
+      "default_channels": ["in_app", "email"],
+      "priority": "high",
+      "title_template": "Maintenance Task Due Soon: Task #{entity_id}",
+      "body_template": "Maintenance task '{task_title}' (Priority: {priority}) for asset '{asset_name}' is due within 48 hours."
+    },
+    "report_generated": {
+      "name": "Inspection Report Generated",
+      "target_roles": ["inspector", "civil_engineer", "manager"],
+      "default_channels": ["in_app"],
+      "priority": "normal",
+      "title_template": "Report Generated: Inspection #{entity_id} (v{version})",
+      "body_template": "Report snapshot v{version} ({status}) for inspection #{entity_id} is now available for review and download."
+    }
+  }
+}

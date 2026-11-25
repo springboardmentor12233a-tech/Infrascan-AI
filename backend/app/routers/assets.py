@@ -20,6 +20,7 @@ from app.schemas.asset import (
 )
 from app.schemas.inspection import InspectionSummaryResponse
 from app.services.audit import create_audit_log
+from app.services.event_service import publish
 
 router = APIRouter(prefix="/assets", tags=["Infrastructure Assets"])
 
@@ -50,6 +51,21 @@ def create_asset(
         created_by=current_user.user_id,
     )
     db.add(new_asset)
+    publish(
+        db=db,
+        event_type="asset.created",
+        entity_type="asset",
+        entity_id=new_asset.asset_id,
+        audience={"all": True},
+        payload={
+            "asset_id": new_asset.asset_id,
+            "name": new_asset.name,
+            "asset_type": new_asset.asset_type,
+            "latitude": new_asset.latitude,
+            "longitude": new_asset.longitude,
+            "district": new_asset.district,
+        },
+    )
     db.commit()
     db.refresh(new_asset)
 
@@ -73,6 +89,7 @@ def list_assets(
     search: Optional[str] = Query(None, description="Search by asset name"),
     asset_type: Optional[str] = Query(None, description="Filter by asset type"),
     material_type: Optional[str] = Query(None, description="Filter by material type"),
+    district: Optional[str] = Query(None, description="Filter by district"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
     current_user: User = Depends(get_current_user),
@@ -87,6 +104,8 @@ def list_assets(
         query = query.filter(InfrastructureAsset.asset_type == asset_type)
     if material_type:
         query = query.filter(InfrastructureAsset.material_type == material_type)
+    if district:
+        query = query.filter(InfrastructureAsset.district.ilike(f"%{district.strip()}%"))
 
     total = query.count()
     offset = (page - 1) * page_size
@@ -186,6 +205,21 @@ def update_asset(
     for key, value in asset_data.model_dump().items():
         setattr(asset, key, value)
 
+    publish(
+        db=db,
+        event_type="asset.updated",
+        entity_type="asset",
+        entity_id=asset.asset_id,
+        audience={"all": True},
+        payload={
+            "asset_id": asset.asset_id,
+            "name": asset.name,
+            "asset_type": asset.asset_type,
+            "latitude": asset.latitude,
+            "longitude": asset.longitude,
+            "district": asset.district,
+        },
+    )
     db.commit()
     db.refresh(asset)
 
@@ -239,3 +273,4 @@ def delete_asset(
     )
 
     return {"message": "Asset deleted successfully"}
+

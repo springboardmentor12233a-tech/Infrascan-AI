@@ -17,6 +17,8 @@ from app.services.preprocess_service import (
     process_image_preprocessing,
     run_preprocess_background,
 )
+from app.services.explain_service import cleanup_image_explanations
+from app.services.event_service import publish
 
 router = APIRouter(tags=["Images"])
 
@@ -63,7 +65,7 @@ async def upload_inspection_images(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Inspectors can only upload photos to their own assigned inspections.",
             )
-    elif current_user.role not in ["civil_engineer", "admin"]:
+    elif current_user.role not in ["civil_engineer", "admin", "manager"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to upload photos for this inspection.",
@@ -88,6 +90,21 @@ async def upload_inspection_images(
             source=source,
             db=db,
         )
+
+        if result_item.status in ("accepted", "warning") and result_item.image:
+            publish(
+                db=db,
+                event_type="image.uploaded",
+                entity_type="image",
+                entity_id=result_item.image.image_id,
+                audience={"all": True},
+                payload={
+                    "image_id": result_item.image.image_id,
+                    "inspection_id": id,
+                    "status": result_item.status,
+                    "filename": result_item.image.original_filename,
+                },
+            )
 
         if result_item.status == "accepted":
             accepted_count += 1
@@ -291,6 +308,12 @@ def delete_image(
             except Exception:
                 pass
 
+    # Delete all generated explanation files (heatmaps & overlays) from disk
+    try:
+        cleanup_image_explanations(image_id=image.image_id, db=db)
+    except Exception:
+        pass
+
     client_ip = request.client.host if request.client else None
 
     # Delete record from database
@@ -450,3 +473,4 @@ def trigger_inspection_preprocessing(
     )
 
     return results
+
