@@ -1,0 +1,65 @@
+# Git and Version Control
+.git
+.gitignore
+.gitattributes
+
+# Environment and Secrets (Never bake into images)
+.env
+.env.*
+*.env
+admin_credentials.txt
+*credentials*
+*secret*
+*.pem
+*.key
+
+# Python Cache & Virtual Environments
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+
+# Node.js & Web Bundles
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Database Files & SQLite
+infrascan.db
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Runtime Storage Artifacts & User Uploads (Managed by persistent volumes)
+data
+data/*
+data/**
+uploads/*
+results/*
+reports/*
+!uploads/.gitkeep
+!results/.gitkeep
+!reports/.gitkeep
+
+# Scratch, Test Suites & Development Artifacts
+scratch
+scratch/*
+scratch/**
+tests
+tests/*
+tests/**
+*.log
+
+# IDE & Operating System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

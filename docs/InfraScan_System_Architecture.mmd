@@ -1,0 +1,76 @@
+graph TD
+    subgraph CLIENT_LAYER["1. Client Layer (Browser)"]
+        Inspector["Civil Infrastructure Inspector<br/>(Authenticated User)"]
+        Admin["System Administrator<br/>(System Oversight)"]
+    end
+
+    subgraph DEPLOYMENT_GATEWAY["2. Reverse Proxy & Network Gateway (Docker: infrascan-frontend)"]
+        Nginx["Nginx Alpine Web Server (Port 80)<br/>• SPA Router: try_files $uri /index.html<br/>• Reverse Proxy: /api/* -> backend:8000<br/>• Static Asset Proxy: /static/* -> backend:8000<br/>• Upload Buffer: client_max_body_size 50M"]
+    end
+
+    subgraph FRONTEND_SPA["3. Frontend SPA (React 18 + Vite + TailwindCSS)"]
+        AuthCtx["AuthContext<br/>(JWT Token & User State)"]
+        Pages["React Router Views:<br/>• User & Admin Dashboards<br/>• New Inspection Upload<br/>• Inspection History & Detail<br/>• Geospatial Leaflet Map<br/>• Model Provenance & Benchmarks"]
+    end
+
+    subgraph BACKEND_API["4. Backend API Services (FastAPI + Python: infrascan-backend)"]
+        AuthRouter["Auth & RBAC Router<br/>• Bcrypt Hashing<br/>• JWT Generation & Validation<br/>• Role Enforcement Guard"]
+        InspRouter["Inspection Router<br/>• Multipart Image Validation<br/>• User Ownership Isolation<br/>• PDF & CSV Exporters"]
+        AdminRouter["Admin Router<br/>• System-Wide Stats<br/>• User Deactivation/Reactivation<br/>• Cross-Tenant Auditing"]
+    end
+
+    subgraph ACTIVE_CV_PIPELINE["5. Active Computer-Vision Pipeline (Deterministic Algorithms)"]
+        Preproc["Image Preprocessing & Quality<br/>• OpenCV Format & Payload Guard<br/>• Laplacian Blur Score<br/>• Contrast & Illumination Check"]
+        Texture["Surface Type Classifier<br/>• Sobel Roughness & HSV Spectrum<br/>• Bridge Deck / Pavement / Wall"]
+        MorphSeg["Adaptive Crack Segmentation<br/>• Bottom-Hat Morphology (9x9)<br/>• Bilateral Edge Smoothing<br/>• Adaptive Thresholding"]
+        Geometry["Crack Geometry Engine<br/>• Medial Axis Thinning (Skeleton)<br/>• Distance Transform (Mean & Max Width)<br/>• Component Count & Branch Graph"]
+        SeverityEngine["Rule-Based Severity Engine<br/>• Base Score + Density Factor<br/>• Aperture Width + Topology Score<br/>• Action Plan & Urgent Review Flag"]
+        GradCAM["Explainable AI (Grad-CAM)<br/>• Gradient Activation Heatmaps"]
+    end
+
+    subgraph REPORT_ENGINE["6. Multi-Format Report Engine"]
+        PDFGen["ReportLab PDF Generator<br/>• Binary PDF-1.4 with Embedded Overlays<br/>• Quantitative Geometry Table<br/>• Civil Engineering Disclaimer"]
+        CSVGen["CSV Data Exporter<br/>• 41-Line Structured Metadata & Metrics"]
+    end
+
+    subgraph PERSISTENT_STORAGE["7. Persistent Storage (Docker Volume: infrascan_data)"]
+        SQLiteDB["SQLite 3 Database (infrascan.db)<br/>• users (Bcrypt, Role, Status)<br/>• assets (GPS Coordinates, Type)<br/>• inspections (Ownership, Timestamp)<br/>• inspection_results (Area, Severity)"]
+        FileStore["Artifact Storage (/app/data)<br/>• /uploads/ (Original Images)<br/>• /results/ (Masks & Overlays)<br/>• /reports/ (Generated PDF & CSV)"]
+    end
+
+    subgraph MODEL_STORAGE["8. Model Checkpoint Storage (Host Mount: ./models -> /app/models:ro)"]
+        YOLO_COCO["yolo_best.pt (18.4 MB Checkpoint)<br/>• 80 COCO Pretrained Classes<br/>• Baseline Model (Isolated from Crack Logic)"]
+    end
+
+    subgraph HISTORICAL_EXPERIMENTS["9. Historical Research & Offline Experiments (NOT DEPLOYED)"]
+        CNN_Exp["Historical CNN Classifier<br/>• SDNET2018 Trained (0.9969 Acc)<br/>• Checkpoint Absent Locally"]
+        UNet_Exp["Historical U-Net Segmentor<br/>• CRACK500 Trained (0.5408 IoU)<br/>• Checkpoint Absent Locally"]
+        YOLO_Exp["Colab YOLO11s CRACK500<br/>• Fine-Tuned (0.8064 mAP50)<br/>• Research Weights in Google Drive"]
+    end
+
+    Inspector -->|HTTP 80| Nginx
+    Admin -->|HTTP 80| Nginx
+    Nginx -->|Serves Static Bundle| FRONTEND_SPA
+    Nginx -->|Proxies /api/*| BACKEND_API
+    FRONTEND_SPA -->|API Requests with Bearer JWT| Nginx
+    BACKEND_API --> AuthRouter
+    BACKEND_API --> InspRouter
+    BACKEND_API --> AdminRouter
+    InspRouter --> ACTIVE_CV_PIPELINE
+    ACTIVE_CV_PIPELINE --> Preproc --> Texture --> MorphSeg --> Geometry --> SeverityEngine
+    MorphSeg --> GradCAM
+    InspRouter --> REPORT_ENGINE
+    REPORT_ENGINE --> PDFGen
+    REPORT_ENGINE --> CSVGen
+    BACKEND_API --> PERSISTENT_STORAGE
+    PERSISTENT_STORAGE --> SQLiteDB
+    PERSISTENT_STORAGE --> FileStore
+    InspRouter -.->|Loads Baseline Weights| YOLO_COCO
+    HISTORICAL_EXPERIMENTS -.->|Documented Benchmarks Only| Pages
+
+    classDef active fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+    classDef storage fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef offline fill:#1e1e24,stroke:#ef4444,stroke-width:1px,stroke-dasharray: 5 5,color:#94a3b8;
+    class CLIENT_LAYER,DEPLOYMENT_GATEWAY,FRONTEND_SPA,BACKEND_API,ACTIVE_CV_PIPELINE,REPORT_ENGINE active;
+    class PERSISTENT_STORAGE,MODEL_STORAGE storage;
+    class HISTORICAL_EXPERIMENTS offline;

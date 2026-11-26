@@ -1,0 +1,89 @@
+<mxfile host="app.diagrams.net" modified="2026-11-22T18:39:00.000Z" agent="InfraScan Architectural Modeler" version="22.1.0" type="device">
+  <diagram id="infrascan-arch" name="InfraScan System Architecture">
+    <mxGraphModel dx="1420" dy="860" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Clients -->
+        <mxCell id="client-user" value="Civil Infrastructure Inspector&#xa;(Authenticated User)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#3b82f6;strokeWidth=2;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="client-admin" value="System Administrator&#xa;(Full Oversight &amp; Audit)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#f59e0b;strokeWidth=2;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="80" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Gateway -->
+        <mxCell id="gateway-nginx" value="Nginx Reverse Proxy &amp; Web Server (Port 80)&#xa;• Serves React SPA Bundle&#xa;• Reverse Proxies /api/* to FastAPI&#xa;• Upload Limit: client_max_body_size 50M" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#06b6d4;strokeWidth=2;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="200" width="300" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-u-gw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;" edge="1" parent="1" source="client-user" target="gateway-nginx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-a-gw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=2;" edge="1" parent="1" source="client-admin" target="gateway-nginx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend SPA -->
+        <mxCell id="box-frontend" value="React 18 SPA (Vite + TailwindCSS)&#xa;• AuthContext (JWT State &amp; RBAC Guard)&#xa;• User &amp; Admin Dashboards&#xa;• New Inspection Upload &amp; Detail View&#xa;• Geospatial Damage Map (Leaflet)&#xa;• AI Model Evaluation &amp; Benchmarks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#3b82f6;strokeWidth=2;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="80" y="340" width="280" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Backend API -->
+        <mxCell id="box-backend" value="FastAPI Backend Services (Python 3.11/3.13)&#xa;• Security: Passlib (Bcrypt) + PyJWT (24h TTL)&#xa;• /api/auth (Login, Register, Profile)&#xa;• /api/inspections (Upload, Detail, Reports)&#xa;• /api/admin (User Mgmt, System Oversight)&#xa;• /api/dashboard &amp; /api/analytics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#10b981;strokeWidth=2;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="400" y="340" width="300" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-gw-fe" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#06b6d4;strokeWidth=2;" edge="1" parent="1" source="gateway-nginx" target="box-frontend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-gw-be" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#06b6d4;strokeWidth=2;" edge="1" parent="1" source="gateway-nginx" target="box-backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Active CV Pipeline -->
+        <mxCell id="box-cv" value="Active Computer-Vision Pipeline (Deterministic)&#xa;• Preprocessing &amp; Blur Audit (Laplacian Variance)&#xa;• Surface Classifier (Texture Roughness &amp; HSV)&#xa;• Crack Segmentation (Bottom-Hat + Bilateral + Adaptive)&#xa;• Geometry Extraction (Skeleton, Distance Transform)&#xa;• Severity Assessment Engine (Score 0-100)&#xa;• Explainable AI (Grad-CAM Activation Heatmaps)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#8b5cf6;strokeWidth=2;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="760" y="340" width="360" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-be-cv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8b5cf6;strokeWidth=2;" edge="1" parent="1" source="box-backend" target="box-cv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Report Engine -->
+        <mxCell id="box-reports" value="Multi-Format Reporting Engine&#xa;• Binary PDF 1.4 Export (ReportLab, Overlays, Table)&#xa;• Structured CSV Export (41-line Metadata/Metrics)&#xa;• Ownership &amp; Admin Download Authorization" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#ec4899;strokeWidth=2;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="760" y="520" width="360" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-be-rep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ec4899;strokeWidth=2;" edge="1" parent="1" source="box-backend" target="box-reports">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Persistent Storage Volume -->
+        <mxCell id="box-storage" value="Persistent Storage (Docker Volume: infrascan_data)&#xa;• infrascan.db (SQLite 3: users, inspections, results, assets)&#xa;• /app/data/uploads (Original inspection photos)&#xa;• /app/data/results (Generated overlays, masks, Grad-CAM)&#xa;• /app/data/reports (Generated PDF &amp; CSV files)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#10b981;strokeWidth=2;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="400" y="520" width="300" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-be-db" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=2;" edge="1" parent="1" source="box-backend" target="box-storage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Mounted Models -->
+        <mxCell id="box-models" value="Mounted Model Weights (./models -> /app/models:ro)&#xa;• yolo_best.pt (18.4 MB)&#xa;• Baseline 80-Class COCO Model&#xa;• Isolated from crack detection geometry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#eab308;strokeWidth=2;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="80" y="520" width="280" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="edge-be-model" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#eab308;strokeWidth=2;dashed=1;" edge="1" parent="1" source="box-backend" target="box-models">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Historical Experiments -->
+        <mxCell id="box-exp" value="Historical Offline Research &amp; Experiments (NOT DEPLOYED)&#xa;• SDNET2018 CNN Classifier (99.69% Acc) — Checkpoint absent locally&#xa;• CRACK500 U-Net Segmentor (54.08% IoU) — Checkpoint absent locally&#xa;• CRACK500 Colab YOLO11s (80.64% mAP50) — Checkpoint in Google Drive" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181b;strokeColor=#ef4444;strokeWidth=1;dashed=1;fontColor=#a1a1aa;" vertex="1" parent="1">
+          <mxGeometry x="220" y="670" width="700" height="80" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

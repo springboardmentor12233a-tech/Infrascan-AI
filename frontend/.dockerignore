@@ -1,0 +1,12 @@
+# Frontend Build Context Exclusions
+node_modules/
+dist/
+.vite/
+.git
+.gitignore
+.env
+.env.*
+*.env
+*.log
+.DS_Store
+Thumbs.db

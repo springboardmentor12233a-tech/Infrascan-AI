@@ -1,53 +1,93 @@
-# Environment and credentials
-.env
-.env.*
-**/.env
-**/.env.*
-*.pem
-*.key
-*.p12
-*.pfx
-
-# Python environments, caches, and generated files
-venv/
-.venv/
-env/
-ENV/
-**/venv/
-**/.venv/
-**/env/
-**/ENV/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-**/__pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-**/.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
 
-# Frontend dependencies and build output
-node_modules/
-**/node_modules/
-dist/
-dist-ssr/
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
 build/
-.vite/
-*.local
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Local storage, uploads, and datasets
-backend/storage/
-storage/
-uploads/
-data/raw/
-data/processed/
-**/data/raw/
-**/data/processed/
-datasets/
-**/datasets/
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+backend/venv/
 
-# IDE and logs
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+*.env
+admin_credentials.txt
+*credentials*.txt
+*secret*.txt
+
+# Database & local sqlite files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads & Reports runtime outputs
+uploads/*
+!uploads/.gitkeep
+results/*
+!results/.gitkeep
+reports/*
+!reports/.gitkeep
+
+# Models
+models/*.pt
+!models/yolo_best.pt
+models/*.keras
+!models/README.md
+
+# Node / Frontend build artifacts
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE & OS files
 .vscode/
 .idea/
-*.log
+.DS_Store
+Thumbs.db
+
+# Large local dataset archives
+/5y9wdsg2zt-2.zip
+/archive.zip
+/DATA_Maguire_20180517_ALL.zip
+
+# Original nested project folder - local backup
+/InfraScan/
+# Local dataset archive
+/CrackForest-dataset-master.zip
+
+# Local dataset archive
+/CrackForest-dataset-master.zip
+
+# Duplicate model backup
+/models/yolo_best.pt.coco80_backup
+
+# Temporary development and verification files
+/scratch/

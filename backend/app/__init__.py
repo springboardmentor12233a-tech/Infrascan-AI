@@ -1,1 +1,0 @@
-"""InfraScan backend application package."""

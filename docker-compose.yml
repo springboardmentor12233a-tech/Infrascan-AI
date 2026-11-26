@@ -1,0 +1,65 @@
+services:
+  # ----------------------------------------------------------------------------
+  # FastAPI AI Inference Backend Service
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: infrascan-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - INFRASCAN_ENV=production
+      - INFRASCAN_JWT_SECRET=${INFRASCAN_JWT_SECRET:?INFRASCAN_JWT_SECRET must be set in .env or environment}
+      - INFRASCAN_STORAGE_DIR=/app/data
+      - INFRASCAN_DB_PATH=/app/data/infrascan.db
+      - INFRASCAN_UPLOAD_DIR=/app/data/uploads
+      - INFRASCAN_RESULTS_DIR=/app/data/results
+      - INFRASCAN_REPORTS_DIR=/app/data/reports
+      - INFRASCAN_MODELS_DIR=/app/models
+    volumes:
+      # Persistent volume for database and storage artifacts
+      - infrascan_data:/app/data
+      # Mount model checkpoints from host
+      - ./models:/app/models:ro
+    networks:
+      - infrascan_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ----------------------------------------------------------------------------
+  # React / Nginx Frontend Service
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: infrascan-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - infrascan_net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  infrascan_data:
+    name: infrascan_data
+
+networks:
+  infrascan_net:
+    name: infrascan_net
+    driver: bridge
