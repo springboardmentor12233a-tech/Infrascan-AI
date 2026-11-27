@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    cssMinify: 'esbuild',
+  },
   server: {
     port: 5173,
     proxy: {

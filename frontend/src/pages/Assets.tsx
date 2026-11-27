@@ -128,7 +128,6 @@ export const Assets: React.FC = () => {
     e.preventDefault()
     setModalError(null)
 
-    // Basic frontend checks
     if (!modalForm.name.trim()) {
       setModalError('Asset name is required.')
       return
@@ -182,7 +181,6 @@ export const Assets: React.FC = () => {
       setSuccess(`Asset #${assetId} deleted successfully.`)
       fetchAssets()
     } catch (err: any) {
-      // Show clear 400 or 403 error message
       setError(
         err.response?.data?.detail ||
           'Error deleting asset. Inspection records may be linked.',
@@ -193,63 +191,63 @@ export const Assets: React.FC = () => {
   const totalPages = Math.ceil(total / pageSize) || 1
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#141619] text-white flex flex-col font-sans selection:bg-[#0A21C0] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-[#2C2E3A] gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+            <div className="text-xs font-mono font-semibold text-[#0A21C0] uppercase tracking-wider mb-1">
+              Geospatial Inventory
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Infrastructure Assets
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Registry of bridges, roads, tunnels, and concrete structures
-              monitored by InfraScan.
+            <p className="text-xs sm:text-sm text-[#B3B4BD] mt-1">
+              Registry of bridges, roads, tunnels, dams, and concrete structures monitored by InfraScan.
             </p>
           </div>
           {canManageAssets && (
             <button
               onClick={openAddModal}
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+              className="inline-flex items-center px-5 py-2.5 bg-[#0A21C0] hover:bg-[#081ba0] text-white text-xs font-semibold rounded-full shadow-lg shadow-[#0A21C0]/30 transition-all cursor-pointer shrink-0"
             >
-              + Add Asset
+              + Add Infrastructure Asset
             </button>
           )}
         </div>
 
         {/* Alerts */}
         {success && (
-          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-lg flex justify-between">
+          <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm rounded-xl flex items-center justify-between backdrop-blur-md">
             <span>{success}</span>
-            <button onClick={() => setSuccess(null)} className="text-emerald-500 hover:text-emerald-800">&times;</button>
+            <button onClick={() => setSuccess(null)} className="text-emerald-400 hover:text-white font-bold">&times;</button>
           </div>
         )}
         {error && (
-          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg flex justify-between">
+          <div className="p-4 bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs sm:text-sm rounded-xl flex items-center justify-between backdrop-blur-md">
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-rose-500 hover:text-rose-800">&times;</button>
+            <button onClick={() => setError(null)} className="text-rose-400 hover:text-white font-bold">&times;</button>
           </div>
         )}
 
-        {/* Filter & Search Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+        {/* Filter & Search Toolbar */}
+        <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-4 shadow-xl">
           <form
             onSubmit={handleSearchSubmit}
             className="grid grid-cols-1 sm:grid-cols-4 gap-4"
           >
-            {/* Search Input */}
             <div className="sm:col-span-2">
               <input
                 type="text"
-                placeholder="Search by asset name..."
+                placeholder="Search by asset name or address..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white placeholder-[#B3B4BD]/50 focus:outline-none"
               />
             </div>
 
-            {/* Asset Type Filter */}
             <div>
               <select
                 value={assetType}
@@ -257,18 +255,17 @@ export const Assets: React.FC = () => {
                   setAssetType(e.target.value)
                   setPage(1)
                 }}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
               >
-                <option value="">All Types</option>
+                <option value="">All Asset Types</option>
                 {ASSET_TYPES.map((t) => (
                   <option key={t} value={t}>
-                    {t.replace('_', ' ')}
+                    {t.replace('_', ' ').toUpperCase()}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Material Filter */}
             <div>
               <select
                 value={materialType}
@@ -276,12 +273,12 @@ export const Assets: React.FC = () => {
                   setMaterialType(e.target.value)
                   setPage(1)
                 }}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
               >
                 <option value="">All Materials</option>
                 {MATERIAL_TYPES.map((m) => (
                   <option key={m} value={m}>
-                    {m}
+                    {m.toUpperCase()}
                   </option>
                 ))}
               </select>
@@ -289,79 +286,87 @@ export const Assets: React.FC = () => {
           </form>
         </div>
 
-        {/* Assets Table (Screen 3 style) */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        {/* Assets Table */}
+        <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] overflow-hidden shadow-xl">
           {loading ? (
-            <div className="p-8 text-center text-sm text-slate-500 animate-pulse">
+            <div className="p-12 text-center text-xs text-[#B3B4BD] animate-pulse">
+              <div className="w-8 h-8 border-2 border-[#0A21C0] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
               Loading infrastructure assets...
             </div>
           ) : assets.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-500">
-              No assets found matching your criteria.
+            <div className="p-12 text-center text-xs text-[#B3B4BD]">
+              No infrastructure assets match your filter criteria.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+              <table className="min-w-full divide-y divide-[#141619] text-left text-xs">
+                <thead className="bg-[#141619]/80 text-[#B3B4BD] font-mono text-[11px] uppercase tracking-wider">
                   <tr>
-                    <th className="px-5 py-3.5">ID</th>
-                    <th className="px-5 py-3.5">Name</th>
-                    <th className="px-5 py-3.5">Type</th>
-                    <th className="px-5 py-3.5">Location</th>
-                    <th className="px-5 py-3.5">Material</th>
-                    <th className="px-5 py-3.5">Last Inspection</th>
-                    <th className="px-5 py-3.5 text-right">Actions</th>
+                    <th className="px-6 py-4">ID</th>
+                    <th className="px-6 py-4">Asset Name</th>
+                    <th className="px-6 py-4">Structure Type</th>
+                    <th className="px-6 py-4">Coordinates & Location</th>
+                    <th className="px-6 py-4">Material</th>
+                    <th className="px-6 py-4">Importance</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-[#141619]/60 text-white">
                   {assets.map((asset) => (
-                    <tr key={asset.asset_id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-5 py-4 font-mono text-xs text-slate-500">
+                    <tr key={asset.asset_id} className="hover:bg-[#141619]/40 transition-colors">
+                      <td className="px-6 py-4 font-mono font-bold text-[#0A21C0]">
                         #{asset.asset_id}
                       </td>
-                      <td className="px-5 py-4 font-medium text-indigo-600 hover:text-indigo-800">
-                        <Link to={`/assets/${asset.asset_id}`}>
+                      <td className="px-6 py-4 font-semibold text-white">
+                        <Link
+                          to={`/assets/${asset.asset_id}`}
+                          className="hover:text-blue-300 transition-colors"
+                        >
                           {asset.name}
                         </Link>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="inline-block px-2.5 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 capitalize">
+                      <td className="px-6 py-4 capitalize">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#050A44] text-blue-300 border border-[#0A21C0]/30">
                           {asset.asset_type.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-xs text-slate-600">
+                      <td className="px-6 py-4 text-[#B3B4BD]">
                         <div>
                           {asset.latitude.toFixed(4)}, {asset.longitude.toFixed(4)}
                         </div>
                         {asset.address && (
-                          <div className="text-slate-400 text-[11px] truncate max-w-xs">
+                          <div className="text-[10px] text-[#B3B4BD]/60 truncate max-w-xs mt-0.5">
                             {asset.address}
                           </div>
                         )}
                       </td>
-                      <td className="px-5 py-4 capitalize text-slate-600">
+                      <td className="px-6 py-4 capitalize text-[#B3B4BD]">
                         {asset.material_type}
                       </td>
-                      <td className="px-5 py-4 text-xs">
-                        {asset.last_inspection_date ? (
-                          <span className="text-slate-700 font-medium">
-                            {new Date(asset.last_inspection_date).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 italic">No records</span>
-                        )}
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            asset.importance_level === 'high'
+                              ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                              : asset.importance_level === 'medium'
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          }`}
+                        >
+                          {asset.importance_level}
+                        </span>
                       </td>
-                      <td className="px-5 py-4 text-right space-x-2">
+                      <td className="px-6 py-4 text-right space-x-2">
                         <Link
                           to={`/assets/${asset.asset_id}`}
-                          className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                          className="px-3 py-1 bg-[#0A21C0]/30 hover:bg-[#0A21C0] text-blue-300 hover:text-white rounded-full text-xs font-semibold transition-all inline-block"
                         >
                           Details
                         </Link>
                         {canManageAssets && (
                           <button
                             onClick={() => openEditModal(asset)}
-                            className="text-xs text-slate-600 hover:text-slate-900 font-medium ml-2"
+                            className="px-3 py-1 bg-[#141619] hover:bg-[#050A44] border border-[#2C2E3A] hover:border-[#0A21C0]/50 text-[#B3B4BD] hover:text-white rounded-full text-xs font-semibold transition-all cursor-pointer"
                           >
                             Edit
                           </button>
@@ -369,7 +374,7 @@ export const Assets: React.FC = () => {
                         {canDeleteAssets && (
                           <button
                             onClick={() => handleDelete(asset.asset_id)}
-                            className="text-xs text-rose-600 hover:text-rose-800 font-medium ml-2"
+                            className="px-3 py-1 bg-rose-950/40 hover:bg-rose-900 border border-rose-500/30 text-rose-300 hover:text-white rounded-full text-xs font-semibold transition-all cursor-pointer"
                           >
                             Delete
                           </button>
@@ -383,26 +388,26 @@ export const Assets: React.FC = () => {
           )}
 
           {/* Pagination bar */}
-          <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+          <div className="px-6 py-4 bg-[#141619]/90 border-t border-[#141619] flex items-center justify-between text-xs text-[#B3B4BD]">
             <div>
-              Showing <span className="font-medium">{assets.length}</span> of{' '}
-              <span className="font-medium">{total}</span> assets
+              Showing <span className="font-semibold text-white">{assets.length}</span> of{' '}
+              <span className="font-semibold text-white">{total}</span> assets
             </div>
             <div className="flex space-x-2">
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-3 py-1 bg-white border border-slate-300 rounded font-medium disabled:opacity-40"
+                className="px-3 py-1 bg-[#2C2E3A] hover:bg-[#393b4a] border border-[#2C2E3A] rounded-full font-medium text-white disabled:opacity-40 cursor-pointer"
               >
                 Previous
               </button>
-              <span className="py-1 px-2 font-medium text-slate-700">
+              <span className="py-1 px-3 font-semibold text-white">
                 Page {page} of {totalPages}
               </span>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1 bg-white border border-slate-300 rounded font-medium disabled:opacity-40"
+                className="px-3 py-1 bg-[#2C2E3A] hover:bg-[#393b4a] border border-[#2C2E3A] rounded-full font-medium text-white disabled:opacity-40 cursor-pointer"
               >
                 Next
               </button>
@@ -413,21 +418,21 @@ export const Assets: React.FC = () => {
 
       {/* Add / Edit Asset Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-[#2C2E3A] rounded-2xl border border-[#0A21C0]/30 shadow-2xl max-w-lg w-full p-6 text-white relative">
+            <h2 className="text-lg font-bold text-white mb-4">
               {editingAssetId ? 'Edit Asset' : 'Add New Infrastructure Asset'}
             </h2>
 
             {modalError && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg">
+              <div className="mb-4 p-3 bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs rounded-xl">
                 {modalError}
               </div>
             )}
 
             <form onSubmit={handleModalSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 mb-1">
+                <label className="block font-medium text-[#B3B4BD] mb-1">
                   Asset Name *
                 </label>
                 <input
@@ -437,14 +442,14 @@ export const Assets: React.FC = () => {
                   onChange={(e) =>
                     setModalForm({ ...modalForm, name: e.target.value })
                   }
-                  placeholder="e.g. Bridge B-12"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="e.g. Kathipara Flyover Span B"
+                  className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Asset Type
                   </label>
                   <select
@@ -452,17 +457,17 @@ export const Assets: React.FC = () => {
                     onChange={(e) =>
                       setModalForm({ ...modalForm, asset_type: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   >
                     {ASSET_TYPES.map((t) => (
                       <option key={t} value={t}>
-                        {t.replace('_', ' ')}
+                        {t.replace('_', ' ').toUpperCase()}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Material Type
                   </label>
                   <select
@@ -473,11 +478,11 @@ export const Assets: React.FC = () => {
                         material_type: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   >
                     {MATERIAL_TYPES.map((m) => (
                       <option key={m} value={m}>
-                        {m}
+                        {m.toUpperCase()}
                       </option>
                     ))}
                   </select>
@@ -485,8 +490,8 @@ export const Assets: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">
-                  Address / Landmark
+                <label className="block font-medium text-[#B3B4BD] mb-1">
+                  Address / Location Description
                 </label>
                 <input
                   type="text"
@@ -494,14 +499,14 @@ export const Assets: React.FC = () => {
                   onChange={(e) =>
                     setModalForm({ ...modalForm, address: e.target.value })
                   }
-                  placeholder="e.g. Kathipara Junction, Chennai"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="e.g. GST Road, Guindy, Chennai"
+                  className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Latitude (-90 to 90) *
                   </label>
                   <input
@@ -515,11 +520,11 @@ export const Assets: React.FC = () => {
                         latitude: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Longitude (-180 to 180) *
                   </label>
                   <input
@@ -533,14 +538,14 @@ export const Assets: React.FC = () => {
                         longitude: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Year Built *
                   </label>
                   <input
@@ -553,12 +558,12 @@ export const Assets: React.FC = () => {
                         construction_year: parseInt(e.target.value, 10) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Frequency (Days)
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
+                    Cycle (Days)
                   </label>
                   <input
                     type="number"
@@ -571,11 +576,11 @@ export const Assets: React.FC = () => {
                           parseInt(e.target.value, 10) || 30,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Importance
                   </label>
                   <select
@@ -586,11 +591,11 @@ export const Assets: React.FC = () => {
                         importance_level: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                   >
                     {IMPORTANCE_LEVELS.map((i) => (
                       <option key={i} value={i}>
-                        {i}
+                        {i.toUpperCase()}
                       </option>
                     ))}
                   </select>
@@ -598,7 +603,7 @@ export const Assets: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 mb-1">
+                <label className="block font-medium text-[#B3B4BD] mb-1">
                   Responsible Department *
                 </label>
                 <input
@@ -611,22 +616,22 @@ export const Assets: React.FC = () => {
                       responsible_department: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] rounded-xl text-xs text-white focus:outline-none focus:border-[#0A21C0]"
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+              <div className="flex justify-end space-x-3 pt-3 border-t border-[#141619]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="px-4 py-2 border border-[#2C2E3A] rounded-full text-xs font-semibold text-[#B3B4BD] hover:text-white cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={modalSubmitting}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm disabled:opacity-50"
+                  className="px-5 py-2 bg-[#0A21C0] hover:bg-[#081ba0] text-white rounded-full text-xs font-semibold shadow-md shadow-[#0A21C0]/30 disabled:opacity-50 cursor-pointer"
                 >
                   {modalSubmitting ? 'Saving...' : 'Save Asset'}
                 </button>
@@ -638,3 +643,5 @@ export const Assets: React.FC = () => {
     </div>
   )
 }
+
+export default Assets

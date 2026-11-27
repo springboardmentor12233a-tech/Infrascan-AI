@@ -1,5 +1,5 @@
-from typing import Callable
-from fastapi import Depends, HTTPException, status
+from typing import Callable, Optional
+from fastapi import Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from sqlalchemy.orm import Session
@@ -8,20 +8,25 @@ from app.database import get_db
 from app.models.user import User
 from app.services.security import decode_access_token
 
-# OAuth2 scheme looking for Bearer token at /auth/login
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+# OAuth2 scheme looking for Bearer token at /auth/login (auto_error=False allows query token fallback for file downloads)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    header_token: Optional[str] = Depends(oauth2_scheme),
+    query_token: Optional[str] = Query(None, alias="token"),
     db: Session = Depends(get_db),
 ) -> User:
-    """Validate JWT token and return the current active user, or raise 401."""
+    """Validate JWT token from Authorization header or URL query parameter and return active user."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    token = header_token or query_token
+    if not token:
+        raise credentials_exception
+
     try:
         payload = decode_access_token(token)
         sub: str | None = payload.get("sub")

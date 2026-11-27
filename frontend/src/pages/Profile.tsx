@@ -74,38 +74,51 @@ export const Profile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#141619] text-white flex flex-col font-sans selection:bg-[#0A21C0] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-6">
-          Your Profile
-        </h1>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div>
+          <div className="text-xs font-mono font-semibold text-[#0A21C0] uppercase tracking-wider mb-1">
+            Personnel Account
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            User Profile & Security
+          </h1>
+          <p className="text-xs sm:text-sm text-[#B3B4BD] mt-1">
+            Manage your personal profile details, inspect credentials, and update password.
+          </p>
+        </div>
 
         <div className="space-y-6">
           {/* Account Overview Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-base font-semibold text-slate-800 mb-4">
+          <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#0A21C0]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0A21C0] mb-4">
               Account Overview
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-slate-400 block text-xs">Email</span>
-                <span className="font-medium text-slate-700">{user?.email}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-3 bg-[#141619] rounded-xl border border-[#2C2E3A]">
+                <span className="text-[#B3B4BD] text-[10px] uppercase font-mono block mb-1">Registered Email</span>
+                <span className="font-semibold text-white font-mono">{user?.email}</span>
               </div>
-              <div>
-                <span className="text-slate-400 block text-xs">Role</span>
-                <span className="inline-block px-2.5 py-0.5 text-xs font-semibold rounded bg-indigo-50 text-indigo-700 uppercase">
+              <div className="p-3 bg-[#141619] rounded-xl border border-[#2C2E3A]">
+                <span className="text-[#B3B4BD] text-[10px] uppercase font-mono block mb-1">Engineering Role</span>
+                <span className="inline-block px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-[#050A44] text-blue-300 border border-[#0A21C0]/30 uppercase">
                   {user?.role.replace('_', ' ')}
                 </span>
               </div>
-              <div>
-                <span className="text-slate-400 block text-xs">Status</span>
-                <span className="text-emerald-600 font-medium">Active</span>
+              <div className="p-3 bg-[#141619] rounded-xl border border-[#2C2E3A]">
+                <span className="text-[#B3B4BD] text-[10px] uppercase font-mono block mb-1">Account State</span>
+                <span className="text-emerald-400 font-semibold flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                  <span>Active & Verified</span>
+                </span>
               </div>
-              <div>
-                <span className="text-slate-400 block text-xs">Member Since</span>
-                <span className="text-slate-700">
+              <div className="p-3 bg-[#141619] rounded-xl border border-[#2C2E3A]">
+                <span className="text-[#B3B4BD] text-[10px] uppercase font-mono block mb-1">Member Since</span>
+                <span className="text-white font-semibold">
                   {user?.created_at
                     ? new Date(user.created_at).toLocaleDateString()
                     : 'N/A'}
@@ -115,17 +128,17 @@ export const Profile: React.FC = () => {
           </div>
 
           {/* Edit Profile Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-base font-semibold text-slate-800 mb-4">
-              Edit Name
+          <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0A21C0] mb-4">
+              Edit Display Name
             </h2>
 
             {nameMessage && (
               <div
-                className={`mb-4 p-3 rounded-lg text-sm ${
+                className={`mb-4 p-3 rounded-xl text-xs ${
                   nameMessage.isError
-                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    ? 'bg-rose-950/40 text-rose-300 border border-rose-500/40'
+                    : 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/40'
                 }`}
               >
                 {nameMessage.text}
@@ -134,39 +147,39 @@ export const Profile: React.FC = () => {
 
             <form onSubmit={handleUpdateName} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Full Name
+                <label className="block text-xs font-medium text-[#B3B4BD] mb-1">
+                  Full Legal Name
                 </label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full max-w-md px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full max-w-md px-4 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                 />
               </div>
               <button
                 type="submit"
                 disabled={nameLoading}
-                className="py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow transition-colors disabled:opacity-50"
+                className="py-2.5 px-6 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full text-xs shadow-md shadow-[#0A21C0]/30 transition-all disabled:opacity-50 cursor-pointer"
               >
-                {nameLoading ? 'Saving...' : 'Save Changes'}
+                {nameLoading ? 'Saving...' : 'Save Name'}
               </button>
             </form>
           </div>
 
           {/* Change Password Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-base font-semibold text-slate-800 mb-4">
-              Change Password
+          <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#0A21C0] mb-4">
+              Change Security Password
             </h2>
 
             {passwordMessage && (
               <div
-                className={`mb-4 p-3 rounded-lg text-sm ${
+                className={`mb-4 p-3 rounded-xl text-xs ${
                   passwordMessage.isError
-                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    ? 'bg-rose-950/40 text-rose-300 border border-rose-500/40'
+                    : 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/40'
                 }`}
               >
                 {passwordMessage.text}
@@ -175,7 +188,7 @@ export const Profile: React.FC = () => {
 
             <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-medium text-[#B3B4BD] mb-1">
                   Current Password
                 </label>
                 <input
@@ -184,12 +197,12 @@ export const Profile: React.FC = () => {
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-medium text-[#B3B4BD] mb-1">
                   New Password (min 8 characters)
                 </label>
                 <input
@@ -199,14 +212,14 @@ export const Profile: React.FC = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={passwordLoading}
-                className="py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg text-sm shadow transition-colors disabled:opacity-50"
+                className="py-2.5 px-6 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full text-xs shadow-md shadow-[#0A21C0]/30 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {passwordLoading ? 'Updating Password...' : 'Update Password'}
               </button>
@@ -217,3 +230,5 @@ export const Profile: React.FC = () => {
     </div>
   )
 }
+
+export default Profile

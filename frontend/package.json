@@ -5,6 +5,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@tailwindcss/vite": "^4.3.5",
         "@vitejs/plugin-react": "latest",
         "axios": "^1.21.1",
         "chart.js": "latest",
@@ -15,6 +16,7 @@
         "react-dom": "latest",
         "react-plotly.js": "latest",
         "react-router-dom": "^7.18.7",
+        "tailwindcss": "^4.3.5",
         "vite": "latest"
     },
     "type": "module"

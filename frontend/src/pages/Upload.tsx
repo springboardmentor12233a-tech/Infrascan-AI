@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -20,6 +20,7 @@ interface PreviewFile {
 
 export const Upload: React.FC = () => {
   const { user, role } = useAuth()
+  const navigate = useNavigate()
 
   // Selection states
   const [assets, setAssets] = useState<InfrastructureAsset[]>([])
@@ -55,7 +56,6 @@ export const Upload: React.FC = () => {
         setAssets(assetsData.items)
 
         // Filter inspections user is allowed to upload to:
-        // Inspectors can only upload to their own non-completed inspections
         const eligible = inspectionsData.filter((i) => {
           if (i.status === 'completed' || i.status === 'reviewed') return false
           if (role === 'inspector') {
@@ -189,41 +189,43 @@ export const Upload: React.FC = () => {
     : inspections
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#141619] text-white flex flex-col font-sans selection:bg-[#0A21C0] selection:text-white">
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div>
+          <div className="text-xs font-mono font-semibold text-[#0A21C0] uppercase tracking-wider mb-1">
+            Data Ingestion & Quality Control
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Inspection Photo Upload
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Capture or upload structural inspection photos with automatic blur
-            and brightness quality validation.
+          <p className="text-xs sm:text-sm text-[#B3B4BD] mt-1">
+            Capture or upload structural inspection photos with automated blur (Laplacian variance) and brightness validation.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-lg flex justify-between items-center">
+          <div className="p-4 bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs sm:text-sm rounded-xl flex justify-between items-center backdrop-blur-md">
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-rose-500 font-bold">&times;</button>
+            <button onClick={() => setError(null)} className="text-rose-400 hover:text-white font-bold ml-4">&times;</button>
           </div>
         )}
 
         {loadingInitial ? (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-sm text-slate-500 animate-pulse">
-            Loading inspection scheduling details...
+          <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-12 text-center text-xs text-[#B3B4BD] animate-pulse">
+            <div className="w-8 h-8 border-2 border-[#0A21C0] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            Loading active inspection schedules...
           </div>
         ) : inspections.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-sm text-slate-600">
-            <p className="font-semibold text-slate-800 mb-2">No Active Inspections Found</p>
-            <p className="text-xs text-slate-500 max-w-md mx-auto mb-4">
-              You do not have any active or in-progress inspections assigned to
-              upload photos for.
+          <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-10 text-center text-xs text-[#B3B4BD]">
+            <p className="font-bold text-white text-base mb-2">No Active Assigned Inspections</p>
+            <p className="text-[#B3B4BD] max-w-md mx-auto mb-6">
+              You do not currently have any active or in-progress inspections assigned to receive photo uploads.
             </p>
             <Link
               to="/inspections"
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+              className="px-5 py-2.5 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full shadow-lg shadow-[#0A21C0]/30 transition-all inline-block"
             >
               Go to Inspections Registry &rarr;
             </Link>
@@ -231,21 +233,21 @@ export const Upload: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {/* Target Selection Form */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4">
-                Inspection Target
+            <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0A21C0] mb-4">
+                Inspection Target & Metadata
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                 {/* Asset Dropdown */}
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Infrastructure Asset
                   </label>
                   <select
                     value={selectedAssetId}
                     onChange={(e) => handleAssetChange(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                   >
                     {assets.map((a) => (
                       <option key={a.asset_id} value={a.asset_id}>
@@ -257,7 +259,7 @@ export const Upload: React.FC = () => {
 
                 {/* Inspection Dropdown */}
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
                     Inspection Schedule
                   </label>
                   <select
@@ -265,7 +267,7 @@ export const Upload: React.FC = () => {
                     onChange={(e) =>
                       setSelectedInspectionId(Number(e.target.value))
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                   >
                     {filteredInspections.length === 0 ? (
                       <option value="0">No active inspection for asset</option>
@@ -281,26 +283,26 @@ export const Upload: React.FC = () => {
 
                 {/* Source Dropdown */}
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Image Source
+                  <label className="block font-medium text-[#B3B4BD] mb-1">
+                    Image Source Hardware
                   </label>
                   <select
                     value={source}
                     onChange={(e) => setSource(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                   >
-                    <option value="phone">Phone Camera</option>
-                    <option value="camera">Handheld Digital Camera</option>
-                    <option value="drone">Drone / Aerial UAV</option>
+                    <option value="phone">Field Smartphone Camera</option>
+                    <option value="camera">Handheld DSLR / Industrial Camera</option>
+                    <option value="drone">Autonomous Drone / UAV Platform</option>
                   </select>
                 </div>
               </div>
             </div>
 
             {/* Drag & Drop Upload Zone */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4">
-                Select or Capture Photos
+            <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#0A21C0] mb-4">
+                Upload or Capture Inspection Photos
               </h2>
 
               {/* Hidden file inputs */}
@@ -326,40 +328,43 @@ export const Upload: React.FC = () => {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all ${
                   isDragging
-                    ? 'border-indigo-500 bg-indigo-50/50'
-                    : 'border-slate-300 hover:border-slate-400 bg-slate-50/50'
+                    ? 'border-[#0A21C0] bg-[#050A44]/50 shadow-lg shadow-[#0A21C0]/20'
+                    : 'border-[#2C2E3A] hover:border-[#0A21C0]/60 bg-[#141619]/60'
                 }`}
               >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-center space-x-2 text-slate-400">
-                    <span className="text-4xl">📸</span>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center text-4xl">
+                    📸
                   </div>
-                  <div className="text-sm text-slate-600">
-                    <span className="font-semibold text-indigo-600 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                      Click to choose files
+                  <div className="text-sm text-white font-medium">
+                    <span
+                      className="font-bold text-[#0A21C0] hover:underline cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Browse local files
                     </span>{' '}
-                    or drag and drop inspection images here
+                    or drag and drop high-resolution inspection photos here
                   </div>
-                  <p className="text-xs text-slate-400">
-                    JPG, JPEG, PNG up to 25 MB each (minimum 227 x 227 resolution)
+                  <p className="text-xs text-[#B3B4BD]">
+                    JPEG or PNG up to 25 MB each &bull; Minimum 227 x 227 px resolution required
                   </p>
 
                   <div className="pt-2 flex justify-center space-x-3">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                      className="px-5 py-2.5 bg-[#141619] hover:bg-[#050A44] border border-[#2C2E3A] hover:border-[#0A21C0]/50 text-white rounded-full text-xs font-semibold transition-all cursor-pointer"
                     >
-                      Choose Files
+                      Choose Images
                     </button>
                     <button
                       type="button"
                       onClick={() => cameraInputRef.current?.click()}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center space-x-1"
+                      className="px-5 py-2.5 bg-[#0A21C0] hover:bg-[#081ba0] text-white rounded-full text-xs font-semibold shadow-md shadow-[#0A21C0]/30 transition-all flex items-center space-x-1 cursor-pointer"
                     >
-                      <span>📷 Camera</span>
+                      <span>📷 Open Camera</span>
                     </button>
                   </div>
                 </div>
@@ -368,16 +373,16 @@ export const Upload: React.FC = () => {
               {/* Preview Grid */}
               {files.length > 0 && (
                 <div className="mt-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Pending Upload ({files.length} photo{files.length > 1 ? 's' : ''})
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                      Selected Photos ({files.length})
                     </h3>
                     <button
                       onClick={() => {
                         files.forEach((f) => URL.revokeObjectURL(f.previewUrl))
                         setFiles([])
                       }}
-                      className="text-xs text-rose-600 hover:text-rose-800"
+                      className="text-xs text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
                     >
                       Clear All
                     </button>
@@ -387,9 +392,9 @@ export const Upload: React.FC = () => {
                     {files.map((item) => (
                       <div
                         key={item.id}
-                        className="bg-slate-50 rounded-lg border border-slate-200 p-2 relative group overflow-hidden"
+                        className="bg-[#141619] rounded-xl border border-[#2C2E3A] p-2 relative group overflow-hidden"
                       >
-                        <div className="h-32 w-full flex items-center justify-center overflow-hidden bg-slate-900 rounded">
+                        <div className="h-32 w-full flex items-center justify-center overflow-hidden bg-[#050A44]/30 rounded-lg">
                           <img
                             src={item.previewUrl}
                             alt={item.file.name}
@@ -401,20 +406,20 @@ export const Upload: React.FC = () => {
                           />
                         </div>
 
-                        <div className="mt-2 text-[11px] truncate font-medium text-slate-700">
+                        <div className="mt-2 text-[11px] truncate font-semibold text-white">
                           {item.file.name}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-[#B3B4BD]">
                           {(item.file.size / (1024 * 1024)).toFixed(2)} MB
                         </div>
 
                         {/* Rotate & Remove controls */}
-                        <div className="mt-2 flex items-center justify-between border-t border-slate-200 pt-1.5 text-xs">
+                        <div className="mt-2 flex items-center justify-between border-t border-[#2C2E3A] pt-1.5 text-xs">
                           <button
                             type="button"
                             onClick={() => rotateFile(item.id)}
                             title="Rotate preview"
-                            className="text-slate-600 hover:text-indigo-600 font-semibold"
+                            className="text-[#B3B4BD] hover:text-white font-medium cursor-pointer"
                           >
                             ↻ Rotate
                           </button>
@@ -422,7 +427,7 @@ export const Upload: React.FC = () => {
                             type="button"
                             onClick={() => removeFile(item.id)}
                             title="Remove file"
-                            className="text-rose-600 hover:text-rose-800 font-semibold"
+                            className="text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
                           >
                             Remove
                           </button>
@@ -434,13 +439,13 @@ export const Upload: React.FC = () => {
                   {/* Progress bar */}
                   {uploading && (
                     <div className="mt-6 space-y-2">
-                      <div className="flex justify-between text-xs font-semibold text-slate-600">
-                        <span>Uploading inspection batch...</span>
-                        <span>{progress}%</span>
+                      <div className="flex justify-between text-xs font-semibold text-[#B3B4BD]">
+                        <span>Uploading & analyzing image quality...</span>
+                        <span className="text-[#0A21C0]">{progress}%</span>
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-[#141619] rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-indigo-600 h-2 transition-all duration-300 rounded-full"
+                          className="bg-[#0A21C0] h-2 transition-all duration-300 rounded-full"
                           style={{ width: `${progress}%` }}
                         ></div>
                       </div>
@@ -453,78 +458,76 @@ export const Upload: React.FC = () => {
                       type="button"
                       onClick={handleUploadSubmit}
                       disabled={uploading || !selectedInspectionId}
-                      className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full text-xs sm:text-sm shadow-lg shadow-[#0A21C0]/30 transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {uploading
-                        ? 'Analyzing & Uploading...'
-                        : `Upload ${files.length} Photo${files.length > 1 ? 's' : ''}`}
+                        ? 'Validating Quality & Ingesting...'
+                        : `Upload & Ingest ${files.length} Photo${files.length > 1 ? 's' : ''}`}
                     </button>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Results Table (Screen 4: accepted, warning, rejected per file) */}
+            {/* Quality Results Table */}
             {results && (
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold text-slate-800">
-                    Upload & Quality Analysis Results
-                  </h2>
-                  <Link
-                    to={`/assets/${selectedAssetId}`}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                  >
-                    View Asset & Inspections &rarr;
-                  </Link>
+              <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-[#141619]">
+                  <div>
+                    <h2 className="text-base font-bold text-white">
+                      Ingestion & Quality Assessment Results
+                    </h2>
+                    <p className="text-xs text-[#B3B4BD]">
+                      Automated OpenCV Laplacian sharpness and luminance validation completed.
+                    </p>
+                  </div>
+
+                  {selectedInspectionId > 0 && (
+                    <button
+                      onClick={() => navigate(`/inspections/${selectedInspectionId}`)}
+                      className="px-5 py-2.5 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full text-xs shadow-md shadow-[#0A21C0]/30 transition-all cursor-pointer"
+                    >
+                      ⚡ Open Inspection & Run AI Assessment &rarr;
+                    </button>
+                  )}
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200 text-xs text-left">
-                    <thead className="bg-slate-50 text-slate-600 font-semibold uppercase">
+                  <table className="min-w-full divide-y divide-[#141619] text-xs text-left">
+                    <thead className="bg-[#141619]/80 text-[#B3B4BD] font-mono text-[10px] uppercase tracking-wider">
                       <tr>
                         <th className="px-4 py-3">File Name</th>
                         <th className="px-4 py-3">Result</th>
-                        <th className="px-4 py-3">Quality Details / Reason</th>
-                        <th className="px-4 py-3">Scores</th>
+                        <th className="px-4 py-3">Quality Details</th>
+                        <th className="px-4 py-3">Sharpness / Brightness</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-[#141619]/60 text-white">
                       {results.map((res, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/60">
-                          <td className="px-4 py-3 font-mono text-slate-900 font-medium">
+                        <tr key={idx} className="hover:bg-[#141619]/40">
+                          <td className="px-4 py-3 font-mono font-medium text-white">
                             {res.filename}
                           </td>
                           <td className="px-4 py-3">
                             <span
-                              className={`inline-block px-2.5 py-0.5 rounded text-[11px] font-semibold uppercase ${
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                                 res.status === 'accepted'
-                                  ? 'bg-emerald-50 text-emerald-700'
+                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                                   : res.status === 'warning'
-                                  ? 'bg-amber-50 text-amber-700'
-                                  : 'bg-rose-50 text-rose-700'
+                                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                  : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                               }`}
                             >
                               {res.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={
-                                res.status === 'rejected'
-                                  ? 'text-rose-600 font-medium'
-                                  : res.status === 'warning'
-                                  ? 'text-amber-800'
-                                  : 'text-slate-600'
-                              }
-                            >
-                              {res.message}
-                            </span>
+                          <td className="px-4 py-3 text-xs text-[#B3B4BD]">
+                            {res.message}
                           </td>
-                          <td className="px-4 py-3 font-mono text-[11px] text-slate-500">
+                          <td className="px-4 py-3 font-mono text-[11px] text-[#B3B4BD]">
                             {res.image ? (
                               <span>
-                                Blur: {res.image.blur_score.toFixed(1)} | Bright: {res.image.brightness_score.toFixed(1)}
+                                Sharpness: <strong className="text-white">{res.image.blur_score.toFixed(1)}</strong> &bull; Luminance: <strong className="text-white">{res.image.brightness_score.toFixed(1)}</strong>
                               </span>
                             ) : (
                               '-'
@@ -537,9 +540,8 @@ export const Upload: React.FC = () => {
                 </div>
 
                 {results.some((r) => r.status === 'rejected') && (
-                  <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg">
-                    <strong>Note:</strong> Rejected photos were not saved. Please
-                    adjust angle/resolution and retake the photo.
+                  <div className="mt-4 p-3 bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs rounded-xl">
+                    <strong>Note:</strong> Photos rejected due to severe motion blur or low resolution were not committed to storage.
                   </div>
                 )}
               </div>
@@ -550,3 +552,5 @@ export const Upload: React.FC = () => {
     </div>
   )
 }
+
+export default Upload

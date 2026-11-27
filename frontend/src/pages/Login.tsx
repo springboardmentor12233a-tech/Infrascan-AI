@@ -38,21 +38,27 @@ export const Login: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-md border border-slate-200 p-8">
+    <div className="min-h-screen bg-[#141619] text-white flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background radial glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-[#0A21C0]/15 rounded-full blur-[130px] pointer-events-none" />
+
+      <div className="max-w-md w-full bg-[#2C2E3A] border border-[rgba(179,180,189,0.18)] rounded-3xl p-8 shadow-2xl relative z-10 backdrop-blur-xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-            Infra<span className="text-indigo-600">Scan</span>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#0A21C0] shadow-[0_0_20px_rgba(10,33,192,0.6)] mb-4 font-black text-xl text-white">
+            IS
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            Infra<span className="text-[#0A21C0]">Scan</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-2">
-            Sign in to access crack detection tools
+          <p className="text-sm text-[#B3B4BD] mt-2">
+            AI-Powered Civil Infrastructure Damage Assessment
           </p>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
+          <div className="mb-6 p-3.5 rounded-xl bg-rose-950/60 border border-rose-800/80 text-rose-200 text-sm">
             {error}
           </div>
         )}
@@ -60,7 +66,7 @@ export const Login: React.FC = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-[#B3B4BD] uppercase tracking-wider mb-1.5">
               Email Address
             </label>
             <input
@@ -68,13 +74,13 @@ export const Login: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="you@company.com"
+              className="w-full px-4 py-2.5 bg-[#141619]/80 border border-[rgba(179,180,189,0.2)] rounded-xl text-white text-sm focus:outline-none focus:border-[#0A21C0] focus:ring-1 focus:ring-[#0A21C0] transition-colors placeholder:text-gray-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-[#B3B4BD] uppercase tracking-wider mb-1.5">
               Password
             </label>
             <input
@@ -83,25 +89,35 @@ export const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-2.5 bg-[#141619]/80 border border-[rgba(179,180,189,0.2)] rounded-xl text-white text-sm focus:outline-none focus:border-[#0A21C0] focus:ring-1 focus:ring-[#0A21C0] transition-colors placeholder:text-gray-500"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow transition-colors text-sm disabled:opacity-50"
+            className="w-full py-3 px-6 bg-[#0A21C0] hover:bg-[#1631E0] text-white font-semibold rounded-full shadow-[0_4px_25px_rgba(10,33,192,0.45)] transition-all text-sm disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span>Signing in...</span>
+              </>
+            ) : (
+              'Sign In to Platform'
+            )}
           </button>
         </form>
 
         {/* Footer */}
-        <div className="mt-6 text-center text-sm text-slate-500">
+        <div className="mt-8 text-center text-xs text-[#B3B4BD]">
           Don't have an account?{' '}
           <Link
             to="/register"
-            className="text-indigo-600 hover:text-indigo-700 font-medium"
+            className="text-[#0A21C0] hover:underline font-semibold ml-1"
           >
             Register as Inspector
           </Link>
