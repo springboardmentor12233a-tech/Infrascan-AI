@@ -84,9 +84,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     email: string,
     password: string,
   ) => {
-    await authApi.register(fullName, email, password)
-    // Auto-login after registration
-    await login(email, password)
+    const regResult = await authApi.register(fullName, email, password)
+    // If backend returns token on register, use it immediately
+    if ((regResult as any).access_token) {
+      const accessToken = (regResult as any).access_token
+      const userRole = regResult.role || 'inspector'
+      localStorage.setItem('token', accessToken)
+      localStorage.setItem('role', userRole)
+      localStorage.setItem('user', JSON.stringify(regResult))
+      setToken(accessToken)
+      setRole(userRole)
+      setUser(regResult)
+    } else {
+      // Auto-login fallback
+      await login(email, password)
+    }
   }
 
   // Clear auth state and local storage

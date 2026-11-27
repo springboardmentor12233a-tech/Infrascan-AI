@@ -9,6 +9,7 @@ class AuthIn(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
     name: str | None = None
+    full_name: str | None = None
 
 
 class UserOut(BaseModel):

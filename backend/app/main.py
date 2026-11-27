@@ -206,6 +206,10 @@ def health():
     "/api/auth/register",
     status_code=201,
 )
+@app.post(
+    "/auth/register",
+    status_code=201,
+)
 def register(
     payload: AuthIn,
     db: Session = Depends(get_db),
@@ -217,7 +221,7 @@ def register(
             "Email already registered",
         )
 
-    full_name = payload.name or email.split("@")[0]
+    full_name = payload.full_name or payload.name or email.split("@")[0]
     user = User(
         full_name=full_name,
         email=email,
@@ -255,6 +259,7 @@ def register(
 
 
 @app.post("/api/auth/login")
+@app.post("/auth/login")
 async def login(
     request: Request,
     db: Session = Depends(get_db),

@@ -1,7 +1,25 @@
 import axios from 'axios'
 
-// API base URL (defaults to '/api' so Vite proxy forwards seamlessly without CORS issues)
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+// Determine API base URL dynamically
+// 1. Explicit environment variable VITE_API_URL takes precedence
+// 2. In local dev (localhost/127.0.0.1 on ports 5173, 5174, 3000), target FastAPI directly at http://127.0.0.1:8000/api
+// 3. In Docker or production reverse proxy deployments, use /api
+const getApiBaseUrl = (): string => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL
+  }
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+    (window.location.port === '5173' || window.location.port === '5174' || window.location.port === '3000')
+  ) {
+    return 'http://127.0.0.1:8000/api'
+  }
+  return '/api'
+}
+
+export const API_BASE_URL = getApiBaseUrl()
+
 // Create axios instance
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -163,6 +181,7 @@ export const authApi = {
   ): Promise<User> => {
     const response = await apiClient.post<User>('/auth/register', {
       full_name: fullName,
+      name: fullName,
       email,
       password,
     })
