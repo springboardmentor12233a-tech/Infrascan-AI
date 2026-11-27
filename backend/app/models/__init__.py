@@ -8,6 +8,10 @@ from .asset import (
 )
 from .inspection import Inspection, ALLOWED_INSPECTION_STATUSES
 from .image import Image, ALLOWED_IMAGE_SOURCES, ALLOWED_QUALITY_STATUSES
+from .damage import DamageAssessment, ALLOWED_DEFECT_TYPES, ALLOWED_SEVERITY_LEVELS
+from .maintenance import MaintenanceRecommendation, ALLOWED_MAINTENANCE_PRIORITIES, ALLOWED_MAINTENANCE_STATUSES
+from .notification import Notification
+from .report import InspectionReport
 
 __all__ = [
     "User",
@@ -22,4 +26,12 @@ __all__ = [
     "Image",
     "ALLOWED_IMAGE_SOURCES",
     "ALLOWED_QUALITY_STATUSES",
+    "DamageAssessment",
+    "ALLOWED_DEFECT_TYPES",
+    "ALLOWED_SEVERITY_LEVELS",
+    "MaintenanceRecommendation",
+    "ALLOWED_MAINTENANCE_PRIORITIES",
+    "ALLOWED_MAINTENANCE_STATUSES",
+    "Notification",
+    "InspectionReport",
 ]

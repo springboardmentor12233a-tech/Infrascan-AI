@@ -1,4 +1,4 @@
-from app.schemas.user import (
+from .user import (
     UserRegisterRequest,
     TokenResponse,
     UserResponse,
@@ -7,8 +7,8 @@ from app.schemas.user import (
     UpdateRoleRequest,
     UpdateActiveRequest,
 )
-from app.schemas.audit_log import AuditLogResponse
-from app.schemas.asset import (
+from .audit_log import AuditLogResponse
+from .asset import (
     AssetBase,
     AssetCreate,
     AssetUpdate,
@@ -19,13 +19,13 @@ from app.schemas.asset import (
     GeoJSONFeature,
     GeoJSONGeometry,
 )
-from app.schemas.inspection import (
+from .inspection import (
     InspectionCreate,
     InspectionStatusUpdate,
     InspectionResponse,
     InspectionSummaryResponse,
 )
-from app.schemas.image import (
+from .image import (
     ImageResponse,
     UploadResultItem,
     UploadBatchResponse,

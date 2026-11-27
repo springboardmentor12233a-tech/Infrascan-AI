@@ -1,30 +1,22 @@
 from pathlib import Path
 import matplotlib.pyplot as plt
-
 # Locate the dataset
 DATASET_DIR = Path(__file__).resolve().parent.parent / "datasets"
-
 # Count images in each category
 categories = ["Positive", "Negative"]
 counts = []
-
 for category in categories:
     folder = DATASET_DIR / category
-
     image_count = sum(
         1 for file in folder.iterdir()
         if file.is_file()
         and file.suffix.lower() in {".jpg", ".jpeg", ".png", ".bmp"}
     )
-
     counts.append(image_count)
-
 # Calculate percentages
 total = sum(counts)
-
 print("CLASS DISTRIBUTION")
 print("-" * 30)
-
 for category, count in zip(categories, counts):
     percentage = count / total * 100 if total else 0
     print(f"{category}: {count} images ({percentage:.2f}%)")

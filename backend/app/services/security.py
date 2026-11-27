@@ -4,8 +4,7 @@ import hmac
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
-from app.config import settings
-
+from ..config import settings
 # JWT configuration
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30

@@ -1,3 +1,13 @@
+import sys
+from pathlib import Path
+
+# Ensure backend and root are on sys.path
+_backend_dir = str(Path(__file__).resolve().parents[1])
+_root_dir = str(Path(__file__).resolve().parents[2])
+for _p in (_backend_dir, _root_dir):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 import io
 import hashlib
 import json
@@ -5,7 +15,6 @@ import os
 import uuid
 import threading
 from datetime import datetime, timezone
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -35,7 +44,16 @@ except ImportError:
 from .auth import current_user, hash_password, make_token, verify_password
 from .services.security import create_access_token
 from .db import Base, engine, get_db
-from .models import Image, InfrastructureAsset, Inspection, User
+from .models import (
+    Image,
+    InfrastructureAsset,
+    Inspection,
+    User,
+    DamageAssessment,
+    MaintenanceRecommendation,
+    Notification,
+    InspectionReport,
+)
 from .legacy_schemas import (
     AssetIn,
     AssetOut,
@@ -46,12 +64,18 @@ from .legacy_schemas import (
     TokenOut,
     UserOut,
 )
-from app.routers import (
+from .routers import (
     assets_router,
     auth_router,
     images_router,
     inspections_router,
     users_router,
+    analysis_router,
+    progression_router,
+    maintenance_router,
+    reports_router,
+    notifications_router,
+    dashboard_router,
 )
 
 
@@ -85,16 +109,23 @@ app.add_middleware(
 
 # ---------------- MOUNT ROUTERS ----------------
 
-app.include_router(auth_router)
-app.include_router(users_router)
-app.include_router(assets_router)
-app.include_router(inspections_router)
-app.include_router(images_router)
+ALL_ROUTERS = [
+    auth_router,
+    users_router,
+    assets_router,
+    inspections_router,
+    images_router,
+    analysis_router,
+    progression_router,
+    maintenance_router,
+    reports_router,
+    notifications_router,
+    dashboard_router,
+]
 
-# Mount under /api prefix for frontend
-app.include_router(users_router, prefix="/api")
-app.include_router(inspections_router, prefix="/api")
-app.include_router(images_router, prefix="/api")
+for router in ALL_ROUTERS:
+    app.include_router(router)
+    app.include_router(router, prefix="/api")
 
 MEDIA = Path(
     os.getenv(

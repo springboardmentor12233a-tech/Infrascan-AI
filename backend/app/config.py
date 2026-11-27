@@ -6,8 +6,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
-    # PostgreSQL connection string (defaults to psycopg2 driver)
-    DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/infrascan_db"
+    # Database connection string (defaults to SQLite, supports PostgreSQL via env)
+    DATABASE_URL: str = "sqlite:///./infrascan.db"
 
     # Application secret key
     SECRET_KEY: str = "dev_secret_key_change_me_super_secure_32bytes"
