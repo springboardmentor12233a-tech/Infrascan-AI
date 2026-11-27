@@ -3,11 +3,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Path to the backend root directory where .env is stored
 BASE_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_SQLITE_PATH = (BASE_DIR / "infrascan.db").as_posix()
 
 
 class Settings(BaseSettings):
     # Database connection string (defaults to SQLite, supports PostgreSQL via env)
-    DATABASE_URL: str = "sqlite:///./infrascan.db"
+    DATABASE_URL: str = f"sqlite:///{DEFAULT_SQLITE_PATH}"
 
     # Application secret key
     SECRET_KEY: str = "dev_secret_key_change_me_super_secure_32bytes"

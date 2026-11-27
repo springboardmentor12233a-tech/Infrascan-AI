@@ -35,8 +35,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setRole(userData.role)
       localStorage.setItem('user', JSON.stringify(userData))
       localStorage.setItem('role', userData.role)
-    } catch {
-      logout()
+    } catch (err: any) {
+      if (err.response && err.response.status === 401) {
+        logout()
+      }
     }
   }
 
@@ -58,9 +60,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setRole(tokenData.role)
 
     // Fetch full profile immediately
-    const profile = await usersApi.getMe()
-    setUser(profile)
-    localStorage.setItem('user', JSON.stringify(profile))
+    try {
+      const profile = await usersApi.getMe()
+      setUser(profile)
+      localStorage.setItem('user', JSON.stringify(profile))
+    } catch {
+      const fallbackUser: User = {
+        user_id: (tokenData as any).user_id || 1,
+        full_name: (tokenData as any).full_name || email.split('@')[0],
+        email: email,
+        role: tokenData.role || 'inspector',
+        is_active: true,
+        created_at: new Date().toISOString(),
+      }
+      setUser(fallbackUser)
+      localStorage.setItem('user', JSON.stringify(fallbackUser))
+    }
   }
 
   // Register new user (auto-role inspector)

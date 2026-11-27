@@ -21,9 +21,16 @@ export const Login: React.FC = () => {
       navigate('/dashboard')
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.detail) {
-        setError(err.response.data.detail)
+        const detail = err.response.data.detail
+        if (typeof detail === 'string') {
+          setError(detail)
+        } else if (Array.isArray(detail)) {
+          setError(detail.map((d: any) => d.msg || JSON.stringify(d)).join(', '))
+        } else {
+          setError(JSON.stringify(detail))
+        }
       } else {
-        setError('Login failed. Please check your credentials and try again.')
+        setError(err.message || 'Login failed. Please check your credentials and try again.')
       }
     } finally {
       setLoading(false)
