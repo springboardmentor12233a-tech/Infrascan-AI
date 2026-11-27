@@ -5,7 +5,7 @@ echo       Starting InfraScan AI Infrastructure System
 echo ========================================================
 echo.
 echo [1/2] Starting Backend API (FastAPI + Uvicorn)...
-start "InfraScan - Backend (FastAPI)" cmd /k "cd /d "%~dp0" && call .venv\Scripts\activate.bat && uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000"
+start "InfraScan - Backend (FastAPI)" cmd /k "cd /d "%~dp0" && .venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000"
 
 echo [2/2] Starting Frontend (React + Vite)...
 start "InfraScan - Frontend (React)" cmd /k "cd /d "%~dp0frontend" && npm run dev"
