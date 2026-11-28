@@ -9,7 +9,13 @@ from app.models.user import User
 from app.schemas.asset_inspection import InspectionCreate, InspectionUpdate, InspectionOut
 from app.core.deps import get_current_user, require_roles
 from app.services.audit import log_action
-from app.services.reporting import generate_inspection_pdf
+from app.services.reporting import (
+    generate_inspection_pdf,
+    generate_inspection_csv,
+    generate_inspection_excel,
+    generate_inspection_json,
+)
+from app.services.progression import compare_inspections, get_asset_progression_timeline
 
 router = APIRouter(tags=["Inspections"])
 
@@ -174,4 +180,89 @@ def download_inspection_report(
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
+
+
+@router.get("/{inspection_id}/report/csv")
+def download_inspection_csv(
+    inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Generates and downloads inspection findings as CSV."""
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    if not inspection:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspection not found")
+    csv_bytes = generate_inspection_csv(inspection)
+    filename = f"InfraScan_Inspection_{inspection_id}_Data.csv"
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/{inspection_id}/report/excel")
+def download_inspection_excel(
+    inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Generates and downloads inspection workbook as Excel (.xlsx)."""
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    if not inspection:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspection not found")
+    excel_bytes = generate_inspection_excel(inspection)
+    filename = f"InfraScan_Inspection_{inspection_id}_Assessment.xlsx"
+    return Response(
+        content=excel_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/{inspection_id}/report/json")
+def get_inspection_json(
+    inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns complete structured JSON assessment data for an inspection."""
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    if not inspection:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspection not found")
+    return generate_inspection_json(inspection)
+
+
+
+@router.get("/{inspection_id}/compare/{prev_inspection_id}")
+def compare_with_previous(
+    inspection_id: int,
+    prev_inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Compares current inspection against a previous inspection of the same asset,
+    quantifying crack dimension delta, defect emergence, and deterioration speed.
+    """
+    result = compare_inspections(inspection_id, prev_inspection_id, db)
+    if "error" in result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result["error"])
+    return result
+
+
+@router.get("/asset/{asset_id}/progression")
+def asset_progression(
+    asset_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns time-series defect progression data across all historical inspections of an asset.
+    """
+    result = get_asset_progression_timeline(asset_id, db)
+    if "error" in result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=result["error"])
+    return result
+
 

@@ -237,3 +237,129 @@ def generate_gradcam(image_bytes: bytes) -> bytes:
         logger.error(f"Grad-CAM generation error: {e}")
         return image_bytes
 
+
+def generate_gradcam_plus_plus(image_bytes: bytes) -> bytes:
+    """
+    Computes Grad-CAM++ with higher-order gradient weighting for accurate multiple defect localization.
+    """
+    model = get_torch_model()
+    if model is None:
+        return image_bytes
+
+    try:
+        import torch
+        import cv2
+
+        with Image.open(io.BytesIO(image_bytes)) as pil_img:
+            pil_img = pil_img.convert("RGB")
+            orig_w, orig_h = pil_img.size
+            orig_np = np.array(pil_img)
+
+        img_resized = cv2.resize(orig_np, (224, 224)).astype(np.float32) / 255.0
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+        tensor = torch.from_numpy(np.transpose((img_resized - mean) / std, (2, 0, 1))).unsqueeze(0).float()
+        tensor.requires_grad = True
+
+        activations = []
+        gradients = []
+
+        def forward_hook(module, inp, out):
+            activations.append(out)
+
+        def backward_hook(module, grad_in, grad_out):
+            gradients.append(grad_out[0])
+
+        target_layer = model.features[-1]
+        h_f = target_layer.register_forward_hook(forward_hook)
+        h_b = target_layer.register_full_backward_hook(backward_hook)
+
+        model.zero_grad()
+        logit = model(tensor)
+        score = torch.sigmoid(logit)
+        score.backward(retain_graph=True)
+
+        h_f.remove()
+        h_b.remove()
+
+        if not activations or not gradients:
+            return image_bytes
+
+        grads = gradients[0].detach()
+        acts = activations[0].detach()
+
+        # Grad-CAM++ alpha weighting
+        g2 = grads ** 2
+        g3 = grads ** 3
+        sum_acts = acts.sum(dim=(2, 3), keepdim=True)
+        alpha = g2 / (2 * g2 + sum_acts * g3 + 1e-7)
+        weights = (alpha * torch.relu(grads)).sum(dim=(2, 3), keepdim=True)
+        cam_pp = (weights * acts).sum(dim=1, keepdim=True)
+        cam_pp = torch.relu(cam_pp).squeeze().numpy()
+
+        c_min, c_max = cam_pp.min(), cam_pp.max()
+        if c_max - c_min > 1e-8:
+            cam_pp = (cam_pp - c_min) / (c_max - c_min)
+        else:
+            cam_pp = np.zeros_like(cam_pp)
+
+        cam_resized = cv2.resize(cam_pp, (orig_w, orig_h))
+        heatmap = cv2.applyColorMap(np.uint8(255 * cam_resized), cv2.COLORMAP_INFERNO)
+        heatmap_rgb = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
+        overlay = cv2.addWeighted(orig_np, 0.55, heatmap_rgb, 0.45, 0)
+
+        is_success, buffer = cv2.imencode(".jpg", cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+        return buffer.tobytes() if is_success else image_bytes
+    except Exception as e:
+        logger.error(f"Grad-CAM++ generation error: {e}")
+        return image_bytes
+
+
+def generate_saliency_map(image_bytes: bytes) -> bytes:
+    """
+    Computes input pixel saliency map (vanilla gradient backpropagation)
+    showing pixel-level gradient magnitudes influencing structural defect predictions.
+    """
+    model = get_torch_model()
+    if model is None:
+        return image_bytes
+
+    try:
+        import torch
+        import cv2
+
+        with Image.open(io.BytesIO(image_bytes)) as pil_img:
+            pil_img = pil_img.convert("RGB")
+            orig_w, orig_h = pil_img.size
+            orig_np = np.array(pil_img)
+
+        img_resized = cv2.resize(orig_np, (224, 224)).astype(np.float32) / 255.0
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+        tensor = torch.from_numpy(np.transpose((img_resized - mean) / std, (2, 0, 1))).unsqueeze(0).float()
+        tensor.requires_grad = True
+
+        model.zero_grad()
+        logit = model(tensor)
+        logit.backward()
+
+        saliency, _ = torch.max(tensor.grad.data.abs(), dim=1)
+        saliency_np = saliency.squeeze().numpy()
+        s_min, s_max = saliency_np.min(), saliency_np.max()
+        if s_max - s_min > 1e-8:
+            saliency_np = (saliency_np - s_min) / (s_max - s_min)
+        else:
+            saliency_np = np.zeros_like(saliency_np)
+
+        saliency_resized = cv2.resize(saliency_np, (orig_w, orig_h))
+        heatmap = cv2.applyColorMap(np.uint8(255 * saliency_resized), cv2.COLORMAP_HOT)
+        heatmap_rgb = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
+        overlay = cv2.addWeighted(orig_np, 0.60, heatmap_rgb, 0.40, 0)
+
+        is_success, buffer = cv2.imencode(".jpg", cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+        return buffer.tobytes() if is_success else image_bytes
+    except Exception as e:
+        logger.error(f"Saliency map generation error: {e}")
+        return image_bytes
+
+

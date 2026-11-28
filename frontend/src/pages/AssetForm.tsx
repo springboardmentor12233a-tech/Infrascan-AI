@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/client';
-import { Building2, ArrowLeft, Save, AlertCircle } from 'lucide-react';
+import { Building2, ArrowLeft, Save, AlertCircle, Sparkles } from 'lucide-react';
 import { AssetType } from '../types';
 
 const ASSET_TYPES: AssetType[] = [
@@ -101,27 +101,46 @@ export const AssetForm: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/assets" className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1.5">
-          <ArrowLeft className="w-4 h-4" /> Back to Assets
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isEdit ? 'Edit Infrastructure Asset' : 'Register New Infrastructure Asset'}
-        </h1>
+      {/* Top Header */}
+      <div className="card p-5 sm:p-6 flex items-center justify-between border-slate-200/80 bg-white">
+        <div className="flex items-center gap-3">
+          <Link 
+            to="/assets" 
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-xs"
+            title="Return to Asset Inventory"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              {isEdit ? 'Edit Infrastructure Asset' : 'Register New Infrastructure Asset'}
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Configure engineering parameters, GPS coordinates, and inspection intervals.
+            </p>
+          </div>
+        </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2.5">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="card p-8 space-y-6 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="card p-6 sm:p-8 space-y-6 border-slate-200/80 bg-white shadow-xs">
+        <div className="border-b border-slate-100 pb-4">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-blue-600" />
+            <span>Asset Identification & Classification</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
           {/* Asset Code */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Asset Code *
             </label>
             <input
@@ -131,13 +150,13 @@ export const AssetForm: React.FC = () => {
               value={formData.asset_code}
               onChange={handleChange}
               placeholder="e.g. BRG-001, TUN-402"
-              className="input-field font-mono font-medium"
+              className="input-field font-mono font-medium text-xs"
             />
           </div>
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Asset Structure Name *
             </label>
             <input
@@ -147,20 +166,20 @@ export const AssetForm: React.FC = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="e.g. Golden Gate Overpass Viaduct"
-              className="input-field"
+              className="input-field text-xs"
             />
           </div>
 
           {/* Type */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Structure Type *
             </label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              className="input-field bg-white"
+              className="input-field bg-white text-xs"
             >
               {ASSET_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -172,7 +191,7 @@ export const AssetForm: React.FC = () => {
 
           {/* Construction Year */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Construction Year (1800 - 2100)
             </label>
             <input
@@ -183,13 +202,13 @@ export const AssetForm: React.FC = () => {
               value={formData.construction_year}
               onChange={handleChange}
               placeholder="e.g. 1985"
-              className="input-field"
+              className="input-field text-xs"
             />
           </div>
 
           {/* Latitude */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Latitude (-90° to 90°)
             </label>
             <input
@@ -201,13 +220,13 @@ export const AssetForm: React.FC = () => {
               value={formData.latitude}
               onChange={handleChange}
               placeholder="e.g. 37.8199"
-              className="input-field"
+              className="input-field font-mono text-xs"
             />
           </div>
 
           {/* Longitude */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Longitude (-180° to 180°)
             </label>
             <input
@@ -219,13 +238,13 @@ export const AssetForm: React.FC = () => {
               value={formData.longitude}
               onChange={handleChange}
               placeholder="e.g. -122.4783"
-              className="input-field"
+              className="input-field font-mono text-xs"
             />
           </div>
 
           {/* Material Type */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Material Composition
             </label>
             <input
@@ -234,13 +253,13 @@ export const AssetForm: React.FC = () => {
               value={formData.material_type}
               onChange={handleChange}
               placeholder="e.g. Prestressed Reinforced Concrete, Steel"
-              className="input-field"
+              className="input-field text-xs"
             />
           </div>
 
           {/* Responsible Department */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Responsible Department
             </label>
             <input
@@ -249,13 +268,13 @@ export const AssetForm: React.FC = () => {
               value={formData.responsible_department}
               onChange={handleChange}
               placeholder="e.g. DOT Bridge Maintenance Division"
-              className="input-field"
+              className="input-field text-xs"
             />
           </div>
 
           {/* Inspection Frequency Days */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Inspection Frequency (Days)
             </label>
             <input
@@ -265,13 +284,13 @@ export const AssetForm: React.FC = () => {
               value={formData.inspection_frequency_days}
               onChange={handleChange}
               placeholder="e.g. 180 (Every 6 months)"
-              className="input-field"
+              className="input-field text-xs"
             />
           </div>
 
           {/* Location Text */}
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Physical Location & Address Description
             </label>
             <input
@@ -280,13 +299,13 @@ export const AssetForm: React.FC = () => {
               value={formData.location_text}
               onChange={handleChange}
               placeholder="e.g. Interstate 80, Mile Marker 42, North Bay"
-              className="input-field"
+              className="input-field text-xs"
             />
           </div>
 
           {/* Maintenance History */}
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Maintenance History / Engineering Logs
             </label>
             <textarea
@@ -295,18 +314,18 @@ export const AssetForm: React.FC = () => {
               value={formData.maintenance_history}
               onChange={handleChange}
               placeholder="Record previous retrofits, joint sealings, or structural repairs..."
-              className="input-field font-sans"
+              className="input-field font-sans text-xs"
             />
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-          <Link to="/assets" className="btn-secondary">
+        <div className="flex justify-end gap-3 pt-5 border-t border-slate-100">
+          <Link to="/assets" className="btn-secondary text-xs py-2 px-4">
             Cancel
           </Link>
-          <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
+          <button type="submit" disabled={loading} className="btn-primary text-xs py-2 px-4 flex items-center gap-2">
             <Save className="w-4 h-4" />
-            <span>{loading ? 'Saving...' : 'Save Asset'}</span>
+            <span>{loading ? 'Saving Asset...' : 'Save Asset Record'}</span>
           </button>
         </div>
       </form>

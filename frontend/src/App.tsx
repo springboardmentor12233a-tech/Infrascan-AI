@@ -13,6 +13,8 @@ import { AssetForm } from './pages/AssetForm';
 import { AssetDetail } from './pages/AssetDetail';
 import { InspectionView } from './pages/InspectionView';
 import { UserManagement } from './pages/UserManagement';
+import { MaintenancePriority } from './pages/MaintenancePriority';
+import { ModelComparison } from './pages/ModelComparison';
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
               <Route path="/assets" element={<AssetList />} />
               <Route path="/assets/:id" element={<AssetDetail />} />
               <Route path="/inspections/:id" element={<InspectionView />} />
+              <Route path="/maintenance" element={<MaintenancePriority />} />
+              <Route path="/model-comparison" element={<ModelComparison />} />
 
               {/* Manager & Admin Only Asset Modifications */}
               <Route

@@ -13,6 +13,9 @@ from app.routers.users import router as users_router
 from app.routers.assets import router as assets_router
 from app.routers.inspections import router as inspections_router
 from app.routers.images import router as images_router
+from app.routers.analytics import router as analytics_router
+from app.routers.work_orders import router as work_orders_router
+from app.routers.notifications import router as notifications_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -60,3 +63,6 @@ app.include_router(users_router, prefix="/users")
 app.include_router(assets_router, prefix="/assets")
 app.include_router(inspections_router, prefix="/inspections")
 app.include_router(images_router)
+app.include_router(analytics_router)
+app.include_router(work_orders_router, prefix="/work-orders")
+app.include_router(notifications_router, prefix="/notifications")

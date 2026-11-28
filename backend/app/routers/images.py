@@ -1,5 +1,6 @@
 import hashlib
 import io
+import json
 import os
 import uuid
 from typing import List, Optional
@@ -12,13 +13,34 @@ from app.database import get_db
 from app.config import settings
 from app.models.inspection import Inspection
 from app.models.inspection_image import InspectionImage, QualityStatus
+from app.models.notification import Notification, AlertLevel
 from app.models.user import User
 from app.schemas.image import ImageOut
 from app.core.deps import get_current_user
 from app.services.storage import storage
-from app.services.preprocessing import assess_quality, enhance_image
-from app.services.inference import classify_damage, generate_gradcam
-from app.services.segmentation import segment_crack, extract_crack_geometry_and_boxes, draw_bounding_boxes, render_mask_png
+from app.services.preprocessing import (
+    assess_quality,
+    enhance_image,
+    sharpen_image,
+    shadow_reduction,
+    edge_enhancement,
+    texture_enhancement,
+    roi_extraction,
+)
+from app.services.inference import (
+    classify_damage,
+    generate_gradcam,
+    generate_gradcam_plus_plus,
+    generate_saliency_map,
+)
+from app.services.segmentation import (
+    segment_crack,
+    extract_crack_geometry_and_boxes,
+    draw_bounding_boxes,
+    render_mask_png,
+    render_skeleton_overlay,
+)
+from app.services.damage_classifier import detect_multi_class_damage, compute_overall_risk_score
 from app.services.audit import log_action
 
 router = APIRouter(tags=["Images"])
@@ -131,6 +153,14 @@ async def upload_inspection_images(
         mask, _ = segment_crack(content, has_crack=has_crack)
         geom = extract_crack_geometry_and_boxes(mask, (height, width))
 
+        # Multi-class structural damage & overall risk score
+        multi_damage = detect_multi_class_damage(
+            content,
+            has_crack=has_crack,
+            crack_confidence=damage_eval.get("confidence_score") or 0.0
+        )
+        risk_info = compute_overall_risk_score(multi_damage)
+
         image_record = InspectionImage(
             inspection_id=inspection_id,
             file_path=safe_filename,
@@ -151,7 +181,16 @@ async def upload_inspection_images(
             avg_crack_width_px=geom.get("avg_crack_width_px"),
             crack_density_pct=geom.get("crack_density_pct"),
             crack_area_px=geom.get("crack_area_px"),
+            crack_length_mm=geom.get("crack_length_mm"),
+            max_crack_width_mm=geom.get("max_crack_width_mm"),
+            avg_crack_width_mm=geom.get("avg_crack_width_mm"),
+            crack_area_mm2=geom.get("crack_area_mm2"),
+            orientation_deg=geom.get("orientation_deg"),
+            branching_points=geom.get("branching_points"),
+            calibration_mm_per_px=geom.get("calibration_mm_per_px", 0.2),
             bounding_boxes=geom.get("bounding_boxes"),
+            damage_types=json.dumps(multi_damage),
+            risk_score=float(risk_info["risk_score"]),
         )
         db.add(image_record)
         uploaded_records.append(image_record)
@@ -196,16 +235,24 @@ def list_inspection_images(
 @router.get("/images/{image_id}/preview")
 def preview_image(
     image_id: int,
-    mode: str = Query("original", pattern="^(original|enhanced|gradcam|mask|boxes)$"),
+    mode: str = Query("original", pattern="^(original|enhanced|sharpen|shadow_reduction|edge|texture|roi|gradcam|gradcam_plus|saliency|mask|skeleton|boxes)$"),
     db: Session = Depends(get_db)
 ):
     """
     Stream either:
     - original: Raw uploaded image
     - enhanced: CLAHE + Gaussian denoising
+    - sharpen: Unsharp masking for fissure sharpening
+    - shadow_reduction: Illumination normalization & shadow attenuation
+    - edge: Canny & Sobel crack boundary edge contours
+    - texture: Concrete aggregate roughness & spalling texture
+    - roi: Central concrete surface region-of-interest isolation
     - gradcam: Activation heatmap (explainable AI)
-    - mask: Segmentation mask overlay (crack boundary delineation)
-    - boxes: Bounding boxes (defect localization)
+    - gradcam_plus: Grad-CAM++ with higher-order gradient weighting
+    - saliency: Pixel-level gradient saliency map
+    - mask: Segmentation mask overlay
+    - skeleton: Medial axis crack skeleton & junction nodes
+    - boxes: Multi-defect localized bounding boxes
     """
     image_record = db.query(InspectionImage).filter(InspectionImage.id == image_id).first()
     if not image_record:
@@ -226,48 +273,74 @@ def preview_image(
 
     media_type = "image/jpeg" if file_path.lower().endswith((".jpg", ".jpeg")) else "image/png"
 
-    if mode == "enhanced":
-        try:
-            enhanced_bytes = enhance_image(content)
-            return Response(content=enhanced_bytes, media_type="image/jpeg")
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to enhance image: {str(e)}"
-            )
-
-    if mode == "gradcam":
-        try:
-            gradcam_bytes = generate_gradcam(content)
-            return Response(content=gradcam_bytes, media_type="image/jpeg")
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to generate Grad-CAM heatmap: {str(e)}"
-            )
-
-    if mode == "mask":
-        try:
+    try:
+        if mode == "enhanced":
+            return Response(content=enhance_image(content), media_type="image/jpeg")
+        elif mode == "sharpen":
+            return Response(content=sharpen_image(content), media_type="image/jpeg")
+        elif mode == "shadow_reduction":
+            return Response(content=shadow_reduction(content), media_type="image/jpeg")
+        elif mode == "edge":
+            return Response(content=edge_enhancement(content), media_type="image/jpeg")
+        elif mode == "texture":
+            return Response(content=texture_enhancement(content), media_type="image/jpeg")
+        elif mode == "roi":
+            return Response(content=roi_extraction(content), media_type="image/jpeg")
+        elif mode == "gradcam":
+            return Response(content=generate_gradcam(content), media_type="image/jpeg")
+        elif mode == "gradcam_plus":
+            return Response(content=generate_gradcam_plus_plus(content), media_type="image/jpeg")
+        elif mode == "saliency":
+            return Response(content=generate_saliency_map(content), media_type="image/jpeg")
+        elif mode == "mask":
             _, overlay_rgb = segment_crack(content, has_crack=bool(image_record.has_crack))
             is_success, buffer = cv2.imencode(".jpg", cv2.cvtColor(overlay_rgb, cv2.COLOR_RGB2BGR))
             return Response(content=buffer.tobytes(), media_type="image/jpeg")
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to generate crack segmentation mask: {str(e)}"
-            )
-
-    if mode == "boxes":
-        try:
-            boxes_bytes = draw_bounding_boxes(content, image_record.bounding_boxes or "[]")
+        elif mode == "skeleton":
+            mask, _ = segment_crack(content, has_crack=bool(image_record.has_crack))
+            return Response(content=render_skeleton_overlay(content, mask), media_type="image/jpeg")
+        elif mode == "boxes":
+            boxes_bytes = draw_bounding_boxes(content, image_record.bounding_boxes or "[]", image_record.damage_types)
             return Response(content=boxes_bytes, media_type="image/jpeg")
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to draw bounding boxes: {str(e)}"
-            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to render mode '{mode}': {str(e)}"
+        )
 
     return Response(content=content, media_type=media_type)
+
+
+@router.put("/images/{image_id}/calibration", response_model=ImageOut)
+def update_image_calibration(
+    image_id: int,
+    calibration_mm_per_px: float = Query(..., gt=0.0, le=10.0, description="Real-world mm per pixel scale factor"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Updates the pixel-to-real-world scale conversion ratio (mm/px) and recalculates
+    physical dimensions (length, width, area in millimeters).
+    """
+    img = db.query(InspectionImage).filter(InspectionImage.id == image_id).first()
+    if not img:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image record not found")
+
+    img.calibration_mm_per_px = calibration_mm_per_px
+    if img.crack_length_px:
+        img.crack_length_mm = round(img.crack_length_px * calibration_mm_per_px, 2)
+    if img.max_crack_width_px:
+        img.max_crack_width_mm = round(img.max_crack_width_px * calibration_mm_per_px, 2)
+    if img.avg_crack_width_px:
+        img.avg_crack_width_mm = round(img.avg_crack_width_px * calibration_mm_per_px, 2)
+    if img.crack_area_px:
+        img.crack_area_mm2 = round(img.crack_area_px * (calibration_mm_per_px ** 2), 2)
+
+    db.commit()
+    db.refresh(img)
+    data = ImageOut.model_validate(img)
+    data.url = f"/uploads/{img.file_path}"
+    return data
 
 
 @router.post("/inspections/{inspection_id}/analyze")
@@ -314,19 +387,50 @@ def analyze_inspection_images(
 
             # Extract segmentation mask, bounding boxes & morphology measurements
             mask, _ = segment_crack(content, has_crack=has_crack)
-            geom = extract_crack_geometry_and_boxes(mask, (img.height, img.width))
+            geom = extract_crack_geometry_and_boxes(
+                mask,
+                (img.height, img.width),
+                calibration_mm_per_px=img.calibration_mm_per_px or 0.2
+            )
             img.crack_type = geom.get("crack_type")
             img.crack_length_px = geom.get("crack_length_px")
             img.max_crack_width_px = geom.get("max_crack_width_px")
             img.avg_crack_width_px = geom.get("avg_crack_width_px")
             img.crack_density_pct = geom.get("crack_density_pct")
             img.crack_area_px = geom.get("crack_area_px")
+            img.crack_length_mm = geom.get("crack_length_mm")
+            img.max_crack_width_mm = geom.get("max_crack_width_mm")
+            img.avg_crack_width_mm = geom.get("avg_crack_width_mm")
+            img.crack_area_mm2 = geom.get("crack_area_mm2")
+            img.orientation_deg = geom.get("orientation_deg")
+            img.branching_points = geom.get("branching_points")
             img.bounding_boxes = geom.get("bounding_boxes")
+
+            # Multi-class structural damage & overall risk score
+            multi_damage = detect_multi_class_damage(
+                content,
+                has_crack=has_crack,
+                crack_confidence=eval_res.get("confidence_score") or 0.0,
+                crack_boxes=geom.get("boxes_list", [])
+            )
+            risk_info = compute_overall_risk_score(multi_damage)
+            img.damage_types = json.dumps(multi_damage)
+            img.risk_score = float(risk_info["risk_score"])
 
             if img.has_crack:
                 cracked_count += 1
             if severity_order.get(img.severity_level, 0) > severity_order.get(max_severity, 0):
                 max_severity = img.severity_level
+
+    if max_severity in ["Critical", "High"]:
+        asset_name = inspection.asset.name if inspection.asset else f"Asset #{inspection.asset_id}"
+        db.add(Notification(
+            target_role="Civil Engineer",
+            title=f"High Risk Alert: {asset_name}",
+            message=f"Inspection #{inspection_id} detected {max_severity} severity damage on {asset_name}. Engineering review recommended.",
+            alert_level=AlertLevel.CRITICAL if max_severity == "Critical" else AlertLevel.HIGH,
+            link=f"/inspections/{inspection_id}"
+        ))
 
     db.commit()
 

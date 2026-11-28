@@ -76,7 +76,16 @@ class InspectionImage(Base):
     avg_crack_width_px: Mapped[float | None] = mapped_column(Float, nullable=True)
     crack_density_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
     crack_area_px: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    crack_length_mm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    max_crack_width_mm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    avg_crack_width_mm: Mapped[float | None] = mapped_column(Float, nullable=True)
+    crack_area_mm2: Mapped[float | None] = mapped_column(Float, nullable=True)
+    orientation_deg: Mapped[float | None] = mapped_column(Float, nullable=True)
+    branching_points: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    calibration_mm_per_px: Mapped[float | None] = mapped_column(Float, default=0.2, nullable=True)
     bounding_boxes: Mapped[str | None] = mapped_column(String(2000), nullable=True)  # JSON-serialized boxes
+    damage_types: Mapped[str | None] = mapped_column(String(2000), nullable=True)    # JSON-serialized multi-class damage
+    risk_score: Mapped[float | None] = mapped_column(Float, nullable=True)            # Overall damage risk score (0-100)
 
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), nullable=False

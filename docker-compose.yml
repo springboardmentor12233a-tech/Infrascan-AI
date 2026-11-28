@@ -1,38 +1,79 @@
 version: "3.9"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# InfraScan – Docker Compose
+# InfraScan – AI-Powered Infrastructure Inspection & Damage Assessment
+# Multi-container production-ready Docker Compose orchestration
 #
 # Services:
-#   db  → PostgreSQL 15 (required for production-like dev)
+#   db       → PostgreSQL 15 relational database
+#   backend  → FastAPI REST API + PyTorch/ONNX AI Inference Engines
+#   frontend → React 18 + Tailwind CSS SPA served via Nginx reverse proxy
 #
-# How to start:  docker compose up -d
-# How to stop:   docker compose down
-# Reset data:    docker compose down -v   ← WARNING: deletes the database!
+# Usage:
+#   docker compose up -d --build
+#   docker compose down
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
   db:
-    image: postgres:15-alpine          # small, stable Postgres image
+    image: postgres:15-alpine
     container_name: infrascan_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: infrascan
-      POSTGRES_PASSWORD: infrascan_pass
-      POSTGRES_DB: infrascan_db
+      POSTGRES_USER: ${POSTGRES_USER:-infrascan}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-infrascan_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-infrascan_db}
     ports:
-      - "5432:5432"                    # expose on localhost so the backend can connect
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data   # persist data between restarts
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U infrascan -d infrascan_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-infrascan} -d ${POSTGRES_DB:-infrascan_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-# ─── Optional Services ────────────────────────────────────────────────────────
-# Add MinIO / Redis / Celery workers here when scaling distributed workers.
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infrascan_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-infrascan}:${POSTGRES_PASSWORD:-infrascan_pass}@db:5432/${POSTGRES_DB:-infrascan_db}
+      - SECRET_KEY=${SECRET_KEY:-infrascan_super_secret_jwt_key_civil_inspection_2026}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - STORAGE_DIR=/app/storage
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_storage:/app/storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: infrascan_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:8000
 
 volumes:
   postgres_data:
     name: infrascan_postgres_data
+  backend_storage:
+    name: infrascan_backend_storage

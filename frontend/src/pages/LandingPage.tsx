@@ -112,11 +112,11 @@ export const LandingPage: React.FC = () => {
           {/* Quick Metrics Bar */}
           <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
             <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/80">
-              <p className="text-2xl font-black text-white">83.56%</p>
-              <p className="text-xs text-slate-400 mt-1">Multi-Asset Accuracy</p>
+              <p className="text-2xl font-black text-emerald-400">94.6%</p>
+              <p className="text-xs text-slate-400 mt-1">Dual-Benchmark Accuracy</p>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/80">
-              <p className="text-2xl font-black text-blue-400">&lt; 15 ms</p>
+              <p className="text-2xl font-black text-blue-400">~50 ms</p>
               <p className="text-xs text-slate-400 mt-1">ONNX CPU Latency</p>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/80">
@@ -124,7 +124,7 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-400 mt-1">Inspection Studio</p>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/80">
-              <p className="text-2xl font-black text-emerald-400">100%</p>
+              <p className="text-2xl font-black text-purple-400">100%</p>
               <p className="text-xs text-slate-400 mt-1">Automated PDF Reports</p>
             </div>
           </div>

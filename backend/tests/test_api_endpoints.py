@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
+import app.models
 from app.main import app
 from app.models.role import Role, ROLE_NAMES
 from app.models.infrastructure_asset import InfrastructureAsset, AssetType
@@ -217,3 +218,163 @@ def test_image_validations(client: TestClient, db_session):
     )
     assert dup_res.status_code == 400
     assert "Duplicate image detected" in dup_res.json()["detail"]
+
+
+# --- 5. Test Work Orders CRUD (Module 16) ---
+def test_work_orders_crud(client: TestClient, db_session):
+    admin_token = get_user_token(client, db_session, "Administrator", "admin_wo_test")
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # Create dummy asset
+    asset_res = client.post("/assets/", json={
+        "asset_code": "WO-ASSET-01",
+        "name": "Maintenance Test Bridge",
+        "type": "Bridge"
+    }, headers=headers)
+    asset_id = asset_res.json()["id"]
+
+    # 1. Create work order
+    wo_payload = {
+        "asset_id": asset_id,
+        "title": "Repair Abutment Concrete Spalling",
+        "description": "Epoxy injection required on pier 3",
+        "priority": "High Priority",
+        "estimated_cost": 4500.0,
+        "due_date": "2026-12-15"
+    }
+    create_res = client.post("/work-orders/", json=wo_payload, headers=headers)
+    assert create_res.status_code == 201
+    wo_data = create_res.json()
+    assert wo_data["title"] == wo_payload["title"]
+    assert wo_data["status"] == "Open"
+    wo_id = wo_data["id"]
+
+    # 2. List work orders
+    list_res = client.get("/work-orders/", headers=headers)
+    assert list_res.status_code == 200
+    assert any(w["id"] == wo_id for w in list_res.json())
+
+    # 3. Update work order status
+    update_res = client.put(f"/work-orders/{wo_id}", json={
+        "status": "In Progress",
+        "resolution_notes": "Scaffolding erected on site."
+    }, headers=headers)
+    assert update_res.status_code == 200
+    assert update_res.json()["status"] == "In Progress"
+    assert update_res.json()["resolution_notes"] == "Scaffolding erected on site."
+
+    # 4. Filter by status
+    filter_res = client.get("/work-orders/?status_filter=In%20Progress", headers=headers)
+    assert filter_res.status_code == 200
+    assert any(w["id"] == wo_id for w in filter_res.json())
+
+
+# --- 6. Test Notifications & Alerts (Module 20) ---
+def test_notifications_endpoints(client: TestClient, db_session):
+    admin_token = get_user_token(client, db_session, "Administrator", "admin_notif_test")
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # 1. Create custom alert
+    create_res = client.post("/notifications/", json={
+        "title": "Structural Alert Triggered",
+        "message": "Critical crack aperture > 2.0mm detected on Bridge B-1",
+        "severity": "Critical",
+        "target_role": "Administrator"
+    }, headers=headers)
+    assert create_res.status_code == 201
+    notif_id = create_res.json()["id"]
+
+    # 2. List notifications
+    list_res = client.get("/notifications/", headers=headers)
+    assert list_res.status_code == 200
+    assert any(n["id"] == notif_id for n in list_res.json())
+
+    # 3. Mark single notification as read
+    read_res = client.patch(f"/notifications/{notif_id}/read", headers=headers)
+    assert read_res.status_code == 200
+    assert read_res.json()["is_read"] is True
+
+    # 4. Mark all as read
+    read_all_res = client.post("/notifications/read-all", headers=headers)
+    assert read_all_res.status_code == 200
+
+
+# --- 7. Test Multi-Format Reporting & Historical Progression (Modules 15 & 18) ---
+def test_inspection_reports_and_progression(client: TestClient, db_session):
+    admin_token = get_user_token(client, db_session, "Administrator", "admin_rep_test")
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # Create asset & inspection
+    asset_res = client.post("/assets/", json={
+        "asset_code": "REP-ASSET-01",
+        "name": "Report Test Dam",
+        "type": "Dam"
+    }, headers=headers)
+    asset_id = asset_res.json()["id"]
+
+    me_res = client.get("/auth/me", headers=headers)
+    admin_id = me_res.json()["id"]
+
+    insp_res = client.post("/inspections/", json={
+        "asset_id": asset_id,
+        "inspector_id": admin_id,
+        "inspection_date": "2026-11-01"
+    }, headers=headers)
+    inspection_id = insp_res.json()["id"]
+
+    # 1. CSV Report
+    csv_res = client.get(f"/inspections/{inspection_id}/report/csv", headers=headers)
+    assert csv_res.status_code == 200
+    assert "text/csv" in csv_res.headers.get("content-type", "")
+    assert "InfraScan" in csv_res.text
+
+    # 2. Excel Report
+    excel_res = client.get(f"/inspections/{inspection_id}/report/excel", headers=headers)
+    assert excel_res.status_code == 200
+    assert "spreadsheetml" in excel_res.headers.get("content-type", "")
+    assert len(excel_res.content) > 100
+
+    # 3. JSON Export
+    json_res = client.get(f"/inspections/{inspection_id}/report/json", headers=headers)
+    assert json_res.status_code == 200
+    report_json = json_res.json()
+    assert report_json["inspection_id"] == inspection_id
+    assert "summary" in report_json
+    assert "asset" in report_json
+    assert "disclaimer" in report_json
+
+    # 4. Asset Progression Timeline
+    prog_res = client.get(f"/inspections/asset/{asset_id}/progression", headers=headers)
+    assert prog_res.status_code == 200
+    prog_data = prog_res.json()
+    assert prog_data["asset_id"] == asset_id
+    assert "timeline" in prog_data
+    assert len(prog_data["timeline"]) >= 1
+
+
+# --- 8. Test Model Versioning & Evaluation Metrics (Modules 11 & 21) ---
+def test_model_versioning_and_metrics(client: TestClient, db_session):
+    admin_token = get_user_token(client, db_session, "Administrator", "admin_model_test")
+    headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # 1. Evaluation metrics (confusion matrix, ROC, class metrics)
+    metrics_res = client.get("/analytics/models/evaluation-metrics", headers=headers)
+    assert metrics_res.status_code == 200
+    metrics = metrics_res.json()
+    assert "confusion_matrix" in metrics
+    assert "metrics" in metrics
+    assert metrics["metrics"]["overall_accuracy"] > 90
+
+    # 2. Model comparison registry
+    comparison_res = client.get("/analytics/model-comparison", headers=headers)
+    assert comparison_res.status_code == 200
+    comp_data = comparison_res.json()
+    assert "models" in comp_data
+    assert len(comp_data["models"]) >= 4
+
+    # 3. Deploy/activate model
+    deploy_res = client.post("/analytics/models/yolov8_detector/deploy", headers=headers)
+    assert deploy_res.status_code == 200
+    assert "deployed" in deploy_res.json()["message"].lower()
+    assert deploy_res.json()["active_model"]["id"] == "yolov8_detector"
+

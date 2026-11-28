@@ -15,3 +15,5 @@ from app.models.inspection_image import (               # noqa: F401
     InspectionImage, QualityStatus
 )
 from app.models.audit_log import AuditLog               # noqa: F401
+from app.models.work_order import WorkOrder, WorkOrderStatus, WorkOrderPriority  # noqa: F401
+from app.models.notification import Notification, AlertLevel                    # noqa: F401
