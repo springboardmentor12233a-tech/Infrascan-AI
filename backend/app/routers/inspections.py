@@ -31,15 +31,15 @@ def format_inspection_response(insp: Inspection) -> InspectionResponse:
     )
 
 
-# 1. POST /inspections - Create inspection (admin, manager, civil_engineer)
+# 1. POST /inspections - Create inspection (admin, manager, civil_engineer, inspector)
 @router.post("", response_model=InspectionResponse, status_code=status.HTTP_201_CREATED)
 def create_inspection(
     inspection_data: InspectionCreate,
     request: Request,
-    current_user: User = Depends(require_roles("admin", "manager", "civil_engineer")),
+    current_user: User = Depends(require_roles("admin", "manager", "civil_engineer", "inspector")),
     db: Session = Depends(get_db),
 ):
-    """Schedule a new inspection. The assigned user must have the 'inspector' role."""
+    """Schedule or start a new inspection. Inspectors can schedule inspections for themselves or assets."""
     # Validate asset exists
     asset = db.query(InfrastructureAsset).filter(
         InfrastructureAsset.asset_id == inspection_data.asset_id
@@ -47,22 +47,19 @@ def create_inspection(
     if not asset:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asset not found")
 
-    # Validate inspector exists and has inspector role
-    inspector = db.query(User).filter(User.user_id == inspection_data.inspector_id).first()
+    # If user is inspector, default inspector_id to self
+    target_inspector_id = inspection_data.inspector_id if (inspection_data.inspector_id and current_user.role != "inspector") else current_user.user_id
+
+    # Validate inspector exists
+    inspector = db.query(User).filter(User.user_id == target_inspector_id).first()
     if not inspector:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspector user not found")
 
-    if inspector.role != "inspector":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The assigned user must have the 'inspector' role.",
-        )
-
     new_inspection = Inspection(
         asset_id=inspection_data.asset_id,
-        inspector_id=inspection_data.inspector_id,
+        inspector_id=target_inspector_id,
         inspection_date=inspection_data.inspection_date,
-        status=inspection_data.status,
+        status=inspection_data.status or "in_progress",
     )
     db.add(new_inspection)
     db.commit()

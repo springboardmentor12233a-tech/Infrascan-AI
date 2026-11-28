@@ -6,6 +6,7 @@ export const Register: React.FC = () => {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [selectedRole, setSelectedRole] = useState<'inspector' | 'admin'>('inspector')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -23,7 +24,7 @@ export const Register: React.FC = () => {
 
     setLoading(true)
     try {
-      await register(fullName, email, password)
+      await register(fullName, email, password, selectedRole)
       navigate('/dashboard')
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.detail) {
@@ -114,17 +115,58 @@ export const Register: React.FC = () => {
             />
           </div>
 
-          {/* Automatic Role Notice */}
-          <div className="p-3 bg-[#141619]/60 border border-[rgba(179,180,189,0.15)] rounded-2xl">
-            <span className="text-[10px] font-bold text-[#B3B4BD] uppercase tracking-wider">
-              Assigned Role
-            </span>
-            <p className="text-xs font-semibold text-white mt-0.5">
-              Inspector{' '}
-              <span className="text-[#B3B4BD] font-normal">
-                (Standard initial role; admins can configure elevated roles)
-              </span>
-            </p>
+          {/* Account Role Selection */}
+          <div>
+            <label className="block text-xs font-semibold text-[#B3B4BD] uppercase tracking-wider mb-2">
+              Select User Role / Account Type
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedRole('inspector')}
+                className={`p-3 rounded-2xl border text-left transition-all ${
+                  selectedRole === 'inspector'
+                    ? 'bg-[#0A21C0]/20 border-[#0A21C0] shadow-[0_0_15px_rgba(10,33,192,0.3)]'
+                    : 'bg-[#141619]/60 border-[rgba(179,180,189,0.15)] hover:border-[rgba(179,180,189,0.3)]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    Inspector
+                  </span>
+                  {selectedRole === 'inspector' && (
+                    <span className="text-[#0A21C0] text-xs font-bold">✓</span>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#B3B4BD] leading-tight">
+                  Field inspection, image capture & crack upload.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedRole('admin')}
+                className={`p-3 rounded-2xl border text-left transition-all ${
+                  selectedRole === 'admin'
+                    ? 'bg-[#0A21C0]/20 border-[#0A21C0] shadow-[0_0_15px_rgba(10,33,192,0.3)]'
+                    : 'bg-[#141619]/60 border-[rgba(179,180,189,0.15)] hover:border-[rgba(179,180,189,0.3)]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
+                    Administrator
+                  </span>
+                  {selectedRole === 'admin' && (
+                    <span className="text-[#0A21C0] text-xs font-bold">✓</span>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#B3B4BD] leading-tight">
+                  Asset management, reports & overall governance.
+                </p>
+              </button>
+            </div>
           </div>
 
           <button
@@ -141,7 +183,7 @@ export const Register: React.FC = () => {
                 <span>Creating Account...</span>
               </>
             ) : (
-              'Create Inspector Account'
+              `Create ${selectedRole === 'admin' ? 'Administrator' : 'Inspector'} Account`
             )}
           </button>
         </form>

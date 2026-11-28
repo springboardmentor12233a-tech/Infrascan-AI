@@ -58,7 +58,10 @@ async def upload_inspection_images(
 
     # Permission check: assigned inspector or civil_engineer or admin
     if current_user.role == "inspector":
-        if inspection.inspector_id != current_user.user_id:
+        if inspection.inspector_id is None:
+            inspection.inspector_id = current_user.user_id
+            db.commit()
+        elif inspection.inspector_id != current_user.user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Inspectors can only upload photos to their own assigned inspections.",

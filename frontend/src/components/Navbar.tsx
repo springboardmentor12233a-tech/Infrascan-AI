@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { notificationsApi, type NotificationItem } from '../api/client'
 
 export const Navbar: React.FC = () => {
   const { user, role, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
@@ -42,11 +44,11 @@ export const Navbar: React.FC = () => {
           {/* Logo / Brand */}
           <div className="flex items-center space-x-8">
             <Link to="/dashboard" className="flex items-center space-x-3 group">
-              <div className="w-8 h-8 rounded-lg bg-[#0A21C0] flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(10,33,192,0.6)] group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-lg bg-[#3D52A0] flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(112,145,230,0.6)] group-hover:scale-105 transition-transform border border-[#7091E6]/40">
                 IS
               </div>
               <span className="text-xl font-bold tracking-tight text-white">
-                Infra<span className="text-[#0A21C0]">Scan</span>
+                Infra<span className="text-[#7091E6]">Scan</span>
               </span>
             </Link>
 
@@ -114,7 +116,27 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Right controls */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full text-[#B3B4BD] hover:text-white hover:bg-[#2C2E3A] transition-colors cursor-pointer"
+              title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+              aria-label="Toggle Light and Dark Theme"
+            >
+              {theme === 'dark' ? (
+                /* Sun Icon for Light mode */
+                <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                /* Moon Icon for Dark mode */
+                <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
+
             {/* Notification Bell */}
             <div className="relative">
               <button

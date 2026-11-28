@@ -10,6 +10,7 @@ class AuthIn(BaseModel):
     password: str = Field(min_length=6)
     name: str | None = None
     full_name: str | None = None
+    role: str | None = "inspector"
 
 
 class UserOut(BaseModel):

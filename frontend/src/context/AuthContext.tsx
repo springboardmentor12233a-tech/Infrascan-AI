@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (fullName: string, email: string, password: string) => Promise<void>
+  register: (fullName: string, email: string, password: string, role?: string) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -78,17 +78,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
-  // Register new user (auto-role inspector)
+  // Register new user with selected role (defaults to inspector)
   const register = async (
     fullName: string,
     email: string,
     password: string,
+    chosenRole: string = 'inspector',
   ) => {
-    const regResult = await authApi.register(fullName, email, password)
+    const regResult = await authApi.register(fullName, email, password, chosenRole)
     // If backend returns token on register, use it immediately
     if ((regResult as any).access_token) {
       const accessToken = (regResult as any).access_token
-      const userRole = regResult.role || 'inspector'
+      const userRole = regResult.role || chosenRole || 'inspector'
       localStorage.setItem('token', accessToken)
       localStorage.setItem('role', userRole)
       localStorage.setItem('user', JSON.stringify(regResult))

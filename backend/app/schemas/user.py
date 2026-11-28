@@ -2,17 +2,24 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 
-# Schema for user registration (role is not selectable by user)
+# Schema for user registration (role defaults to inspector, or admin if chosen)
 class UserRegisterRequest(BaseModel):
     full_name: str | None = None
     name: str | None = None
     email: EmailStr = Field(..., description="Valid email address")
     password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
+    role: str | None = Field(default="inspector", description="Role: inspector or admin")
 
     @model_validator(mode="after")
     def populate_name(self):
         if not self.full_name:
             self.full_name = self.name or self.email.split("@")[0]
+        if self.role:
+            self.role = self.role.lower().strip()
+            if self.role not in ["inspector", "admin", "civil_engineer", "manager"]:
+                self.role = "inspector"
+        else:
+            self.role = "inspector"
         return self
 
 

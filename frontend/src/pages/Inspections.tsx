@@ -37,7 +37,7 @@ export const Inspections: React.FC = () => {
   const [modalSubmitting, setModalSubmitting] = useState(false)
 
   const canCreateInspection =
-    role === 'admin' || role === 'manager' || role === 'civil_engineer'
+    role === 'admin' || role === 'manager' || role === 'civil_engineer' || role === 'inspector'
 
   // Fetch inspections based on current user role & filter
   const fetchInspections = async () => {
@@ -72,9 +72,13 @@ export const Inspections: React.FC = () => {
       setAssetsList(assetsData.items)
       setInspectorsList(inspectorsData)
 
+      const defaultInspectorId = (role === 'inspector' && user?.user_id) 
+        ? user.user_id 
+        : (inspectorsData[0]?.user_id || user?.user_id || 0)
+
       setModalForm({
         asset_id: assetsData.items[0]?.asset_id || 0,
-        inspector_id: inspectorsData[0]?.user_id || 0,
+        inspector_id: defaultInspectorId,
         inspection_date: new Date().toISOString().split('T')[0],
       })
       setIsModalOpen(true)

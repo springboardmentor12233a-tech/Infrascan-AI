@@ -30,12 +30,14 @@ def register(
     # Hash password using bcrypt directly
     hashed = hash_password(user_data.password)
 
-    # New users always receive the inspector role
+    # User role defaults to inspector, or admin/civil_engineer if selected
+    assigned_role = user_data.role if user_data.role in ["inspector", "admin", "civil_engineer", "manager"] else "inspector"
+
     new_user = User(
         full_name=user_data.full_name,
         email=email,
         password_hash=hashed,
-        role="inspector",
+        role=assigned_role,
         is_active=True,
     )
     db.add(new_user)

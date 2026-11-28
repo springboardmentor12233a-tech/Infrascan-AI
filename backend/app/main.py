@@ -222,11 +222,12 @@ def register(
         )
 
     full_name = payload.full_name or payload.name or email.split("@")[0]
+    assigned_role = payload.role if payload.role in ["inspector", "admin", "civil_engineer", "manager"] else "inspector"
     user = User(
         full_name=full_name,
         email=email,
         password_hash=hash_password(payload.password),
-        role="inspector",
+        role=assigned_role,
         is_active=True,
     )
 

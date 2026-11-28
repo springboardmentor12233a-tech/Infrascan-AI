@@ -35,6 +35,7 @@ export const Upload: React.FC = () => {
 
   // Upload progress & feedback
   const [uploading, setUploading] = useState(false)
+  const [creatingInspection, setCreatingInspection] = useState(false)
   const [progress, setProgress] = useState(0)
   const [results, setResults] = useState<UploadResultItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -55,12 +56,9 @@ export const Upload: React.FC = () => {
 
         setAssets(assetsData.items)
 
-        // Filter inspections user is allowed to upload to:
+        // Eligible inspections (open or in-progress)
         const eligible = inspectionsData.filter((i) => {
           if (i.status === 'completed' || i.status === 'reviewed') return false
-          if (role === 'inspector') {
-            return i.inspector_id === user?.user_id
-          }
           return true
         })
 
@@ -70,6 +68,7 @@ export const Upload: React.FC = () => {
           setSelectedAssetId(eligible[0].asset_id)
         } else if (assetsData.items.length > 0) {
           setSelectedAssetId(assetsData.items[0].asset_id)
+          setSelectedInspectionId(0)
         }
       } catch (err: any) {
         setError(
@@ -81,6 +80,31 @@ export const Upload: React.FC = () => {
     }
     initData()
   }, [user, role])
+
+  // Quick auto-create an inspection session if none exists
+  const handleQuickCreateInspection = async (assetIdOverride?: number): Promise<number | null> => {
+    const assetId = assetIdOverride || selectedAssetId || (assets[0]?.asset_id ?? 1)
+    try {
+      setCreatingInspection(true)
+      setError(null)
+      const newInsp = await inspectionsApi.create({
+        asset_id: assetId,
+        inspection_date: new Date().toISOString().split('T')[0],
+        inspector_id: user?.user_id,
+        status: 'in_progress',
+        notes: `Field Inspection initialized via Direct Photo Ingestion for asset #${assetId}`,
+      })
+      setInspections((prev) => [newInsp, ...prev])
+      setSelectedInspectionId(newInsp.inspection_id)
+      setSelectedAssetId(assetId)
+      return newInsp.inspection_id
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to initialize inspection session.')
+      return null
+    } finally {
+      setCreatingInspection(false)
+    }
+  }
 
   // Update selected inspection when asset selection changes
   const handleAssetChange = (assetId: number) => {
@@ -144,13 +168,17 @@ export const Upload: React.FC = () => {
 
   // Submit batch upload
   const handleUploadSubmit = async () => {
-    if (!selectedInspectionId) {
-      setError('Please select an active inspection to upload images for.')
-      return
-    }
     if (files.length === 0) {
       setError('Please select or capture at least one image file.')
       return
+    }
+
+    let targetInspectionId = selectedInspectionId
+    if (!targetInspectionId || targetInspectionId === 0) {
+      // Auto-create inspection session on the fly
+      const createdId = await handleQuickCreateInspection()
+      if (!createdId) return
+      targetInspectionId = createdId
     }
 
     try {
@@ -161,7 +189,7 @@ export const Upload: React.FC = () => {
 
       const rawFiles = files.map((f) => f.file)
       const resp = await imagesApi.upload(
-        selectedInspectionId,
+        targetInspectionId,
         rawFiles,
         source,
         (pct) => setProgress(pct),
@@ -217,21 +245,26 @@ export const Upload: React.FC = () => {
             <div className="w-8 h-8 border-2 border-[#0A21C0] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
             Loading active inspection schedules...
           </div>
-        ) : inspections.length === 0 ? (
-          <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-10 text-center text-xs text-[#B3B4BD]">
-            <p className="font-bold text-white text-base mb-2">No Active Assigned Inspections</p>
-            <p className="text-[#B3B4BD] max-w-md mx-auto mb-6">
-              You do not currently have any active or in-progress inspections assigned to receive photo uploads.
-            </p>
-            <Link
-              to="/inspections"
-              className="px-5 py-2.5 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full shadow-lg shadow-[#0A21C0]/30 transition-all inline-block"
-            >
-              Go to Inspections Registry &rarr;
-            </Link>
-          </div>
         ) : (
           <div className="space-y-6">
+            {/* Quick Inspection info banner if none active */}
+            {inspections.length === 0 && (
+              <div className="p-4 bg-blue-950/40 border border-blue-500/30 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-blue-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">⚡</span>
+                  <span><strong>Quick Inspection Mode:</strong> No active schedule currently assigned. Uploading photos will automatically initialize a field inspection record for this asset and analyze images immediately.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleQuickCreateInspection()}
+                  disabled={creatingInspection}
+                  className="px-4 py-1.5 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full shadow shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  {creatingInspection ? 'Initializing...' : '+ Start Inspection'}
+                </button>
+              </div>
+            )}
+
             {/* Target Selection Form */}
             <div className="bg-[#2C2E3A] rounded-2xl border border-[#2C2E3A] p-6 shadow-xl">
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#0A21C0] mb-4">
@@ -259,9 +292,19 @@ export const Upload: React.FC = () => {
 
                 {/* Inspection Dropdown */}
                 <div>
-                  <label className="block font-medium text-[#B3B4BD] mb-1">
-                    Inspection Schedule
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-medium text-[#B3B4BD]">
+                      Inspection Schedule
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickCreateInspection()}
+                      disabled={creatingInspection}
+                      className="text-[10px] text-[#0A21C0] hover:underline font-semibold"
+                    >
+                      + New Session
+                    </button>
+                  </div>
                   <select
                     value={selectedInspectionId}
                     onChange={(e) =>
@@ -270,13 +313,16 @@ export const Upload: React.FC = () => {
                     className="w-full px-3 py-2 bg-[#141619] border border-[#2C2E3A] focus:border-[#0A21C0] rounded-xl text-xs text-white focus:outline-none"
                   >
                     {filteredInspections.length === 0 ? (
-                      <option value="0">No active inspection for asset</option>
+                      <option value="0">⚡ Auto-create inspection on upload</option>
                     ) : (
-                      filteredInspections.map((i) => (
-                        <option key={i.inspection_id} value={i.inspection_id}>
-                          #{i.inspection_id} - {new Date(i.inspection_date).toLocaleDateString()} ({i.status})
-                        </option>
-                      ))
+                      <>
+                        <option value="0">⚡ Auto-create new session on upload</option>
+                        {filteredInspections.map((i) => (
+                          <option key={i.inspection_id} value={i.inspection_id}>
+                            #{i.inspection_id} - {new Date(i.inspection_date).toLocaleDateString()} ({i.status})
+                          </option>
+                        ))}
+                      </>
                     )}
                   </select>
                 </div>
@@ -457,11 +503,13 @@ export const Upload: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleUploadSubmit}
-                      disabled={uploading || !selectedInspectionId}
+                      disabled={uploading || files.length === 0}
                       className="w-full py-3 bg-[#0A21C0] hover:bg-[#081ba0] text-white font-semibold rounded-full text-xs sm:text-sm shadow-lg shadow-[#0A21C0]/30 transition-all disabled:opacity-50 cursor-pointer"
                     >
                       {uploading
                         ? 'Validating Quality & Ingesting...'
+                        : selectedInspectionId === 0
+                        ? `⚡ Initialize Inspection & Ingest ${files.length} Photo${files.length > 1 ? 's' : ''}`
                         : `Upload & Ingest ${files.length} Photo${files.length > 1 ? 's' : ''}`}
                     </button>
                   </div>

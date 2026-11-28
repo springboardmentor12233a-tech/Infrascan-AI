@@ -178,12 +178,14 @@ export const authApi = {
     fullName: string,
     email: string,
     password: string,
+    role: string = 'inspector',
   ): Promise<User> => {
     const response = await apiClient.post<User>('/auth/register', {
       full_name: fullName,
       name: fullName,
       email,
       password,
+      role,
     })
     return response.data
   },
@@ -668,8 +670,21 @@ export const notificationsApi = {
 
 export const dashboardApi = {
   getStats: async (): Promise<DashboardStats> => {
-    const response = await apiClient.get<DashboardStats>('/dashboard/stats')
-    return response.data
+    const response = await apiClient.get<any>('/dashboard/stats')
+    const d = response.data || {}
+    const kpis = d.kpis || {}
+    return {
+      total_assets: kpis.total_assets ?? d.total_assets ?? 0,
+      total_inspections: kpis.total_inspections ?? d.total_inspections ?? 0,
+      completed_inspections: kpis.completed_inspections ?? d.completed_inspections ?? 0,
+      total_images: kpis.total_images ?? d.total_images ?? 0,
+      critical_findings: kpis.critical_findings_count ?? d.critical_findings ?? 0,
+      avg_health_score: kpis.health_index_pct ?? d.avg_health_score ?? 85.0,
+      severity_distribution: d.severity_breakdown || d.severity_distribution || {},
+      defect_distribution: d.defect_distribution || {},
+      recent_inspections: d.recent_inspections || [],
+      hotspot_locations: d.geographic_hotspots || d.hotspot_locations || [],
+    }
   },
 }
 
