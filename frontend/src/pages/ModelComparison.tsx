@@ -164,7 +164,7 @@ export const ModelComparison: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-brand-600" />
+              <Layers className="w-4 h-4 text-blue-600" />
               <span>Registered Vision Architectures & Model Versions</span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">Switch active models or test candidate backbones in production</p>
@@ -220,7 +220,7 @@ export const ModelComparison: React.FC = () => {
                           disabled={deployingId === m.id}
                           className="btn-secondary py-1 px-3 text-[11px] font-semibold flex items-center gap-1 ml-auto"
                         >
-                          <Play className="w-3 h-3 text-brand-600" />
+                          <Play className="w-3 h-3 text-blue-600" />
                           <span>{deployingId === m.id ? 'Deploying...' : 'Deploy'}</span>
                         </button>
                       )}
@@ -239,7 +239,7 @@ export const ModelComparison: React.FC = () => {
           {/* Confusion Matrix */}
           <div className="card p-6 space-y-4 border-slate-200/80">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Table className="w-4 h-4 text-brand-600" />
+              <Table className="w-4 h-4 text-blue-600" />
               <span>Defect Confusion Matrix (Test Benchmark)</span>
             </h3>
             <p className="text-xs text-slate-500">
@@ -281,7 +281,7 @@ export const ModelComparison: React.FC = () => {
             <div className="grid grid-cols-2 gap-3 text-xs pt-2">
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block">mAP@50 (Detection)</span>
-                <span className="text-lg font-bold text-brand-600">{evalMetrics.metrics.mAP_50}%</span>
+                <span className="text-lg font-bold text-blue-600">{evalMetrics.metrics.mAP_50}%</span>
               </div>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block">Dice Coefficient (Mask)</span>
@@ -293,7 +293,7 @@ export const ModelComparison: React.FC = () => {
           {/* Class-wise Performance */}
           <div className="card p-6 space-y-4 border-slate-200/80">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-brand-600" />
+              <Activity className="w-4 h-4 text-blue-600" />
               <span>Infrastructure Domain Generalization</span>
             </h3>
             <p className="text-xs text-slate-500">
@@ -305,10 +305,10 @@ export const ModelComparison: React.FC = () => {
                 <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-900">{c.category}</span>
-                    <span className="font-mono font-bold text-brand-600">{c.f1_score}% F1</span>
+                    <span className="font-mono font-bold text-blue-600">{c.f1_score}% F1</span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                    <div className="bg-brand-600 h-full rounded-full" style={{ width: `${c.f1_score}%` }} />
+                    <div className="bg-blue-600 h-full rounded-full" style={{ width: `${c.f1_score}%` }} />
                   </div>
                   <div className="flex justify-between text-[10px] text-slate-400 font-mono">
                     <span>Precision: {c.precision}%</span>

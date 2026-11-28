@@ -177,7 +177,7 @@ export const AssetList: React.FC = () => {
               {loading ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-16 text-center text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin text-brand-600 mx-auto mb-2" />
+                    <RefreshCw className="w-6 h-6 animate-spin text-blue-600 mx-auto mb-2" />
                     <span>Loading registered civil assets...</span>
                   </td>
                 </tr>
@@ -194,13 +194,13 @@ export const AssetList: React.FC = () => {
                   const typeColor = ASSET_TYPE_COLORS[asset.type] || 'bg-slate-100 text-slate-700 border-slate-200';
                   return (
                     <tr key={asset.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 font-mono font-bold text-brand-600">
+                      <td className="px-6 py-4 font-mono font-bold text-blue-600">
                         {asset.asset_code}
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900">
                         <Link
                           to={`/assets/${asset.id}`}
-                          className="hover:text-brand-600 transition-colors flex items-center gap-1.5"
+                          className="hover:text-blue-600 transition-colors flex items-center gap-1.5"
                         >
                           <span>{asset.name}</span>
                           <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
@@ -220,7 +220,7 @@ export const AssetList: React.FC = () => {
                       <td className="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
                         <Link
                           to={`/assets/${asset.id}`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>View</span>

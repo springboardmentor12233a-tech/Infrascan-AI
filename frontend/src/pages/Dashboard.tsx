@@ -93,21 +93,21 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* ── Welcome & Top Actions Header ─────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-card border border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
             <Sparkles className="w-3.5 h-3.5" />
             <span>InfraScan AI v3.0 • Civil Structural Assessment</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Welcome back, {user?.full_name} 👋
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            Welcome back, {user?.full_name}
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500">
             Real-time infrastructure health monitoring, crack localization, and autonomous risk scoring.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={handleRefresh}
             disabled={refreshing}
@@ -125,16 +125,16 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* ── Module 17: Role-Specific Dashboard Perspective Selector ─────── */}
-      <div className="bg-white p-2 rounded-2xl border border-slate-200/90 shadow-xs flex flex-wrap items-center gap-1.5">
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 hidden sm:inline">
-          View Console:
+      <div className="bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200 flex flex-wrap items-center gap-1">
+        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2.5 hidden sm:inline">
+          Console:
         </span>
         {[
           { id: 'all', label: 'Executive Overview', icon: Activity },
-          { id: 'inspector', label: 'Inspector Console', icon: HardHat },
-          { id: 'engineer', label: 'Civil Engineer Console', icon: ShieldCheck },
-          { id: 'manager', label: 'Asset Manager Console', icon: Building2 },
-          { id: 'admin', label: 'Admin Console', icon: Users },
+          { id: 'inspector', label: 'Field Inspector', icon: HardHat },
+          { id: 'engineer', label: 'Civil Engineer', icon: ShieldCheck },
+          { id: 'manager', label: 'Asset Manager', icon: Building2 },
+          { id: 'admin', label: 'Administrator', icon: Users },
         ].map((v) => {
           const Icon = v.icon;
           const isActive = activeView === v.id;
@@ -142,10 +142,10 @@ export const Dashboard: React.FC = () => {
             <button
               key={v.id}
               onClick={() => setActiveView(v.id as DashboardRoleView)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 ${
                 isActive
-                  ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -156,26 +156,26 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* ── 4 Primary KPI Stat Cards ─────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Assets */}
-        <div className="card relative overflow-hidden group">
+        <div className="card p-5 border-slate-200/80 flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 Total Assets
               </p>
-              <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 {loading ? '...' : analytics?.total_assets || assets.length}
               </p>
-              <p className="text-xs text-slate-500 font-medium">Bridges, Tunnels, Walls, Dams</p>
+              <p className="text-[11px] text-slate-500">Bridges, Tunnels, Walls, Dams</p>
             </div>
-            <div className="h-12 w-12 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center shrink-0 border border-blue-100 group-hover:scale-105 transition-transform">
-              <Building2 className="w-6 h-6" />
+            <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+              <Building2 className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Catalog Monitored</span>
-            <Link to="/assets" className="text-brand-600 font-semibold hover:underline flex items-center gap-1">
+            <span>Inventory catalog</span>
+            <Link to="/assets" className="text-blue-600 font-semibold hover:underline flex items-center gap-1">
               <span>View all</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
@@ -183,23 +183,23 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Card 2: Inspections */}
-        <div className="card relative overflow-hidden group">
+        <div className="card p-5 border-slate-200/80 flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 Inspections
               </p>
-              <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 {loading ? '...' : analytics?.total_inspections || 0}
               </p>
-              <p className="text-xs text-slate-500 font-medium">Recorded field evaluations</p>
+              <p className="text-[11px] text-slate-500">Field evaluations recorded</p>
             </div>
-            <div className="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100 group-hover:scale-105 transition-transform">
-              <ClipboardList className="w-6 h-6" />
+            <div className="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+              <ClipboardList className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Audit Trail Active</span>
+            <span>Audit trail active</span>
             <span className="font-semibold text-emerald-600 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" />
               <span>Compliant</span>
@@ -208,52 +208,52 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Card 3: Images & Crack Detection Rate */}
-        <div className="card relative overflow-hidden group">
+        <div className="card p-5 border-slate-200/80 flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                 Defect Rate
               </p>
               <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                   {loading ? '...' : `${analytics?.crack_rate_pct || 0}%`}
                 </p>
-                <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
                   {analytics?.cracked_images || 0} Defective
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-[11px] text-slate-500">
                 {analytics?.total_images || 0} total photos analyzed
               </p>
             </div>
-            <div className="h-12 w-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100 group-hover:scale-105 transition-transform">
-              <Camera className="w-6 h-6" />
+            <div className="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+              <Camera className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>AI Model Precision</span>
-            <span className="font-semibold text-brand-600">95.14% Precision</span>
+            <span>AI Precision</span>
+            <span className="font-semibold text-blue-600">95.14% Precision</span>
           </div>
         </div>
 
         {/* Card 4: AI Model Performance */}
-        <div className="card relative overflow-hidden group bg-gradient-to-br from-slate-900 to-indigo-950 text-white border-0 shadow-lg">
+        <div className="card p-5 border-slate-200/80 flex flex-col justify-between bg-slate-900 text-white">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
-                Active AI Version
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Production AI
               </p>
-              <p className="text-3xl font-extrabold text-white tracking-tight">
+              <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 94.6%
               </p>
-              <p className="text-xs text-indigo-200/90 font-medium">MobileNetV3 + TTA (ONNX)</p>
+              <p className="text-[11px] text-slate-300">MobileNetV3 + TTA (ONNX)</p>
             </div>
-            <div className="h-12 w-12 rounded-xl bg-white/10 backdrop-blur-md text-emerald-400 flex items-center justify-center shrink-0 border border-white/10">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="h-10 w-10 rounded-xl bg-slate-800 text-emerald-400 flex items-center justify-center shrink-0 border border-slate-700">
+              <ShieldCheck className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-indigo-200">
-            <span>Latency: ~48ms (CPU)</span>
+          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>Latency: ~48ms</span>
             <Link to="/model-comparison" className="text-emerald-400 font-semibold hover:underline flex items-center gap-1">
               <span>Benchmark</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -264,10 +264,10 @@ export const Dashboard: React.FC = () => {
 
       {/* ── Perspective 1: Inspector Specific Panel ───────────────────────── */}
       {activeView === 'inspector' && (
-        <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="card p-5 border-slate-200/80 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-indigo-600 text-white rounded-xl">
+              <div className="p-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl">
                 <HardHat className="w-5 h-5" />
               </div>
               <div>
@@ -275,25 +275,25 @@ export const Dashboard: React.FC = () => {
                 <p className="text-xs text-slate-500">Assigned inspections, field upload pipeline, and real-time image validation</p>
               </div>
             </div>
-            <Link to="/assets" className="btn-primary text-xs py-2 px-3">
+            <Link to="/assets" className="btn-primary text-xs py-2 px-3 self-start sm:self-auto">
               <span>+ Select Asset for Inspection</span>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="bg-white p-4 rounded-xl border border-indigo-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Pending Review</span>
-              <p className="text-2xl font-extrabold text-amber-600 mt-1">{analytics?.inspection_status?.pending || 0}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Review</span>
+              <p className="text-2xl font-extrabold text-amber-600 mt-0.5">{analytics?.inspection_status?.pending || 0}</p>
               <span className="text-xs text-slate-500">Awaiting engineer review</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-indigo-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">In Progress</span>
-              <p className="text-2xl font-extrabold text-blue-600 mt-1">{analytics?.inspection_status?.in_progress || 0}</p>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">In Progress</span>
+              <p className="text-2xl font-extrabold text-blue-600 mt-0.5">{analytics?.inspection_status?.in_progress || 0}</p>
               <span className="text-xs text-slate-500">Field imagery uploaded</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-indigo-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Completed</span>
-              <p className="text-2xl font-extrabold text-emerald-600 mt-1">{analytics?.inspection_status?.completed || 0}</p>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed</span>
+              <p className="text-2xl font-extrabold text-emerald-600 mt-0.5">{analytics?.inspection_status?.completed || 0}</p>
               <span className="text-xs text-slate-500">Signed off with PDF report</span>
             </div>
           </div>
@@ -302,10 +302,10 @@ export const Dashboard: React.FC = () => {
 
       {/* ── Perspective 2: Civil Engineer Panel ───────────────────────────── */}
       {activeView === 'engineer' && (
-        <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="card p-5 border-slate-200/80 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-amber-600 text-white rounded-xl">
+              <div className="p-2 bg-amber-50 text-amber-700 border border-amber-100 rounded-xl">
                 <ShieldAlert className="w-5 h-5" />
               </div>
               <div>
@@ -313,31 +313,31 @@ export const Dashboard: React.FC = () => {
                 <p className="text-xs text-slate-500">Damage quantification, crack morphology analysis, and official sign-off</p>
               </div>
             </div>
-            <Link to="/maintenance" className="btn-secondary text-xs py-2 px-3">
+            <Link to="/maintenance" className="btn-secondary text-xs py-2 px-3 self-start sm:self-auto">
               <span>View Prioritization Queue</span>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-            <div className="bg-white p-4 rounded-xl border border-amber-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Critical Risks</span>
-              <p className="text-2xl font-extrabold text-rose-600 mt-1">{analytics?.severity_distribution?.Critical || 0}</p>
-              <span className="text-xs text-slate-500">Requires urgent engineering review</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Critical Risks</span>
+              <p className="text-2xl font-extrabold text-rose-600 mt-0.5">{analytics?.severity_distribution?.Critical || 0}</p>
+              <span className="text-xs text-slate-500">Urgent review</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-amber-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">High Severity</span>
-              <p className="text-2xl font-extrabold text-orange-600 mt-1">{analytics?.severity_distribution?.High || 0}</p>
-              <span className="text-xs text-slate-500">Repair within 30 days</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">High Severity</span>
+              <p className="text-2xl font-extrabold text-orange-600 mt-0.5">{analytics?.severity_distribution?.High || 0}</p>
+              <span className="text-xs text-slate-500">Repair &lt;30 days</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-amber-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Medium Severity</span>
-              <p className="text-2xl font-extrabold text-amber-600 mt-1">{analytics?.severity_distribution?.Medium || 0}</p>
-              <span className="text-xs text-slate-500">Preventive coating needed</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Medium Severity</span>
+              <p className="text-2xl font-extrabold text-amber-600 mt-0.5">{analytics?.severity_distribution?.Medium || 0}</p>
+              <span className="text-xs text-slate-500">Preventive coating</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-amber-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Sound Concrete</span>
-              <p className="text-2xl font-extrabold text-emerald-600 mt-1">{analytics?.severity_distribution?.None || 0}</p>
-              <span className="text-xs text-slate-500">Quiescent surfaces</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sound Concrete</span>
+              <p className="text-2xl font-extrabold text-emerald-600 mt-0.5">{analytics?.severity_distribution?.None || 0}</p>
+              <span className="text-xs text-slate-500">Healthy surfaces</span>
             </div>
           </div>
         </div>
@@ -345,10 +345,10 @@ export const Dashboard: React.FC = () => {
 
       {/* ── Perspective 3: Administrator Panel ────────────────────────────── */}
       {activeView === 'admin' && (
-        <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="card p-5 border-slate-200/80 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-purple-600 text-white rounded-xl">
+              <div className="p-2 bg-purple-50 text-purple-700 border border-purple-100 rounded-xl">
                 <Users className="w-5 h-5" />
               </div>
               <div>
@@ -356,28 +356,28 @@ export const Dashboard: React.FC = () => {
                 <p className="text-xs text-slate-500">System health, RBAC security, active AI model registry & audit trails</p>
               </div>
             </div>
-            <Link to="/admin/users" className="btn-secondary text-xs py-2 px-3">
+            <Link to="/admin/users" className="btn-secondary text-xs py-2 px-3 self-start sm:self-auto">
               <span>Manage User Roles</span>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="bg-white p-4 rounded-xl border border-purple-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">System Health</span>
-              <p className="text-lg font-extrabold text-emerald-600 mt-1 flex items-center gap-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">System Health</span>
+              <p className="text-base font-bold text-emerald-600 mt-0.5 flex items-center gap-1.5">
                 <Check className="w-4 h-4" />
                 <span>100% Operational</span>
               </p>
               <span className="text-xs text-slate-500">FastAPI + ONNX Runtime CPU</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-purple-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Active Vision Backbone</span>
-              <p className="text-lg font-extrabold text-slate-900 mt-1">MobileNetV3-TTA</p>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Vision Backbone</span>
+              <p className="text-base font-bold text-slate-900 mt-0.5">MobileNetV3-TTA</p>
               <span className="text-xs text-slate-500">Version 3.0 Deployed</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-purple-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">Security Standard</span>
-              <p className="text-lg font-extrabold text-brand-600 mt-1">JWT + PBKDF2</p>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Security Standard</span>
+              <p className="text-base font-bold text-blue-600 mt-0.5">JWT + PBKDF2</p>
               <span className="text-xs text-slate-500">5-Tier Role-Based Access</span>
             </div>
           </div>
@@ -391,14 +391,14 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-brand-600" />
+                <Activity className="w-4 h-4 text-blue-600" />
                 <span>Structural Defect Severity Distribution</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Classification breakdown across all analyzed concrete inspection photographs
               </p>
             </div>
-            <Link to="/maintenance" className="text-xs font-semibold text-brand-600 hover:underline flex items-center gap-1">
+            <Link to="/maintenance" className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1">
               <span>Maintenance Queue</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -492,7 +492,7 @@ export const Dashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-brand-600" />
+              <MapPin className="w-4 h-4 text-blue-600" />
               <span>Geospatial Infrastructure Asset Overview</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -517,12 +517,12 @@ export const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <ClipboardList className="w-4 h-4 text-brand-600" />
+              <ClipboardList className="w-4 h-4 text-blue-600" />
               <span>Recent Site Inspections & Assessments</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">Latest civil asset physical evaluations logged in system</p>
           </div>
-          <Link to="/assets" className="text-xs font-semibold text-brand-600 hover:underline flex items-center gap-1">
+          <Link to="/assets" className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1">
             <span>View all inspections</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -551,7 +551,7 @@ export const Dashboard: React.FC = () => {
                       <td className="py-3.5 px-4 font-semibold text-slate-900">
                         <Link
                           to={`/inspections/${insp.id}`}
-                          className="hover:text-brand-600 transition-colors flex items-center gap-1.5"
+                          className="hover:text-blue-600 transition-colors flex items-center gap-1.5"
                         >
                           <span>{insp.asset_name}</span>
                           <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -569,7 +569,7 @@ export const Dashboard: React.FC = () => {
                       <td className="py-3.5 px-4 text-right">
                         <Link
                           to={`/inspections/${insp.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
                         >
                           <span>Open View</span>
                           <ArrowRight className="w-3 h-3" />

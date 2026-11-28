@@ -54,14 +54,14 @@ export const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-brand-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="max-w-md w-full bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 relative z-10 space-y-6">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-200 relative z-10 space-y-6">
         <div className="text-center space-y-2">
-          <div className="h-14 w-14 bg-gradient-to-tr from-brand-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-500/25 mx-auto mb-3">
-            <HardHat className="w-7 h-7" />
+          <div className="h-12 w-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-md mx-auto mb-3">
+            <HardHat className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">Create Inspector Account</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create Inspector Account</h1>
           <p className="text-xs text-slate-500 font-medium">Join the InfraScan Civil Asset Inspection Team</p>
         </div>
 
@@ -165,7 +165,7 @@ export const Register: React.FC = () => {
         <div className="pt-2 border-t border-slate-100 text-center">
           <p className="text-xs text-slate-500">
             Already have an account?{' '}
-            <Link to="/login" className="text-brand-600 font-semibold hover:underline">
+            <Link to="/login" className="text-blue-600 font-semibold hover:underline">
               Sign in to workspace
             </Link>
           </p>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { HardHat, Lock, Mail, AlertCircle, ArrowRight, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
+import { HardHat, Lock, Mail, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
 import { AuthResponse } from '../types';
 
 export const Login: React.FC = () => {
@@ -43,33 +43,32 @@ export const Login: React.FC = () => {
     handleLoginSubmit();
   };
 
-  const handleQuickDemo = (demoEmail: string) => {
+  const handleQuickDemo = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
-    setPassword('Password123!');
-    handleLoginSubmit(demoEmail, 'Password123!');
+    setPassword(demoPass);
+    handleLoginSubmit(demoEmail, demoPass);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-      {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-brand-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
+      {/* Background Subtle Gradient Blur */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Main Card */}
-      <div className="max-w-md w-full bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 relative z-10 space-y-6">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-200 relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="h-14 w-14 bg-gradient-to-tr from-brand-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-500/25 mx-auto mb-3">
-            <HardHat className="w-7 h-7" />
+          <div className="h-12 w-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-md mx-auto mb-3">
+            <HardHat className="w-6 h-6" />
           </div>
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900">InfraScan</h1>
-            <span className="text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded-full">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">InfraScan</h1>
+            <span className="text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">
               AI
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium">
-            AI-Assisted Structural Health & Concrete Crack Assessment
+            Civil Infrastructure Damage & Structural Crack Assessment
           </p>
         </div>
 
@@ -83,30 +82,44 @@ export const Login: React.FC = () => {
         {/* 1-Click Demo Login Shortcuts */}
         <div className="space-y-2 p-3 rounded-2xl bg-slate-50 border border-slate-100">
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-brand-600" />
-            <span>1-Click Demo Access</span>
+            <Sparkles className="w-3 h-3 text-blue-600" />
+            <span>1-Click Role Login</span>
           </p>
           <div className="grid grid-cols-3 gap-1.5 text-xs">
             <button
               type="button"
-              onClick={() => handleQuickDemo('admin@infrascan.com')}
-              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-600 font-semibold text-[11px] transition-all shadow-xs"
+              onClick={() => handleQuickDemo('admin@infrascan.ai', 'Admin123!')}
+              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-600 font-semibold text-[11px] transition-all shadow-xs"
             >
               Admin
             </button>
             <button
               type="button"
-              onClick={() => handleQuickDemo('manager@infrascan.com')}
-              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-600 font-semibold text-[11px] transition-all shadow-xs"
+              onClick={() => handleQuickDemo('engineer@infrascan.ai', 'Engineer123!')}
+              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-600 font-semibold text-[11px] transition-all shadow-xs"
             >
-              Manager
+              Engineer
             </button>
             <button
               type="button"
-              onClick={() => handleQuickDemo('inspector@infrascan.com')}
-              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-600 font-semibold text-[11px] transition-all shadow-xs"
+              onClick={() => handleQuickDemo('inspector@infrascan.ai', 'Inspector123!')}
+              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-600 font-semibold text-[11px] transition-all shadow-xs"
             >
               Inspector
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickDemo('maintenance@infrascan.ai', 'Maintenance123!')}
+              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-600 font-semibold text-[11px] transition-all shadow-xs"
+            >
+              Maintenance
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickDemo('manager@infrascan.ai', 'Manager123!')}
+              className="py-1.5 px-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-600 font-semibold text-[11px] transition-all shadow-xs col-span-2"
+            >
+              Infrastructure Manager
             </button>
           </div>
         </div>
@@ -124,7 +137,7 @@ export const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="inspector@infrascan.com"
+                placeholder="inspector@infrascan.ai"
                 className="input-field pl-10"
               />
             </div>
@@ -150,7 +163,7 @@ export const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-2.5 font-bold text-sm shadow-md flex items-center justify-center gap-2 mt-2"
+            className="w-full btn-primary py-2.5 font-bold text-sm shadow-xs flex items-center justify-center gap-2 mt-2"
           >
             <span>{loading ? 'Authenticating...' : 'Sign In to Workspace'}</span>
             {!loading && <ArrowRight className="w-4 h-4" />}
@@ -160,7 +173,7 @@ export const Login: React.FC = () => {
         <div className="pt-2 border-t border-slate-100 text-center">
           <p className="text-xs text-slate-500">
             Need an account?{' '}
-            <Link to="/register" className="text-brand-600 font-semibold hover:underline">
+            <Link to="/register" className="text-blue-600 font-semibold hover:underline">
               Create an inspection account
             </Link>
           </p>
