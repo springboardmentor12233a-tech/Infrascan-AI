@@ -35,3 +35,6 @@ backend/storage/*
 dataset_audit/processed_dataset/
 backend/data/
 backend/runs/
+
+.vite/
+$null
