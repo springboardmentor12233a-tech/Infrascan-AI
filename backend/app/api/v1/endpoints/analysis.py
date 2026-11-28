@@ -1,8 +1,12 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from pathlib import Path
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_roles
+from app.ml.engine import ml_engine
 from app.models.models import AnalysisJob, DamageFinding, EngineerReview, ImageRecord, Inspection, User
 from app.schemas.schemas import AnalysisCreate, AnalysisOut, ReviewCreate
 
@@ -78,4 +82,88 @@ def create_finding_review(
     db.commit()
     db.refresh(review)
     return {"id": review.id, "finding_id": finding.id, "review_decision": review.review_decision}
+
+
+@router.get("/analysis/model-status")
+def get_model_status(_: User = Depends(get_current_user)):
+    return {
+        "model_name": "YOLOv8-RDD2022",
+        "weights_path": str(ml_engine.weights_path),
+        "weights_available": ml_engine.weights_available,
+        "status": "trained_and_available" if ml_engine.weights_available else "weights_unavailable",
+    }
+
+
+@router.post("/analysis/infer/{image_id}")
+def run_image_inference(
+    image_id: str,
+    px_per_mm: float | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("Admin", "Engineer", "Inspector")),
+):
+    image = db.query(ImageRecord).filter(ImageRecord.id == image_id).first()
+    if not image:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found")
+
+    annotated_path = Path(settings.STORAGE_DIR) / "annotated" / f"{image.id}_annotated.jpg"
+    result = ml_engine.run_inference(
+        image_path=image.storage_path,
+        annotated_output_path=str(annotated_path),
+        px_per_mm=px_per_mm,
+    )
+
+    image.image_quality_status = result["quality"]["quality_status"]
+    db.commit()
+
+    return {
+        "image_id": image.id,
+        "filename": image.original_filename,
+        "annotated_url": f"/api/v1/analysis/annotated/{image.id}" if result["annotated_image_path"] else None,
+        **result,
+    }
+
+
+@router.get("/analysis/annotated/{image_id}")
+def get_annotated_image(image_id: str, _: User = Depends(get_current_user)):
+    annotated_path = Path(settings.STORAGE_DIR) / "annotated" / f"{image_id}_annotated.jpg"
+    if not annotated_path.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Annotated image not found")
+    return FileResponse(annotated_path)
+
+
+@router.post("/analysis/infer-upload")
+async def infer_uploaded_image(
+    file: UploadFile = File(...),
+    px_per_mm: float | None = None,
+):
+    """
+    Direct image-to-prediction endpoint for uploaded inspection images.
+    Runs real OpenCV quality assessment and YOLOv8 inference if weights exist;
+    explicitly returns weights_unavailable if trained weights are missing.
+    """
+    temp_dir = Path(settings.STORAGE_DIR) / "temp"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    temp_id = uuid.uuid4().hex[:12]
+    ext = Path(file.filename or "upload.jpg").suffix or ".jpg"
+    temp_path = temp_dir / f"{temp_id}{ext}"
+    annotated_path = Path(settings.STORAGE_DIR) / "annotated" / f"{temp_id}_annotated.jpg"
+
+    content = await file.read()
+    temp_path.write_bytes(content)
+
+    try:
+        result = ml_engine.run_inference(
+            image_path=str(temp_path),
+            annotated_output_path=str(annotated_path),
+            px_per_mm=px_per_mm,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+    return {
+        "image_id": temp_id,
+        "filename": file.filename,
+        "annotated_url": f"/api/v1/analysis/annotated/{temp_id}" if result["annotated_image_path"] else None,
+        **result,
+    }
 

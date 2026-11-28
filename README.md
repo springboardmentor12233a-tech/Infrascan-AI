@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# InfraScan — AI-Powered Crack & Damage Assessment for Civil Infrastructure
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Modular full-stack platform for civil infrastructure inspection, crack detection, damage assessment, geospatial mapping, and reporting.
 
-Currently, two official plugins are available:
+## Repository Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```text
+InfraScan/
+├── backend/         # FastAPI REST API, SQLAlchemy ORM, JWT auth, ML inference engine
+├── frontend/        # React + TypeScript + Vite + Tailwind CSS application
+├── eda/             # Exploratory data analysis scripts and dataset audit reports
+├── ml/              # Dataset preprocessing, annotation cleaning, YOLO training & configs
+├── docs/            # Architecture, API, dataset, model docs & Milestone 1-4 reports
+├── scripts/         # Convenience startup scripts
+└── dataset_audit/   # Original & processed RDD2022 dataset workspace (preserved)
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Quick Start
+
+### Backend
+```powershell
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+
+### Frontend
+```powershell
+cd frontend
+npm run dev
+```
+
+Or use the scripts in `scripts/`:
+- `.\scripts\start-backend.ps1`
+- `.\scripts\start-frontend.ps1`

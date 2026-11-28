@@ -32,3 +32,6 @@ __pycache__/
 venv/
 backend/storage/*
 !backend/storage/.gitkeep
+dataset_audit/processed_dataset/
+backend/data/
+backend/runs/

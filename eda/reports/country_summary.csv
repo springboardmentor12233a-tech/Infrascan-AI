@@ -1,0 +1,8 @@
+﻿country,total_xml,annotated_xml,empty_xml,bounding_boxes,missing_images,invalid_annotations
+China_Drone,2401,2396,5,3840,0,0
+China_MotorBike,1977,1977,0,4927,0,0
+United_States,4805,4805,0,11014,0,0
+Czech,2829,1072,1757,1745,0,0
+Japan,10506,9712,794,24753,0,1
+Norway,8161,2914,5247,11229,0,0
+India,7706,3785,3921,8203,0,0

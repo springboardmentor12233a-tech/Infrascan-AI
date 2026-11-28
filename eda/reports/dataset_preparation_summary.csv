@@ -1,0 +1,8 @@
+﻿country,prepared_images,prepared_annotations,valid_objects,candidate_negative_images,missing_images,invalid_xml_files
+China_Drone,2401,2401,3840,5,0,0
+China_MotorBike,1977,1977,4927,0,0,0
+United_States,4805,4805,11014,0,0,0
+Czech,2829,2829,1745,1757,0,0
+Japan,10506,10506,24753,794,0,0
+Norway,8161,8161,11229,5247,0,0
+India,7706,7706,8203,3921,0,0
